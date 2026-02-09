@@ -6,7 +6,7 @@ on:
       STOCK_DEVICE:
         description: "STOCK_DEVICE_MODEL."
         required: true
-        default: "SM-A225F"
+        default: "SM-E225F"
       TARGET_DEVICE:
         description: "TARGET_DEVICE_MODEL."
         required: true

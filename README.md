@@ -1,4 +1,4 @@
-![QuantumROM Logo](QuantumROM/logo/QuantumROM.jpg)
+![QuantumROM Logo](QuantumROM/logo/QuantumROM.png)
 
 **Info:**
 Custom ROM builder based on many projects such as UNICA, Legacy-UI, and AstroRom.

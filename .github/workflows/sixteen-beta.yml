@@ -1,191 +1,107 @@
-name: QuantumROM Tools Beta
+name: QuantumROM Tools Beta.
 
 on:
   workflow_dispatch:
     inputs:
       STOCK_DEVICE:
-        description: "STOCK_DEVICE_MODEL"
+        description: "STOCK_DEVICE_MODEL or None"
         required: true
         default: "SM-A225F"
       TARGET_DEVICE:
-        description: "TARGET_DEVICE_MODEL"
+        description: "TARGET_DEVICE_MODEL."
         required: true
         default: "SM-A346E"
       TARGET_DEVICE_CSC:
-        description: "TARGET_DEVICE_CSC"
+        description: "TARGET_DEVICE_CSC."
         required: true
         default: "BKD"
       TARGET_DEVICE_IMEI:
-        description: "TARGET_DEVICE_IMEI"
+        description: "TARGET_DEVICE_IMEI."
         required: true
         default: "353435774197736"
       OUTPUT_FILESYSTEM:
-        description: "OUTPUT_FILESYSTEM (erofs / ext4)"
+        description: "OUTPUT_FILESYSTEM. e.g erofs / ext4"
         required: true
         default: "erofs"
+      COMPRESS_IMG_TO_XZ:
+        description: "Compress IMG to XZ (True/False)"
+        required: true
+        default: "True"
 
 jobs:
   build:
+    name: Build QuantumROM
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-  
-    - name: Cleaning junk files
-      uses: rokibhasansagar/slimhub_actions@v25.42.5
+      - name: Checkout repository.
+        uses: actions/checkout@v4
 
-    - name: Install required packages
-      run: |
-        sudo apt update
-        sudo apt install -y \
-          p7zip-full lz4 android-sdk-libsparse-utils \
-          python3 python3-pip zipalign unzip e2fsprogs   >/dev/null 2>&1
-        pip3 install liblp tgcrypto pyrogram   >/dev/null 2>&1
-        pip3 install git+https://github.com/martinetd/samloader.git   >/dev/null 2>&1
+      - name: Cleaning junk files
+        uses: rokibhasansagar/slimhub_actions@v25.42.5
 
-        chmod +x bin/ext4/make_ext4fs
-        chmod +x bin/erofs-utils/extract.erofs
-        chmod +x bin/erofs-utils/mkfs.erofs
+      - name: Install Dependencies.
+        run: |
+          sudo apt install -y p7zip-full lz4 android-sdk-libsparse-utils python3 python3-pip zipalign unzip e2fsprogs openjdk-17-jdk >/dev/null 2>&1
+          pip3 install liblp tgcrypto pyrogram >/dev/null 2>&1
+          pip3 install git+https://github.com/martinetd/samloader.git >/dev/null 2>&1
+          chmod +x bin/ext4/make_ext4fs
+          chmod +x bin/erofs-utils/extract.erofs
+          chmod +x bin/erofs-utils/mkfs.erofs
+          bash scripts/setup_directories.sh FIRMWARE WORK OUT
 
-    - name: Setup directories
-      run: |
-        chmod +x scripts/setup_directories.sh
-        bash scripts/setup_directories.sh FIRMWARE WORK OUT
-    
-    - name: Set build environment
-      shell: bash
-      run: |
-        echo "STOCK_DEVICE=${{ github.event.inputs.STOCK_DEVICE }}" >> $GITHUB_ENV
-        echo "TARGET_DEVICE=${{ github.event.inputs.TARGET_DEVICE }}" >> $GITHUB_ENV
-        echo "TARGET_DEVICE_CSC=${{ github.event.inputs.TARGET_DEVICE_CSC }}" >> $GITHUB_ENV
-        echo "TARGET_DEVICE_IMEI=${{ github.event.inputs.TARGET_DEVICE_IMEI }}" >> $GITHUB_ENV
-        echo "OUTPUT_FILESYSTEM=${{ github.event.inputs.OUTPUT_FILESYSTEM }}" >> $GITHUB_ENV
+      - name: Download firmware.
+        run: |
+          source scripts/QuantumRom.sh
+          DOWNLOAD_FIRMWARE "${{ github.event.inputs.TARGET_DEVICE }}" "${{ github.event.inputs.TARGET_DEVICE_CSC }}" "${{ github.event.inputs.TARGET_DEVICE_IMEI }}" "FIRMWARE"
 
-        echo "OUT_DIR=$PWD/OUT" >> $GITHUB_ENV
-        echo "WORK_DIR=$PWD/WORK" >> $GITHUB_ENV
-        echo "FIRM_DIR=$PWD/FIRMWARE" >> $GITHUB_ENV
-        echo "DEVICES_DIR=$PWD/QuantumROM/Devices" >> $GITHUB_ENV
-        echo "APKTOOL=$PWD/bin/apktool/apktool.jar" >> $GITHUB_ENV
-        echo "VNDKS_COLLECTION=$PWD/QuantumROM/vndks" >> $GITHUB_ENV
-        echo "SMART_MANAGER_CN=$PWD/QuantumROM/Mods/SMART_MANAGER_CN" >> $GITHUB_ENV
-        echo "BUILD_PARTITIONS=product,system_ext,system" >> $GITHUB_ENV
+      - name: Build Rom.
+        run: |
+          bash sixteen.sh \
+            "${{ github.event.inputs.STOCK_DEVICE }}" \
+            "${{ github.event.inputs.TARGET_DEVICE }}" \
+            "${{ github.event.inputs.TARGET_DEVICE_CSC }}" \
+            "${{ github.event.inputs.TARGET_DEVICE_IMEI }}" \
+            "${{ github.event.inputs.OUTPUT_FILESYSTEM }}"
 
-    - name: Download firmware
-      shell: bash
-      run: |
-        source scripts/QuantumRom.sh
-        source "$DEVICES_DIR/$STOCK_DEVICE/config"
-        DOWNLOAD_FIRMWARE "$TARGET_DEVICE" "$TARGET_DEVICE_CSC" "$TARGET_DEVICE_IMEI" "$FIRM_DIR"
-
-    - name: Extract firmware
-      shell: bash
-      run: |
-        source scripts/QuantumRom.sh
-        EXTRACT_FIRMWARE "$FIRM_DIR/$TARGET_DEVICE"
-        PREPARE_PARTITIONS "$FIRM_DIR/$TARGET_DEVICE"
-
-    - name: Extract firmware images
-      shell: bash
-      run: |
-        source scripts/QuantumRom.sh
-        EXTRACT_FIRMWARE_IMG "$FIRM_DIR/$TARGET_DEVICE"
-
-    - name: Apply stock config
-      shell: bash
-      run: |
-        source scripts/QuantumRom.sh
-        APPLY_STOCK_CONFIG "$FIRM_DIR/$TARGET_DEVICE"
-
-    - name: Debloat ROM
-      shell: bash
-      run: |
-        source scripts/QuantumRom.sh
-        DEBLOAT "$FIRM_DIR/$TARGET_DEVICE"
-
-    - name: Apply features
-      shell: bash
-      run: |
-        source scripts/QuantumRom.sh
-        APPLY_FEATURES "$FIRM_DIR/$TARGET_DEVICE"
-
-    - name: Install framework-res
-      shell: bash
-      run: |
-        source scripts/QuantumRom.sh
-        INSTALL_FRAMEWORK \
-          "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/framework-res.apk"
-
-    - name: Decompile framework jars
-      shell: bash
-      run: |
-        source scripts/QuantumRom.sh
-        DECOMPILE "$APKTOOL" \
-          "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/ssrm.jar" "$WORK_DIR"
-        DECOMPILE "$APKTOOL" \
-          "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/services.jar" "$WORK_DIR"
-
-    - name: Patch framework
-      shell: bash
-      run: |
-        source scripts/QuantumRom.sh
-        PATCH_SSRM "$WORK_DIR/ssrm"
-        PATCH_KNOX_GUARD "$WORK_DIR/services"
-        PATCH_FLAG_SECURE "$WORK_DIR/services"
-        PATCH_SECURE_FOLDER "$WORK_DIR/services"
-
-    - name: Recompile framework
-      shell: bash
-      run: |
-        source scripts/QuantumRom.sh
-        RECOMPILE "$APKTOOL" "$WORK_DIR/ssrm" \
-          "$FIRM_DIR/$TARGET_DEVICE/system/system/framework" "$WORK_DIR"
-        RECOMPILE "$APKTOOL" "$WORK_DIR/services" \
-          "$FIRM_DIR/$TARGET_DEVICE/system/system/framework" "$WORK_DIR"
-        cp -fv "$WORK_DIR"/*.jar \
-          "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/"
-
-    - name: Patch Bluetooth library
-      shell: bash
-      run: |
-        source scripts/QuantumRom.sh
-        PATCH_BT_LIB "$FIRM_DIR/$TARGET_DEVICE" "$WORK_DIR"
-
-    - name: Build images
-      shell: bash
-      run: |
-        source scripts/QuantumRom.sh
-        BUILD_IMG "$FIRM_DIR/$TARGET_DEVICE" "$OUTPUT_FILESYSTEM" "$OUT_DIR"
-
-    - name: Split large output files
-      run: |
-        GIT_SUPPORT_SIZE=2147483647
-        echo "BUILD_TIME=$(date '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_ENV
-
-        for file in OUT/*; do
-          [ -f "$file" ] || continue
-          SIZE=$(stat -c%s "$file")
-          if [ "$SIZE" -gt "$GIT_SUPPORT_SIZE" ]; then
-            split -b "$GIT_SUPPORT_SIZE" -d -a 3 "$file" "$file.part"
-            rm -f "$file"
+      - name: Compress & Split files before upload.
+        run: |
+          GIT_SUPPORT_SIZE=2147483647
+          OUT_DIR="OUT"
+          echo "BUILD_TIME=$(TZ='Asia/Dhaka' date '+%Y-%m-%d %I:%M:%S %p UTC+6')" >> $GITHUB_ENV
+          if [ "${{ github.event.inputs.COMPRESS_IMG_TO_XZ }}" = "True" ]; then
+            echo "Compressing all .img files to .xz (level 9)..."
+            for img in "$OUT_DIR"/*.img; do
+              [ -f "$img" ] || continue
+              echo "Compressing $img"
+              xz -9 -T0 "$img"
+            done
           fi
-        done
 
-    - name: Upload to GitHub Release
-      uses: softprops/action-gh-release@v2
-      with:
-        tag_name: "build-${{ github.run_id }}"
-        name: "QuantumROM Build: ${{ github.run_id }}"
-        body: |
-          ***Build Information***
-          - ➡️ Build For: ${{ github.event.inputs.STOCK_DEVICE }}
-          - ➡️ Build From: ${{ github.event.inputs.TARGET_DEVICE }}
-          - ⏰️ Build Time: ${{ env.BUILD_TIME }}
-        files: |
-          OUT/*
-      env:
-        GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+          for file in "$OUT_DIR"/*; do
+            [ -f "$file" ] || continue
+            FILE_SIZE=$(stat -c%s "$file")
+            if [ "$FILE_SIZE" -gt "$GIT_SUPPORT_SIZE" ]; then
+              echo "Splitting: $file (Size: $FILE_SIZE bytes)"
+              split -b "$GIT_SUPPORT_SIZE" -d -a 3 "$file" "$file.part"
+              rm -f "$file"
+            fi
+          done
 
-    - name: Cleanup
-      run: |
-        rm -rf *
+      - name: Uploading all files to GitHub Release.
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "build-${{ github.run_id }}"
+          name: "${{ github.event.inputs.TARGET_DEVICE }} On ${{ github.event.inputs.STOCK_DEVICE }} QuantumROM Build: ${{ github.run_id }}"
+          body: |
+            ***Build Information***
+            - ➡️ Build For: ${{ github.event.inputs.STOCK_DEVICE }}
+            - ➡️ Build From: ${{ github.event.inputs.TARGET_DEVICE }}
+            - ⏰️ Build Time: ${{ env.BUILD_TIME }}
+          files: |
+            OUT/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
+
+      - name: Clean everything.
+        run: rm -rf *

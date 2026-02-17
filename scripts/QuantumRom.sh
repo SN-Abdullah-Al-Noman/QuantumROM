@@ -1153,10 +1153,15 @@ APPLY_CUSTOM_FEATURES() {
 	cp -rfa "$(pwd)/QuantumROM/Mods/SMART_MANAGER_CN/." "$EXTRACTED_FIRM_DIR/"
 	UPDATE_FLOATING_FEATURE "SEC_FLOATING_FEATURE_SMARTMANAGER_CONFIG_PACKAGE_NAME" "com.samsung.android.sm_cn"
 
-	echo " Adding full oneui and important apps."
-	rm -rf "$EXTRACTED_FIRM_DIR/system/system/app/ClockPackage"
-	rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app"/PhotoEditor_*
-	cp -rfa "$(pwd)/QuantumROM/Mods/Apps/." "$EXTRACTED_FIRM_DIR/"
+	echo "Adding full OneUI and important apps."
+    if [ -d "$EXTRACTED_FIRM_DIR/system/system/app/ClockPackage" ]; then
+        cp -rfa "$(pwd)/QuantumROM/Mods/Apps/system/system/app/ClockPackage" "$EXTRACTED_FIRM_DIR/system/system/app/"
+    fi
+
+	if [ ! -d "$EXTRACTED_FIRM_DIR/system/system/priv-app/PhotoEditor_AIFull" ]; then
+	    rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app"/PhotoEditor_*
+        cp -rfa "$(pwd)/QuantumROM/Mods/Apps/system/system/priv-app/PhotoEditor_AIFull" "$EXTRACTED_FIRM_DIR/system/system/priv-app/"
+    fi
 
     # STOCK CUSTOM FLOATING FEATURES
 	APPLY_CUSTOM_FLOATING_FEATURE

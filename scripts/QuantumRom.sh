@@ -209,6 +209,7 @@ EXTRACT_FIRMWARE_IMG() {
     fi
 
 	local FIRM_DIR="$1"
+	PREPARE_PARTITIONS "$FIRM_DIR"
 
 	echo "Extracting imges from $FIRM_DIR"
     for imgfile in "$FIRM_DIR"/*.img; do
@@ -248,7 +249,6 @@ EXTRACT_FIRMWARE_IMG() {
         esac
     done
 
-    # Remove all original .img
     rm -rf "$FIRM_DIR"/*.img
 
     # sudo chown -R "$REAL_USER:$REAL_USER" "$FIRM_DIR/config"
@@ -704,7 +704,7 @@ FIX_VNDK() {
     else
         echo "- VNDK mismatch or missing."
         rm -f "$TARGET_ROM_SYSTEM_EXT_DIR/apex/com.android.vndk"*.apex
-        cp -rfa "$VNDKS_COLLECTION/oneui_8.0/com.android.vndk.v${STOCK_VNDK_VERSION}.apex" "$TARGET_ROM_SYSTEM_EXT_DIR/apex/"
+        cp -rfa "$VNDKS_COLLECTION/com.android.vndk.v${STOCK_VNDK_VERSION}.apex" "$TARGET_ROM_SYSTEM_EXT_DIR/apex/"
         sed -i "/<vendor-ndk>/,/<\/vendor-ndk>/ s|<version>[0-9]\+</version>|<version>${STOCK_VNDK_VERSION}</version>|" "$TARGET_ROM_SYSTEM_EXT_DIR/etc/vintf/manifest.xml"
     fi
 }

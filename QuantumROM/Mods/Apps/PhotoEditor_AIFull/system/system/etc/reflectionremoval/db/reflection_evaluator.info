@@ -1,0 +1,10 @@
+{
+  "version": "4.3",
+  "framework": "tflite",
+  "precision": "float16",
+  "runtime": "cpu",
+  "org_model_name": "evaluator.tflite",
+  "model_path": [
+    "/system/etc/reflectionremoval/db/reflection_evalutator.tflite"
+  ]
+}

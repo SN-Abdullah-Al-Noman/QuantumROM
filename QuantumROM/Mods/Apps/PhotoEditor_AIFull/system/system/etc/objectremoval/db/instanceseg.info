@@ -1,0 +1,12 @@
+{
+  "version": "6.1",
+  "framework": "tflite",
+  "precision": "float16",
+  "runtime": "cpu",
+  "backbone": "yolact_fcos",
+  "org_model_name": "instanceseg_20250728_new.tflite",
+  "model_name": "12-28_PhotoEditor_ObjectEraser_v6.1_InstanceSeg",
+  "model_path": [
+    "/system/etc/objectremoval/db/instanceseg.tflite"
+  ]
+}

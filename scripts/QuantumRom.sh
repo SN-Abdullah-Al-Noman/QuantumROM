@@ -176,6 +176,8 @@ PREPARE_PARTITIONS() {
     done
 
     echo "Preparing partitinos."
+	
+    find "$EXTRACTED_FIRM_DIR" -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
 
     shopt -s nullglob dotglob
 
@@ -190,10 +192,7 @@ PREPARE_PARTITIONS() {
         done
 
         if [[ $keep_this -eq 0 ]]; then
-            # echo "- Deleting: $item"
             rm -rf -- "$item"
-        else
-            echo "- Keeping: $item"
         fi
     done
 
@@ -209,8 +208,8 @@ EXTRACT_FIRMWARE_IMG() {
     fi
 
 	local FIRM_DIR="$1"
-	PREPARE_PARTITIONS "$FIRM_DIR"
 
+    PREPARE_PARTITIONS "$FIRM_DIR"
 	echo "Extracting imges from $FIRM_DIR"
     for imgfile in "$FIRM_DIR"/*.img; do
         [ -e "$imgfile" ] || continue
@@ -625,8 +624,8 @@ PATCH_BT_LIB() {
 
     echo "Patching Bluetooth library."
     # Get libbluetooth_jni.so
-    unzip "$EXTRACTED_FIRM_DIR/system/system/apex/com.android.bt.apex" "apex_payload.img" -d "$WORK_DIR"
-	debugfs -R "dump /lib64/libbluetooth_jni.so $WORK_DIR/libbluetooth_jni.so" "$WORK_DIR/apex_payload.img"  >/dev/null 2>&1
+    unzip "$EXTRACTED_FIRM_DIR/system/system/apex/com.android.bt.apex" "apex_payload.img" -d "$WORK_DIR" >/dev/null 2>&1
+	debugfs -R "dump /lib64/libbluetooth_jni.so $WORK_DIR/libbluetooth_jni.so" "$WORK_DIR/apex_payload.img" >/dev/null 2>&1
 	rm -rf "$WORK_DIR/apex_payload.img"
 
     # local associative array (function-scoped)
@@ -682,7 +681,7 @@ PATCH_BT_LIB() {
             echo "- Found Bluetooth patch pattern [$idx]"
             HEX_PATCH "$BT_LIB_FILE" "$from" "$to" || return 1
             PATCHED=1
-			cp -rfa "$WORK_DIR/libbluetooth_jni.so" "$EXTRACTED_FIRM_DIR/system/system/lib64/"
+			mv -f "$WORK_DIR/libbluetooth_jni.so" "$EXTRACTED_FIRM_DIR/system/system/lib64/"
             break
         fi
     done
@@ -699,13 +698,14 @@ PATCH_BT_LIB() {
 
 FIX_VNDK() {
     echo "- Checking $STOCK_DEVICE and $TARGET_DEVICE vndk version."
+	export SDK=$(grep -m1 '^ro.build.version.sdk_full=' "$EXTRACTED_FIRM_DIR/system/system/build.prop" | cut -d'=' -f2)
+	echo "- Target rom SDK version: $SDK"
     if [ -f "$TARGET_ROM_SYSTEM_EXT_DIR/apex/com.android.vndk.v${STOCK_VNDK_VERSION}.apex" ]; then
         echo "- VNDK matched."
     else
-        echo "- VNDK mismatch or missing."
-        rm -f "$TARGET_ROM_SYSTEM_EXT_DIR/apex/com.android.vndk"*.apex
-        cp -rfa "$VNDKS_COLLECTION/com.android.vndk.v${STOCK_VNDK_VERSION}.apex" "$TARGET_ROM_SYSTEM_EXT_DIR/apex/"
-        sed -i "/<vendor-ndk>/,/<\/vendor-ndk>/ s|<version>[0-9]\+</version>|<version>${STOCK_VNDK_VERSION}</version>|" "$TARGET_ROM_SYSTEM_EXT_DIR/etc/vintf/manifest.xml"
+        echo "- VNDK mismatch. Adding SDK $SDK com.android.vndk.v${STOCK_VNDK_VERSION}.apex"
+        rm -rf "$TARGET_ROM_SYSTEM_EXT_DIR/apex/"*.apex
+        cp -rfa "$VNDKS_COLLECTION/$SDK/$STOCK_VNDK_VERSION/system_ext/"* "$TARGET_ROM_SYSTEM_EXT_DIR/"
     fi
 }
 
@@ -796,9 +796,9 @@ FIX_SELINUX() {
         fi
     done
 
-	REMOVE_LINE '(genfscon proc "/sys/kernel/firmware_config" (u object_r proc_fmw ((s0) (s0))))' "$TARGET_ROM_SYSTEM_EXT_DIR/etc/selinux/system_ext_sepolicy.cil"
-	REMOVE_LINE '(genfscon proc "/sys/vm/compaction_proactiveness" (u object_r proc_compaction_proactiveness ((s0) (s0))))' "$TARGET_ROM_SYSTEM_EXT_DIR/etc/selinux/system_ext_sepolicy.cil"
-    REMOVE_LINE 'init.svc.vendor.wvkprov_server_hal                           u:object_r:wvkprov_prop:s0' "$TARGET_ROM_SYSTEM_EXT_DIR/etc/selinux/system_ext_property_contexts"
+	REMOVE_LINE '(genfscon proc "/sys/kernel/firmware_config" (u object_r proc_fmw ((s0) (s0))))' "$TARGET_ROM_SYSTEM_EXT_DIR/etc/selinux/system_ext_sepolicy.cil" >/dev/null 2>&1
+	REMOVE_LINE '(genfscon proc "/sys/vm/compaction_proactiveness" (u object_r proc_compaction_proactiveness ((s0) (s0))))' "$TARGET_ROM_SYSTEM_EXT_DIR/etc/selinux/system_ext_sepolicy.cil" >/dev/null 2>&1
+    REMOVE_LINE 'init.svc.vendor.wvkprov_server_hal                           u:object_r:wvkprov_prop:s0' "$TARGET_ROM_SYSTEM_EXT_DIR/etc/selinux/system_ext_property_contexts" >/dev/null 2>&1
 }
 
 
@@ -806,7 +806,7 @@ UPDATE_FLOATING_FEATURE() {
     local key="$1"
     local value="$2"
     if [[ -z "$value" ]]; then
-        echo "⛔️️ Skipping $key — no value found."
+        echo "- Skipping $key — no value found."
         return
     fi
 
@@ -824,18 +824,18 @@ UPDATE_FLOATING_FEATURE() {
         indent=$(echo "$current_line" | sed -E "s/(<${key}>.*<\/${key}>).*//")
         local line="${indent}<${key}>${value}</${key}>"
         sed -i "s|${indent}<${key}>.*</${key}>|$line|" "$TARGET_FLOATING_FEATURE"
-        echo "✳️ Updated $key with ▶️ $value"
+        # echo "- Updated $key with ▶️ $value"
     else
         local line="    <$key>$value</$key>"
         sed -i "3i\\$line" "$TARGET_FLOATING_FEATURE"
-        echo "✅️ Added $key with value ▶️ $value"
+        # echo "- Added $key with value ▶️ $value"
     fi
 }
 
 
 APPLY_CUSTOM_FLOATING_FEATURE() {
     echo ""
-	echo "============ Applying Custom Floating Feature ============"
+	echo "Applying Custom Floating Feature."
     #========== COMMON ==========#
     UPDATE_FLOATING_FEATURE "SEC_FLOATING_FEATURE_COMMON_CONFIG_SEP_CATEGORY" "sep_basic"
 
@@ -894,7 +894,7 @@ APPLY_CUSTOM_FLOATING_FEATURE() {
 
 APPLY_STOCK_FLOATING_FEATURE() {
     echo " "
-    echo "============ Applying Stock Floating Feature ============"
+    echo "Applying Stock Floating Feature."
     #========== AUDIO ==========#
     UPDATE_FLOATING_FEATURE "SEC_FLOATING_FEATURE_AUDIO_CONFIG_VOLUMEMONITOR_STAGE" "$(awk -F'[<>]' '$2 == "SEC_FLOATING_FEATURE_AUDIO_CONFIG_VOLUMEMONITOR_STAGE" {print $3}' "$STOCK_FLOATING_FEATURE")"
     UPDATE_FLOATING_FEATURE "SEC_FLOATING_FEATURE_AUDIO_SUPPORT_VOLUME_MONITOR" "$(awk -F'[<>]' '$2 == "SEC_FLOATING_FEATURE_AUDIO_SUPPORT_VOLUME_MONITOR" {print $3}' "$STOCK_FLOATING_FEATURE")"
@@ -1028,10 +1028,17 @@ APPLY_STOCK_CONFIG() {
 	# FIX SELINUX.
 	FIX_SELINUX
 
-    # STOCK STOCK FLOATING FEATURES
+    # Apply stock floating feature.
 	APPLY_STOCK_FLOATING_FEATURE
 
+    # Fix unsupported BPF error for kernels lower than 5.10.
+    if [ "$USE_UI_8_TETHERING_APEX" = "True" ]; then
+        cp -rfa "$(pwd)/QuantumROM/Mods/Tethering_Apex/UI-8/." "$EXTRACTED_FIRM_DIR/"
+    fi
+
 	# Replace Stock Files.
+	rm -rf "$EXTRACTED_FIRM_DIR/system/system/cameradata/portrait_data"
+	rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/init"/rscmgr*.rc
 	find "$EXTRACTED_FIRM_DIR/system/system/media" -maxdepth 1 -type f \( -iname "*.spi" -o -iname "*.qmg" -o -iname "*.txt" \) -delete
 	rm -rf $EXTRACTED_FIRM_DIR/product/overlay/framework-res*auto_generated_rro_product.apk
 	cp -a "$DEVICES_DIR/$STOCK_DEVICE/Stock/." "$EXTRACTED_FIRM_DIR/"
@@ -1110,14 +1117,9 @@ BUILD_PROP() {
 
         if [ -z "$VALUE" ]; then
             sed -i "/^${KEY}=.*/d" "$PROP"
-            echo " Removed: $KEY"
         else
             if grep -q "^${KEY}=" "$PROP"; then
                 sed -i "s|^${KEY}=.*|${KEY}=${VALUE}|" "$PROP"
-                echo " Updated: $KEY=$VALUE"
-            else
-                echo "${KEY}=${VALUE}" >> "$PROP"
-                echo " Added: $KEY=$VALUE"
             fi
         fi
     done
@@ -1134,7 +1136,7 @@ APPLY_CUSTOM_FEATURES() {
 	local EXTRACTED_FIRM_DIR="$1"
 
     echo "Applying usefull features."
-	echo " Adding build prop tweak."
+	echo "- Adding build prop tweak."
 	BUILD_PROP "$EXTRACTED_FIRM_DIR" "ro.frp.pst"
     BUILD_PROP "$EXTRACTED_FIRM_DIR" "ro.product.locale" "en-US"
     BUILD_PROP "$EXTRACTED_FIRM_DIR" "fw.max_users" "5"
@@ -1145,7 +1147,7 @@ APPLY_CUSTOM_FEATURES() {
 	BUILD_PROP "$EXTRACTED_FIRM_DIR" "ro.telephony.sim_slots.count" "2"
     BUILD_PROP "$EXTRACTED_FIRM_DIR" "ro.surface_flinger.protected_contents" "true"
 
-	echo " Adding China smart manager."
+	echo "- Adding China smart manager."
 	rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app/AppLock"
     rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app/Firewall"
     rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app/SmartManager_v5"
@@ -1153,18 +1155,38 @@ APPLY_CUSTOM_FEATURES() {
 	cp -rfa "$(pwd)/QuantumROM/Mods/SMART_MANAGER_CN/." "$EXTRACTED_FIRM_DIR/"
 	UPDATE_FLOATING_FEATURE "SEC_FLOATING_FEATURE_SMARTMANAGER_CONFIG_PACKAGE_NAME" "com.samsung.android.sm_cn"
 
-	echo "Adding full OneUI and important apps."
-    if [ -d "$EXTRACTED_FIRM_DIR/system/system/app/ClockPackage" ]; then
-        cp -rfa "$(pwd)/QuantumROM/Mods/Apps/system/system/app/ClockPackage" "$EXTRACTED_FIRM_DIR/system/system/app/"
+	echo "- Adding full OneUI and important apps."
+	if [ ! -d "$EXTRACTED_FIRM_DIR/product/priv-app/AiWallpaper" ]; then
+        cp -rfa "$(pwd)/QuantumROM/Mods/Apps/AiWallpaper/"* "$EXTRACTED_FIRM_DIR/product/priv-app/AiWallpaper/"
+    fi
+
+    if [ ! -d "$EXTRACTED_FIRM_DIR/system/system/app/ClockPackage" ]; then
+        cp -rfa "$(pwd)/QuantumROM/Mods/Apps/ClockPackage/"* "$EXTRACTED_FIRM_DIR/"
+    fi
+
+    if [ ! -d "$EXTRACTED_FIRM_DIR/system/system/app/SecCalculator_R" ]; then
+        cp -rfa "$(pwd)/QuantumROM/Mods/Apps/SecCalculator_R/"* "$EXTRACTED_FIRM_DIR/"
     fi
 
 	if [ ! -d "$EXTRACTED_FIRM_DIR/system/system/priv-app/PhotoEditor_AIFull" ]; then
+	    rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/ailasso"
+		rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/ailassomatting"
+		rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/inpainting"
+		rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/objectremoval"
+		rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/reflectionremoval"
+		rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/shadowremoval"
+		rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/style_transfer"
 	    rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app"/PhotoEditor_*
-        cp -rfa "$(pwd)/QuantumROM/Mods/Apps/system/system/priv-app/PhotoEditor_AIFull" "$EXTRACTED_FIRM_DIR/system/system/priv-app/"
+        unzip -o "$(pwd)/QuantumROM/Mods/Apps/PhotoEditor_AIFull/system/system/priv-app/PhotoEditor_AIFull.zip" -d "$(pwd)/QuantumROM/Mods/Apps/PhotoEditor_AIFull/system/system/priv-app/" >/dev/null 2>&1
+		rm -f "$(pwd)/QuantumROM/Mods/Apps/PhotoEditor_AIFull/system/system/priv-app/PhotoEditor_AIFull.zip"
+        cp -rfa "$(pwd)/QuantumROM/Mods/Apps/PhotoEditor_AIFull/"* "$EXTRACTED_FIRM_DIR"
     fi
 
-    # STOCK CUSTOM FLOATING FEATURES
+    # Apply custom floating feature.
 	APPLY_CUSTOM_FLOATING_FEATURE
+
+    # Fix Samsung AI Photo Editor Crash.
+	sed -i '0,/"ModelType": "MODEL_TYPE_INSTANCE_CAPTURE"/s//"ModelType": "MODEL_TYPE_OBJ_INSTANCE_CAPTURE"/' "$EXTRACTED_FIRM_DIR/system/system/cameradata/portrait_data/single_bokeh_feature.json"
 
 	# Remove power and data usage permissions for certain apps when Power Saver and Data Saver are always enabled.
 	# sed -i '/^[[:space:]]*<allow-in-power-save/d; /^[[:space:]]*<allow-in-data-usage-save/d' "$EXTRACTED_FIRM_DIR/product/etc/sysconfig/"*.xml "$EXTRACTED_FIRM_DIR/system/system/etc/sysconfig/"*.xml

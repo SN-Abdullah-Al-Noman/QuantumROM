@@ -1,0 +1,11 @@
+{
+  "version": "3.0",
+  "framework": "tflite",
+  "precision": "float16",
+  "runtime": "gpu",
+  "org_model_name": "test10-t11-0110_fp16.tflite",
+  "model_name": "12-11_PhotoEditor_SpotFixer_v3.0",
+  "model_path": [
+    "/system/etc/inpainting/db/inpainting.tflite"
+  ]
+}

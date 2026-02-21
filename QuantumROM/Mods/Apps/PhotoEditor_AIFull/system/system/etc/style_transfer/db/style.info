@@ -1,0 +1,19 @@
+{
+  "version": "3.0",
+  "framework": "tflite",
+  "precision": "float16",
+  "runtime": "gpu",
+  "model_name": "none",
+  "model_path": [
+    "/system/etc/style_transfer/db/color_pencil.tflite",
+    "/system/etc/style_transfer/db/comic.tflite",
+    "/system/etc/style_transfer/db/watercolor.tflite",
+    "/system/etc/style_transfer/db/blue_ink.tflite",
+    "/system/etc/style_transfer/db/pastel.tflite",
+    "/system/etc/style_transfer/db/marker.tflite",
+    "/system/etc/style_transfer/db/line_art.tflite",
+    "/system/etc/style_transfer/db/oil_paint.tflite",
+    "/system/etc/style_transfer/db/cubist.tflite",
+    "/system/etc/style_transfer/db/pen_and_wash.tflite"
+  ]
+}

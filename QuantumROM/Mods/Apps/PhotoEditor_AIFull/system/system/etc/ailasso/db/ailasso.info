@@ -1,0 +1,11 @@
+{
+  "version": "5.1",
+  "framework": "tflite",
+  "precision": "dynamic",
+  "runtime": "cpu",
+  "org_model_name": "oct2024_dynamic_568.tflite",
+  "model_name": "12-30_PhotoEditor_AILasso_v5.1",
+  "model_path": [
+    "/system/etc/ailasso/db/ailasso.tflite"
+  ]
+}

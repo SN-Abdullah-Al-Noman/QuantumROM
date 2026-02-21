@@ -1,0 +1,11 @@
+{
+  "version": "3.0",
+  "framework": "tflite",
+  "precision": "int8",
+  "runtime": "cpu",
+  "org_model_name": "train0520_pspnet_humanseg_rotate_with_samsungall_coco_mhp_pic_2019_seg_DB_continue.sh_sub_30000_int8.tflite",
+  "model_name": "12-27_PhotoEditor_StyleTransfer_v3.0_Segmentation",
+  "model_path": [
+    "/system/etc/style_transfer/db/segmentation.tflite"
+  ]
+}

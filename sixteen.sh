@@ -1,16 +1,17 @@
 #!/bin/bash
 
-if [ "$#" -lt 5 ]; then
-    echo "Usage: $0 <STOCK_DEVICE> <TARGET_DEVICE> <TARGET_DEVICE_CSC> <TARGET_DEVICE_IMEI> <OUTPUT_FILESYSTEM>"
+if [ "$#" -lt 6 ]; then
+    echo "Usage: $0 <STOCK_DEVICE> <USE_UI_8_TETHERING_APEX> <TARGET_DEVICE> <TARGET_DEVICE_CSC> <TARGET_DEVICE_IMEI> <OUTPUT_FILESYSTEM>"
     exit 1
 fi
 
 # Device info
 export STOCK_DEVICE="$1"
-export TARGET_DEVICE="$2"
-export TARGET_DEVICE_CSC="$3"
-export TARGET_DEVICE_IMEI="$4"
-export OUTPUT_FILESYSTEM="$5"
+export USE_UI_8_TETHERING_APEX="$2"
+export TARGET_DEVICE="$3"
+export TARGET_DEVICE_CSC="$4"
+export TARGET_DEVICE_IMEI="$5"
+export OUTPUT_FILESYSTEM="$6"
 
 # Directories
 export OUT_DIR="$(pwd)/OUT"
@@ -46,7 +47,7 @@ PATCH_SECURE_FOLDER "$WORK_DIR/services"
 
 RECOMPILE "$APKTOOL" "$WORK_DIR/ssrm" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework" "$WORK_DIR"
 RECOMPILE "$APKTOOL" "$WORK_DIR/services" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework" "$WORK_DIR"
-cp -fv "$WORK_DIR"/*.jar "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/"
+mv -f "$WORK_DIR"/*.jar "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/"
 
 PATCH_BT_LIB "$FIRM_DIR/$TARGET_DEVICE" "$WORK_DIR"
 

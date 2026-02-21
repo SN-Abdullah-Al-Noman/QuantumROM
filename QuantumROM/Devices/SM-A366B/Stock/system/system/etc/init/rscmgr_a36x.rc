@@ -1,0 +1,76 @@
+# rscmgr rc file
+on property:sys.readahead.resource=1
+    readahead /system/lib64/libimagecodec.quram.so
+    readahead /system/lib64/libskandroidcodec.so
+    readahead /system/lib64/libskcodec.so
+    readahead /vendor/lib64/hw/camera.qcom.so --fully
+    readahead /vendor/lib64/android.hardware.camera.device-V3-ndk.so --fully
+    readahead /vendor/lib64/hw/com.qti.chi.override.so --fully
+    readahead /vendor/lib64/unihal_filter_unit.so --fully
+    readahead /vendor/lib64/libcamxcommonutils.so --fully
+    readahead /vendor/lib64/unihal_main.so --fully
+    readahead /vendor/lib64/com.qti.feature2.anchorsync.so --fully
+    readahead /vendor/lib64/libbitmlenginev2.so --fully
+    readahead /vendor/lib64/com.qti.feature2.gs.netrani.so --fully
+    readahead /vendor/lib64/android.hardware.camera.provider-V3-ndk.so --fully
+    readahead /vendor/lib64/unihal_cutils.so --fully
+    readahead /vendor/lib64/camera/components/com.qti.node.gme.so --fully
+    readahead /vendor/lib64/vendor.samsung.hardware.camera.device-V1-ndk.so --fully
+    readahead /vendor/lib64/com.qti.feature2.mfsr.netrani.so --fully
+    readahead /vendor/lib64/libcamxsettingsmanager.so --fully
+    readahead /vendor/lib64/libthermalclient.so --fully
+    readahead /vendor/lib64/com.qti.feature2.swmf.so --fully
+    readahead /vendor/lib64/com.qti.feature2.derivedoffline.so --fully
+    readahead /vendor/lib64/libsensorndkbridge.so --fully
+    readahead /vendor/lib64/libadreno_compiler_cl.so --fully
+    readahead /vendor/lib64/libsamsungcamerahwl_impl.so --fully
+    readahead /vendor/lib64/lib_samsung_profiler.so --fully
+    readahead /vendor/lib64/libsamsungcamerahal.so --fully
+    readahead /vendor/lib64/libcom.qti.chinodeutils.so --fully
+    readahead /vendor/lib64/libcamximageformatutils.so --fully
+    readahead /vendor/lib64/camera/components/com.qti.node.swhme.so --fully
+    readahead /vendor/lib64/camera/components/com.qti.node.gpu.so --fully
+    readahead /vendor/lib64/libcamera_metadata.so --fully
+    readahead /vendor/lib64/libcamxhwnodecontext.so --fully
+    readahead /vendor/lib64/libchilog.so --fully
+    readahead /vendor/lib64/camera/components/com.qti.eisv3.so --fully
+    readahead /vendor/lib64/com.qti.feature2.hdr.so --fully
+    readahead /vendor/lib64/libCB.so --fully
+    readahead /vendor/lib64/com.qti.feature2.demux.so --fully
+    readahead /vendor/lib64/com.qti.feature2.realtimeserializer.so --fully
+    readahead /vendor/lib64/com.qti.feature2.rt.so --fully
+    readahead /vendor/lib64/com.qti.feature2.rtmcx.so --fully
+    readahead /vendor/lib64/libqti-perfd-client.so --fully
+    readahead /vendor/lib64/vendor.qti.hardware.display.config-V2-ndk.so --fully
+    readahead /vendor/lib64/com.qti.feature2.serializer.so --fully
+    readahead /vendor/lib64/libOpenCL_adreno.so --fully
+    readahead /vendor/lib64/libhme.so --fully
+    readahead /vendor/lib64/com.qti.feature2.fusion.so --fully
+    readahead /vendor/lib64/com.qti.feature2.generic.so --fully
+    readahead /vendor/lib64/com.qti.feature2.ml.so --fully
+    readahead /vendor/lib64/com.qti.feature2.memcpy.so --fully
+    readahead /vendor/lib64/com.qti.feature2.stub.so --fully
+    readahead /vendor/lib64/com.qti.feature2.mux.so --fully
+    readahead /vendor/lib64/com.qti.feature2.mcreprocrt.so --fully
+    readahead /vendor/lib64/unihal_android.so --fully
+    readahead /vendor/lib64/libsamsungcamerahalutils.so --fully
+    readahead /vendor/lib64/com.qti.chiusecaseselector.so --fully
+    readahead /vendor/lib64/com.qti.feature2.qcfa.so --fully
+    readahead /vendor/lib64/libbinder.so --fully
+    readahead /vendor/lib64/com.qti.feature2.statsregeneration.so --fully
+    readahead /vendor/lib64/unihal_scenario.so --fully
+    readahead /vendor/lib64/com.qti.feature2.rawhdr.so --fully
+    readahead /vendor/lib64/com.qti.feature2.frameselect.so --fully
+    readahead /vendor/lib64/com.qualcomm.mcx.linearmapper.so --fully
+    readahead /vendor/lib64/com.qualcomm.mcx.distortionmapper.so --fully
+    readahead /vendor/lib64/unihal_entry.so --fully
+    readahead /data/app/Notes40_Removable/oat/arm64/Notes40_Removable.odex --fully
+    readahead /data/app/Notes40_Removable/oat/arm64/Notes40_Removable.vdex --fully
+
+on property:sys.readahead.resource=2
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.vdex --fully
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.odex --fully
+    readahead /system/app/HoneyBoard/HoneyBoard.apk --fully
+
+on property:sys.readahead.resource=3
+    setprop sys.readahead.resource 0

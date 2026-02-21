@@ -1,0 +1,10 @@
+{
+  "version": "4.3",
+  "framework": "tflite",
+  "precision": "float16",
+  "runtime": "gpu",
+  "org_model_name": "shadow_remover_v14.0.tflite",
+  "model_path": [
+    "/system/etc/shadowremoval/db/shadow_removal.info"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "version": "6.2",
+  "framework": "tflite",
+  "precision": "float16",
+  "runtime": "gpu",
+  "org_model_name": "fourier-lite-8l-rep-2-mix3-ft3-60-1-1755999-fp16-torch-512-c4.tflite",
+  "model_name": "12-12_PhotoEditor_ObjectEraser_v6.2",
+  "model_path": [
+    "/system/etc/objectremoval/db/objecteraser.tflite"
+  ]
+}

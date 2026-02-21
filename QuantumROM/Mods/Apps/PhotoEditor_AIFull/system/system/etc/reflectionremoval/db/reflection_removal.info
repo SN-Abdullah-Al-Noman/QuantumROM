@@ -1,0 +1,10 @@
+{
+  "version": "4.3",
+  "framework": "tflite",
+  "precision": "float16",
+  "runtime": "gpu",
+  "org_model_name": "spd01ex13trans_svd97_167.tflite",
+  "model_path": [
+    "/system/etc/reflectionremoval/db/reflection_removal.tflite"
+  ]
+}

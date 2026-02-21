@@ -1,0 +1,10 @@
+{
+  "version": "4.4",
+  "framework": "tflite",
+  "precision": "float16",
+  "runtime": "cpu",
+  "org_model_name": "mask_extractor_v14.0.tflite",
+  "model_path": [
+    "/system/etc/shadowremoval/db/shadow_maskextractor.info"
+  ]
+}

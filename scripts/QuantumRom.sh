@@ -242,8 +242,8 @@ EXTRACT_FIRMWARE_IMG() {
                 $(pwd)/bin/erofs-utils/extract.erofs -i "$imgfile" -x -f -o "$FIRM_DIR" >/dev/null 2>&1
                 ;;
             *)
-                echo "[$imgfile] Unknown filesystem type ($fstype), skipping"
-                return 1
+                echo "$imgfile unsupported filesystem type ($fstype), exiting"
+                exit 1
                 ;;
         esac
     done

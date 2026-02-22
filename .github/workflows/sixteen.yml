@@ -1,4 +1,4 @@
-name: CamaroROM Tools.
+name: CamaroOS Tools Beta.
 
 on:
   workflow_dispatch:

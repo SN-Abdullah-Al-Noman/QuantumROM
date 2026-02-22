@@ -1,4 +1,4 @@
-name: CamaroOS Building.
+name: CamaroOS Building Beta.
 
 on:
   workflow_dispatch:

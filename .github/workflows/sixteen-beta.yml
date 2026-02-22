@@ -1,4 +1,4 @@
-name: CamaroOS Tools Dev.
+name: CamaroOS Building.
 
 on:
   workflow_dispatch:

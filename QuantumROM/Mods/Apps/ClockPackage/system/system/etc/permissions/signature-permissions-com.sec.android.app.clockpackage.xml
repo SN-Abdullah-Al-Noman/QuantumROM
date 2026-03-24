@@ -45,10 +45,7 @@
 		<permission name="android.permission.SCHEDULE_EXACT_ALARM"/>
         <permission name="com.sec.android.diagmonagent.permission.DIAGMON"/>
         <permission name="com.sec.android.diagmonagent.permission.PROVIDER"/>
-		<permission name="android.permission.SUBSTITUTE_NOTIFICATION_APP_NAME"/>
-		<permission name="android.permission.DEVICE_POWER"/>
-        <permission name="android.permission.MODIFY_AUDIO_SETTINGS_PRIVILEGED"/>	
-        <permission name="com.sec.android.app.clockpackage.permission.READ_WCCONTENT"/>	
-		<permission name="com.samsung.systemui.permission.KEYGUARD_IMAGE"/>
+		<permission name="android.permission.SUBSTITUTE_NOTIFICATION_APP_NAME"/>		
+		<permission name="android.permission.DEVICE_POWER"/>		
     </signature-permissions>
 </permissions>

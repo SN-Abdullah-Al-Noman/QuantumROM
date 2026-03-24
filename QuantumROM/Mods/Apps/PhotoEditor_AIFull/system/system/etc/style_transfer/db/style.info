@@ -3,7 +3,6 @@
   "framework": "tflite",
   "precision": "float16",
   "runtime": "gpu",
-  "model_name": "none",
   "model_path": [
     "/system/etc/style_transfer/db/color_pencil.tflite",
     "/system/etc/style_transfer/db/comic.tflite",

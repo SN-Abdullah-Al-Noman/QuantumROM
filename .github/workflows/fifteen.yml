@@ -30,7 +30,7 @@ on:
 
 jobs:
   build:
-    name: Start QuantumROM Tools.
+    name: Run QuantumROM Tools OS-15.
     runs-on: ubuntu-latest
 
     steps:

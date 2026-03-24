@@ -754,7 +754,7 @@ PATCH_BT_LIB() {
 
     echo -e "${YELLOW}Patching Bluetooth library.${NC}"
     # Get libbluetooth_jni.so
-    unzip "$EXTRACTED_FIRM_DIR/system/system/apex/com.android.bt.apex" "apex_payload.img" -d "$WORK_DIR" >/dev/null 2>&1
+    unzip "$EXTRACTED_FIRM_DIR/system/system/apex/com.android.btservices.apex" "apex_payload.img" -d "$WORK_DIR" >/dev/null 2>&1
 	debugfs -R "dump /lib64/libbluetooth_jni.so $WORK_DIR/libbluetooth_jni.so" "$WORK_DIR/apex_payload.img" >/dev/null 2>&1
 	rm -rf "$WORK_DIR/apex_payload.img"
 
@@ -828,7 +828,7 @@ PATCH_BT_LIB() {
 
 FIX_VNDK() {
     echo -e "- Checking $STOCK_DEVICE and $TARGET_DEVICE vndk version."
-    export SDK="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" ro.system.build.version.sdk_full)"
+    export SDK="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" ro.build.version.sdk)"
 	echo -e "- Target rom SDK version: $SDK"
     if [ -f "$TARGET_ROM_SYSTEM_EXT_DIR/apex/com.android.vndk.v${STOCK_VNDK_VERSION}.apex" ]; then
         echo -e "- VNDK matched."
@@ -1199,9 +1199,9 @@ APPLY_STOCK_CONFIG() {
 	APPLY_STOCK_FLOATING_FEATURE
 
     # Fix unsupported BPF error for kernels lower than 5.10.
-    if [ "$USE_UI_8_TETHERING_APEX" = "True" ]; then
-        cp -rfa "$(pwd)/QuantumROM/Mods/Tethering_Apex/UI-8/." "$EXTRACTED_FIRM_DIR/"
-    fi
+    # if [ "$USE_UI_8_TETHERING_APEX" = "True" ]; then
+        # cp -rfa "$(pwd)/QuantumROM/Mods/Tethering_Apex/UI-8/." "$EXTRACTED_FIRM_DIR/"
+    # fi
 
     if [ "$DEVICE_TYPE" = "jdm" ]; then
 	    echo -e "- Applying jdm device feature."

@@ -32,7 +32,6 @@ $GOFILE_LINK
 #### ⚙️ Build Options:
 • Filesystem: $OUTPUT_FILESYSTEM
 • Compressed IMG: $COMPRESS_IMG_TO_XZ
-• Used UI8 Tethering APEX: $USE_UI_8_TETHERING_APEX
 "
 
 # Convert to JSON-safe string

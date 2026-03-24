@@ -1,0 +1,95 @@
+name: QuantumROM Tools.
+
+on:
+  workflow_dispatch:
+    inputs:
+      STOCK_DEVICE:
+        description: "STOCK_DEVICE_MODEL or None"
+        required: true
+        default: "SM-A225F"
+      TARGET_DEVICE:
+        description: "TARGET_DEVICE_MODEL."
+        required: true
+        default: "SM-A346E"
+      TARGET_DEVICE_CSC:
+        description: "TARGET_DEVICE_CSC."
+        required: true
+        default: "BKD"
+      TARGET_DEVICE_IMEI:
+        description: "TARGET_DEVICE_IMEI."
+        required: true
+        default: "353435774197736"
+      OUTPUT_FILESYSTEM:
+        description: "OUTPUT_FILESYSTEM. e.g erofs / ext4"
+        required: true
+        default: "erofs"
+      COMPRESS_IMG_TO_XZ:
+        description: "Compress IMG to XZ (True/False)"
+        required: true
+        default: "True"
+
+jobs:
+  build:
+    name: Start QuantumROM Tools.
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository.
+        uses: actions/checkout@v4
+
+      - name: Cleaning junk files
+        uses: rokibhasansagar/slimhub_actions@v25.42.5
+
+      - name: Install Dependencies.
+        run: |
+          sudo apt install -y p7zip-full lz4 android-sdk-libsparse-utils python3 python3-pip zipalign unzip e2fsprogs openjdk-17-jdk jq >/dev/null 2>&1
+          pip3 install git+https://github.com/martinetd/samloader.git >/dev/null 2>&1
+          bash scripts/setup_directories.sh FIRMWARE WORK OUT
+
+      - name: Download firmware ▶️ ${{ github.event.inputs.TARGET_DEVICE }} - ${{ github.event.inputs.TARGET_DEVICE_CSC }}
+        run: |
+          source scripts/QuantumRom.sh
+          DOWNLOAD_FIRMWARE "${{ github.event.inputs.TARGET_DEVICE }}" "${{ github.event.inputs.TARGET_DEVICE_CSC }}" "${{ github.event.inputs.TARGET_DEVICE_IMEI }}" "FIRMWARE"
+
+      - name: Start Rom Build For ${{ github.event.inputs.STOCK_DEVICE }}
+        run: |
+          sudo bash fifteen.sh \
+            "${{ github.event.inputs.STOCK_DEVICE }}" \
+            "${{ github.event.inputs.TARGET_DEVICE }}" \
+            "${{ github.event.inputs.TARGET_DEVICE_CSC }}" \
+            "${{ github.event.inputs.TARGET_DEVICE_IMEI }}" \
+            "${{ github.event.inputs.OUTPUT_FILESYSTEM }}"
+
+      - name: Compress *.img & make zip file before upload.
+        run: |
+          echo "BUILD_TIME=$(TZ='Asia/Dhaka' date '+%Y-%m-%d %I:%M:%S %p UTC+6')" >> $GITHUB_ENV
+          OUT_DIR="$(pwd)/OUT"
+          ZIP_NAME="${{ github.event.inputs.TARGET_DEVICE }}_Port_For_${{ github.event.inputs.STOCK_DEVICE }}.zip"
+          ZIP_PATH="$OUT_DIR/$ZIP_NAME"
+    
+          if [ "${{ github.event.inputs.COMPRESS_IMG_TO_XZ }}" = "True" ]; then
+            echo "Compressing all .img files to .xz (level 9)..."
+            for img in "$OUT_DIR"/*.img; do
+              [ -f "$img" ] || continue
+              echo "Compressing $img"
+              sudo xz -9 -T0 "$img"
+            done
+            sudo rm -f "$OUT_DIR"/*.img
+          fi
+  
+          echo "Creating zip: $ZIP_NAME"
+          7z a -tzip "$ZIP_PATH" "$OUT_DIR"/* -mx=5
+          echo "ZIP_PATH=$ZIP_PATH" >> $GITHUB_ENV
+
+      - name: Upload file in GoFile & Create Release.
+        env:
+          GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
+          STOCK_DEVICE: ${{ github.event.inputs.STOCK_DEVICE }}
+          TARGET_DEVICE: ${{ github.event.inputs.TARGET_DEVICE }}
+          OUTPUT_FILESYSTEM: ${{ github.event.inputs.OUTPUT_FILESYSTEM }}
+          COMPRESS_IMG_TO_XZ: ${{ github.event.inputs.COMPRESS_IMG_TO_XZ }}
+        run: |
+           bash release.sh
+  
+      - name: Clean everything.
+        run: sudo rm -rf *

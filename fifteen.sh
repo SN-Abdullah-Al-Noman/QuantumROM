@@ -7,11 +7,10 @@ fi
 
 # Device info
 export STOCK_DEVICE="$1"
-export USE_UI_8_TETHERING_APEX="$2"
-export TARGET_DEVICE="$3"
-export TARGET_DEVICE_CSC="$4"
-export TARGET_DEVICE_IMEI="$5"
-export OUTPUT_FILESYSTEM="$6"
+export TARGET_DEVICE="$2"
+export TARGET_DEVICE_CSC="$3"
+export TARGET_DEVICE_IMEI="$4"
+export OUTPUT_FILESYSTEM="$5"
 
 VERSION="1"
 

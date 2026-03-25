@@ -471,7 +471,12 @@ REPLACE_SMALI_METHOD() {
     method_esc=$(printf '%s\n' "$METHOD_NAME" | sed -e 's/[.[\*^$/]/\\&/g')
 
     echo -e "- Patching: $FILE"
+	echo -e "  Method: $METHOD_NAME"
 
+    if ! grep -q "$METHOD_NAME" "$FILE"; then
+        echo -e "- ${YELLOW}Method not found → Skipped${NC}"
+        return 0
+    fi
     sed -i "
 /^[[:space:]]*$method_esc\$/,/^[[:space:]]*\.end method/{
     /^[[:space:]]*$method_esc\$/{
@@ -585,7 +590,7 @@ PATCH_FLAG_SECURE() {
     invoke-direct {p0, p1}, Ljava/lang/SecurityException;-><init>(Ljava/lang/String;)V
 
     throw p0
-'    
+    '
     # REPLACE_SMALI_METHOD "$FILE" "$METHOD_NAME_2" "$REPLACE_BODY_2"
 }
 
@@ -732,21 +737,40 @@ UPDATE_SDHMS() {
 
 PATCH_SSRM() {
     echo -e ""
-	if [ "$#" -ne 1 ]; then
+
+    if [ "$#" -ne 1 ]; then
         echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_SSRM_DIRECTORY>"
         return 1
     fi
 
     local SSRM_DIR="$1"
-	local FILE="$SSRM_DIR/smali/com/android/server/ssrm/Feature.smali"
+    local FILE="$SSRM_DIR/smali/com/android/server/ssrm/Feature.smali"
 
-	echo -e "${YELLOW}Patching ssrm.jar${NC}"
-	echo -e "- Patching: $FILE"
+    echo -e "${YELLOW}Patching ssrm${NC}"
+    echo -e "- Patching: $FILE"
 
-    sed -i "s/\(const-string v[0-9]\+,\s*\"\)siop_[^\"]*\"/\1$STOCK_SIOP_FILENAME\"/g" "$FILE"
-    sed -i "/dvfs_policy_default/! s/\(const-string v[0-9]\+,\s*\"\)dvfs_policy_[^\"]*\"/\1$STOCK_DVFS_FILENAME\"/g" "$FILE"
+    if [ ! -f "$FILE" ]; then
+        echo -e "- ${RED}File not found! Skipping...${NC}"
+        return 1
+    fi
 
-    # UPDATE_SDHMS "$FIRM_DIR/$TARGET_DEVICE"
+    if grep -Eq 'const-string v[0-9]+, "siop_' "$FILE"; then
+        echo -e "- Found siop_ → Replacing"
+        sed -i 's/\(const-string v[0-9]\+,\s*"\)siop_[^"]*"/\1'"$STOCK_SIOP_FILENAME"'"/g' "$FILE"
+    else
+        echo -e "- siop filename not found → Skipped"
+    fi
+
+    if grep -Eq 'const-string v[0-9]+, "dvfs_policy_[^"]*_[^"]*"' "$FILE"; then
+        echo -e "- Found dvfs_policy_*_* → Replacing"
+
+        sed -i '/dvfs_policy_default/! {
+            s/\(const-string v[0-9]\+,\s*"\)dvfs_policy_[^"]*_[^"]*"/\1'"$STOCK_DVFS_FILENAME"'"/g
+        }' "$FILE"
+
+    else
+        echo -e "- dvfs_policy file name not found → Skipped"
+    fi
 }
 
 

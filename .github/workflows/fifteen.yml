@@ -47,11 +47,6 @@ jobs:
         with:
           ref: ${{ github.event.inputs.BRANCH }}
 
-      - name: Show current branch
-        run: |
-          echo "Using branch: ${{ github.event.inputs.BRANCH }}"
-          git branch
-
       - name: Cleaning junk files
         uses: rokibhasansagar/slimhub_actions@v25.42.5
 
@@ -69,16 +64,7 @@ jobs:
 
       - name: Start Rom Build For ${{ github.event.inputs.STOCK_DEVICE }}
         run: |
-          SCRIPT_NAME="${{ github.event.inputs.BRANCH }}.sh"
-          echo "Running script: $SCRIPT_NAME"
-
-          if [ ! -f "$SCRIPT_NAME" ]; then
-            echo "Error: $SCRIPT_NAME not found!"
-            exit 1
-          fi
-
-          sudo bash "$SCRIPT_NAME" \
-            "${{ github.event.inputs.STOCK_DEVICE }}" \
+          sudo bash fifteen. sh "${{ github.event.inputs.STOCK_DEVICE }}" \
             "${{ github.event.inputs.TARGET_DEVICE }}" \
             "${{ github.event.inputs.TARGET_DEVICE_CSC }}" \
             "${{ github.event.inputs.TARGET_DEVICE_IMEI }}" \

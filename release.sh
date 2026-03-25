@@ -11,6 +11,7 @@ RELEASE_NAME="${TARGET_DEVICE} Port For ${STOCK_DEVICE}"
 
 echo "Uploading to GoFile..."
 GOFILE_LINK=$(sudo bash upload.sh "$ZIP_PATH")
+echo "🌎 File uploaded here: $GOFILE_LINK"
 
 # File info
 FILE_SIZE=$(du -h "$ZIP_PATH" | cut -f1)
@@ -22,12 +23,12 @@ $GOFILE_LINK
 
 #### 📊 File Info:
 • Size: $FILE_SIZE
-• MD5: $MD5_SUM
 • Build Time: $BUILD_TIME
+• MD5: $MD5_SUM
 
-#### 📱 Rom Device Info:
-• STOCK_DEVICE: $STOCK_DEVICE
-• TARGET_DEVICE: $TARGET_DEVICE
+#### 📱 Rom Info:
+• Ported For: $STOCK_DEVICE
+• Ported From: $TARGET_DEVICE
 
 #### ⚙️ Build Options:
 • Filesystem: $OUTPUT_FILESYSTEM

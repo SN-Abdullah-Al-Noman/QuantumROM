@@ -64,7 +64,7 @@ jobs:
 
       - name: Start Rom Build For ${{ github.event.inputs.STOCK_DEVICE }}
         run: |
-          sudo bash fifteen. sh "${{ github.event.inputs.STOCK_DEVICE }}" \
+          sudo bash fifteen.sh "${{ github.event.inputs.STOCK_DEVICE }}" \
             "${{ github.event.inputs.TARGET_DEVICE }}" \
             "${{ github.event.inputs.TARGET_DEVICE_CSC }}" \
             "${{ github.event.inputs.TARGET_DEVICE_IMEI }}" \

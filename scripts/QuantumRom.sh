@@ -122,7 +122,7 @@ DOWNLOAD_FIRMWARE() {
     python3 -m samloader -m "$MODEL" -r "$CSC" -i "$IMEI" download -v "$version" -O "$DOWN_DIR"
     if [ $? -ne 0 ]; then
         echo -e "- ⛔️ Download failed. Check IMEI/MODEL/CSC."
-        return 1
+        exit 1
     fi
 
     # --- Step 3: Decrypt Firmware ---
@@ -130,7 +130,7 @@ DOWNLOAD_FIRMWARE() {
 
     if [ -z "$enc_file" ]; then
         echo -e "- ⛔️ No encrypted firmware file found!"
-        return 1
+        exit 1
     fi
 
     python3 -m samloader -m "$MODEL" -r "$CSC" -i "$IMEI" decrypt \

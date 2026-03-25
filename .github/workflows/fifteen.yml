@@ -3,6 +3,10 @@ name: QuantumROM Tools.
 on:
   workflow_dispatch:
     inputs:
+      BRANCH:
+        description: "Git branch to use (e.g. fifteen)"
+        required: true
+        default: "fifteen"
       STOCK_DEVICE:
         description: "STOCK_DEVICE_MODEL or None"
         required: true
@@ -36,12 +40,20 @@ jobs:
     steps:
       - name: Checkout repository.
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.BRANCH }}
+
+      - name: Show current branch
+        run: |
+          echo "Using branch: ${{ github.event.inputs.BRANCH }}"
+          git branch
 
       - name: Cleaning junk files
         uses: rokibhasansagar/slimhub_actions@v25.42.5
 
       - name: Install Dependencies.
         run: |
+          sudo apt update
           sudo apt install -y p7zip-full lz4 android-sdk-libsparse-utils python3 python3-pip zipalign unzip e2fsprogs openjdk-17-jdk jq >/dev/null 2>&1
           pip3 install git+https://github.com/martinetd/samloader.git >/dev/null 2>&1
           bash scripts/setup_directories.sh FIRMWARE WORK OUT
@@ -53,7 +65,15 @@ jobs:
 
       - name: Start Rom Build For ${{ github.event.inputs.STOCK_DEVICE }}
         run: |
-          sudo bash fifteen.sh \
+          SCRIPT_NAME="${{ github.event.inputs.BRANCH }}.sh"
+          echo "Running script: $SCRIPT_NAME"
+
+          if [ ! -f "$SCRIPT_NAME" ]; then
+            echo "Error: $SCRIPT_NAME not found!"
+            exit 1
+          fi
+
+          sudo bash "$SCRIPT_NAME" \
             "${{ github.event.inputs.STOCK_DEVICE }}" \
             "${{ github.event.inputs.TARGET_DEVICE }}" \
             "${{ github.event.inputs.TARGET_DEVICE_CSC }}" \
@@ -63,10 +83,11 @@ jobs:
       - name: Compress *.img & make zip file before upload.
         run: |
           echo "BUILD_TIME=$(TZ='Asia/Dhaka' date '+%Y-%m-%d %I:%M:%S %p UTC+6')" >> $GITHUB_ENV
+
           OUT_DIR="$(pwd)/OUT"
           ZIP_NAME="${{ github.event.inputs.TARGET_DEVICE }}_Port_For_${{ github.event.inputs.STOCK_DEVICE }}.zip"
           ZIP_PATH="$OUT_DIR/$ZIP_NAME"
-    
+
           if [ "${{ github.event.inputs.COMPRESS_IMG_TO_XZ }}" = "True" ]; then
             echo "Compressing all .img files to .xz (level 9)..."
             for img in "$OUT_DIR"/*.img; do
@@ -76,9 +97,10 @@ jobs:
             done
             sudo rm -f "$OUT_DIR"/*.img
           fi
-  
+
           echo "Creating zip: $ZIP_NAME"
           7z a -tzip "$ZIP_PATH" "$OUT_DIR"/* -mx=5
+
           echo "ZIP_PATH=$ZIP_PATH" >> $GITHUB_ENV
 
       - name: Upload file in GoFile & Create Release.
@@ -89,7 +111,7 @@ jobs:
           OUTPUT_FILESYSTEM: ${{ github.event.inputs.OUTPUT_FILESYSTEM }}
           COMPRESS_IMG_TO_XZ: ${{ github.event.inputs.COMPRESS_IMG_TO_XZ }}
         run: |
-           bash release.sh
-  
+          bash release.sh
+
       - name: Clean everything.
         run: sudo rm -rf *

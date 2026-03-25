@@ -541,7 +541,7 @@ PATCH_FLAG_SECURE() {
 	# local METHOD_NAME_1=".method public isSecureLocked()Z"
 	# Only one method.
 
-	local FILE="${1}/smali_classes2/com/android/server/wm/WindowState.smali"
+	local FILE_1="${1}/smali_classes2/com/android/server/wm/WindowState.smali"
     local METHOD_NAME_1=".method public final isSecureLocked()Z"
     local REPLACE_BODY_1='
     .locals 1
@@ -550,9 +550,9 @@ PATCH_FLAG_SECURE() {
 
     return v0
     '
-    REPLACE_SMALI_METHOD "$FILE" "$METHOD_NAME_1" "$REPLACE_BODY_1"
-
-	local FILE_2="${1}/smali_classes2/com/android/server/wm/WindowManagerService.smali
+    REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_1" "$REPLACE_BODY_1"
+    
+	local FILE_2="${1}/smali_classes2/com/android/server/wm/WindowManagerService.smali"
     local METHOD_NAME_2=".method public final notifyScreenshotListeners(I)Ljava/util/List;"
     local REPLACE_BODY_2='
     .locals 3
@@ -592,7 +592,7 @@ PATCH_FLAG_SECURE() {
 
     throw p0
     '
-    # REPLACE_SMALI_METHOD "$FILE_2" "$METHOD_NAME_2" "$REPLACE_BODY_2"
+    REPLACE_SMALI_METHOD "$FILE_2" "$METHOD_NAME_2" "$REPLACE_BODY_2"
 }
 
 

@@ -109,7 +109,7 @@ DOWNLOAD_FIRMWARE() {
 
     # --- Step 1: Determine Version ---
     if [ -n "$VERSION" ]; then
-        echo -e "- ✅ Using provided version: $VERSION"
+        echo -e "- ✅ Downloading provided version: $VERSION"
     else
         echo -e "- Fetching latest firmware..."
 

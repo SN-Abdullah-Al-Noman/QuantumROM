@@ -262,7 +262,7 @@ PREPARE_PARTITIONS() {
     done
 
     echo -e "${YELLOW}Preparing partitinos.${NC} $STOCK_DEVICE"
-	
+
     find "$EXTRACTED_FIRM_DIR" -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +
 
     shopt -s nullglob dotglob
@@ -332,7 +332,7 @@ EXTRACT_FIRMWARE_IMG() {
     done
 
     rm -rf "$FIRM_DIR"/*.img
-	
+
 	if ! ls "$FIRM_DIR"/system* >/dev/null 2>&1; then
         echo -e "Maybe your firmware is not downloaded, is corrupt, or contains an unsupported image."
         exit 1
@@ -1052,7 +1052,7 @@ APPLY_CUSTOM_FLOATING_FEATURE() {
 
     #========== SCREEN RECORDER ==========#
     UPDATE_FLOATING_FEATURE "SEC_FLOATING_FEATURE_FRAMEWORK_SUPPORT_SCREEN_RECORDER" "TRUE"
-	
+
 	#========== VOICE RECORDER ==========#
     UPDATE_FLOATING_FEATURE "SEC_FLOATING_FEATURE_VOICERECORDER_CONFIG_DEF_MODE" "normal,interview,voicememo"
 
@@ -1400,11 +1400,11 @@ DISABLE_SECURITY() {
     if [ -f "$EXTRACTED_FIRM_DIR/product/etc/build.prop" ]; then
         BUILD_PROP "$EXTRACTED_FIRM_DIR" "product" "ro.frp.pst" ""
     fi
-	
+
 	if [ -f "$EXTRACTED_FIRM_DIR/vendor/build.prop" ]; then
 		BUILD_PROP "$EXTRACTED_FIRM_DIR" "vendor" "ro.frp.pst" ""
     fi
-	
+
     if [ -f "$EXTRACTED_FIRM_DIR/vendor/recovery-from-boot.p" ]; then
         rm -rf "$EXTRACTED_FIRM_DIR/vendor/recovery-from-boot.p"
     fi

@@ -604,28 +604,35 @@ PATCH_SECURE_FOLDER() {
     fi
 
     echo -e "${YELLOW}Patching secure folder.${NC}"
-    local FILE="${1}/smali/com/android/server/knox/dar/DarManagerService.smali"
-    # patch isDeviceRootKeyInstalled
-    local METHOD_NAME_1=".method public final isDeviceRootKeyInstalled()Z"
+
+	#https://forum.xda-developers.com/t/mods-samsung-not-android-mods-collection-exynos.3772017/post-86770885
+	local FILE_1="${1}/smali/com/android/server/knox/dar/DarManagerService.smali"
+	local METHOD_NAME_1=".method public final checkDeviceIntegrity([Ljava/security/cert/Certificate;)Z"
+	local METHOD_NAME_2=".method public final isDeviceRootKeyInstalled()Z"
+    local METHOD_NAME_3=".method public final isKnoxKeyInstallable()Z"
+    
     local REPLACE_BODY_1='
     .locals 0
-
-    const/4 v0, 0x1
-
-    return v0
+ 
+    const/4 p0, 0x1
+ 
+    return p0
     '
-    REPLACE_SMALI_METHOD "$FILE" "$METHOD_NAME_1" "$REPLACE_BODY_1"
 
-    # patch isKnoxKeyInstallable
-    local METHOD_NAME_2=".method public final isKnoxKeyInstallable()Z"
+    REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_1" "$REPLACE_BODY_1"
+    REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_2" "$REPLACE_BODY_1"
+	REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_3" "$REPLACE_BODY_1"
+
+    local FILE_2="${1}/smali/com/android/server/StorageManagerService.smali"
+    local METHOD_NAME_4=".method public static isRootedDevice()Z"
     local REPLACE_BODY_2='
-    .locals 0
-
-    const/4 v0, 0x1
-
+    .locals 1
+ 
+    const/4 v0, 0x0
+ 
     return v0
     '
-    REPLACE_SMALI_METHOD "$FILE" "$METHOD_NAME_2" "$REPLACE_BODY_2"
+    REPLACE_SMALI_METHOD "$FILE_2" "$METHOD_NAME_4" "$REPLACE_BODY_2"
 }
 
 

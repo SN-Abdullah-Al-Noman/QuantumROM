@@ -466,22 +466,21 @@ REPLACE_SMALI_METHOD() {
     local METHOD_NAME="$2"
     local NEW_BODY=$(echo -e "$3" | tail -n +2)
 
-    # Escape special chars for sed
-    local method_esc
-    method_esc=$(printf '%s\n' "$METHOD_NAME" | sed -e 's/[][(){}.^$*+?|\\/]/\\&/g')
-
     echo -e "- Patching: $FILE"
     echo -e "  Method: $METHOD_NAME"
 
-    # Use fixed string grep
     if ! grep -Fq "$METHOD_NAME" "$FILE"; then
         echo -e "- ${YELLOW}Method not found → Skipped${NC}"
         return 0
     fi
 
+    # Extract method key (safe match)
+    local METHOD_KEY
+    METHOD_KEY=$(echo "$METHOD_NAME" | sed -E 's/.* ([^ ]+\().*/\1/')
+
     sed -i "
-/^[[:space:]]*$method_esc\$/,/^[[:space:]]*\.end method/{
-    /^[[:space:]]*$method_esc\$/{
+/^[[:space:]]*\.method.*$METHOD_KEY/,/^[[:space:]]*\.end method/{
+    /^[[:space:]]*\.method/{
         p
         r /dev/stdin
         d

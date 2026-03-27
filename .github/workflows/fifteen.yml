@@ -52,8 +52,7 @@ jobs:
 
       - name: Install Dependencies.
         run: |
-          sudo apt update
-          sudo apt install -y p7zip-full lz4 android-sdk-libsparse-utils python3 python3-pip zipalign unzip e2fsprogs openjdk-17-jdk jq >/dev/null 2>&1
+          sudo apt install -y p7zip-full lz4 android-sdk-libsparse-utils f2fs-tools fuse2fs fuse e2fsprogs python3 python3-pip zipalign unzip openjdk-17-jdk jq >/dev/null 2>&1
           pip3 install git+https://github.com/martinetd/samloader.git >/dev/null 2>&1
           bash scripts/setup_directories.sh FIRMWARE WORK OUT
 

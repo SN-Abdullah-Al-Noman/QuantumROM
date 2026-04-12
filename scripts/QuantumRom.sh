@@ -1577,41 +1577,6 @@ APPLY_CUSTOM_FEATURES() {
 	BUILD_PROP "$EXTRACTED_FIRM_DIR" "product" "ro.config.dmverity" "false"
 	BUILD_PROP "$EXTRACTED_FIRM_DIR" "product" "ro.config.iccc_version" "iccc_disabled"
 
-	echo -e "- Adding China smart manager."
-	rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app/AppLock"
-    rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app/Firewall"
-    rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app/SmartManager_v5"
-    rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app/SmartManagerCN"
-	cp -rfa "$(pwd)/QuantumROM/Mods/SMART_MANAGER_CN/." "$EXTRACTED_FIRM_DIR/"
-	UPDATE_FLOATING_FEATURE "SEC_FLOATING_FEATURE_SMARTMANAGER_CONFIG_PACKAGE_NAME" "com.samsung.android.sm_cn"
-
-	echo -e "- Adding full OneUI and important apps."
-	if [ ! -d "$EXTRACTED_FIRM_DIR/product/priv-app/AiWallpaper" ]; then
-        cp -rfa "$(pwd)/QuantumROM/Mods/Apps/AiWallpaper/"* "$EXTRACTED_FIRM_DIR/"
-    fi
-
-    if [ ! -d "$EXTRACTED_FIRM_DIR/system/system/app/ClockPackage" ]; then
-        cp -rfa "$(pwd)/QuantumROM/Mods/Apps/ClockPackage/"* "$EXTRACTED_FIRM_DIR/"
-    fi
-
-    if [ ! -d "$EXTRACTED_FIRM_DIR/system/system/app/SecCalculator_R" ]; then
-        cp -rfa "$(pwd)/QuantumROM/Mods/Apps/SecCalculator_R/"* "$EXTRACTED_FIRM_DIR/"
-    fi
-
-	if [ ! -d "$EXTRACTED_FIRM_DIR/system/system/priv-app/PhotoEditor_AIFull" ]; then
-	    rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/ailasso"
-		rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/ailassomatting"
-		rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/inpainting"
-		rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/objectremoval"
-		rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/reflectionremoval"
-		rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/shadowremoval"
-		rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/style_transfer"
-	    rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app"/PhotoEditor_*
-        cp -rfa "$(pwd)/QuantumROM/Mods/Apps/PhotoEditor_AIFull/"* "$EXTRACTED_FIRM_DIR"
-		unzip -o "$EXTRACTED_FIRM_DIR/system/system/priv-app/PhotoEditor_AIFull.zip" -d "$EXTRACTED_FIRM_DIR/system/system/priv-app/" >/dev/null 2>&1
-		rm -f "$EXTRACTED_FIRM_DIR/system/system/priv-app/PhotoEditor_AIFull.zip"
-    fi
-
     # Apply custom floating feature.
 	APPLY_CUSTOM_FLOATING_FEATURE
 

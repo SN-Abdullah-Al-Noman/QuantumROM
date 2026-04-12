@@ -9,56 +9,106 @@ YELLOW="\e[33m"
 NC="\e[0m"
 
 ###################################################################################################
-# FINAL AGGRESSIVE DEBLOAT LIST
+# FINAL AGGRESSIVE DEBLOAT LIST (EXTREME MODE)
 ###################################################################################################
 
 DEBLOAT_APPS=(
 
-# --- Google / AOSP ---
+# ==========================================================
+# GOOGLE / AOSP
+# ==========================================================
+
 "SpeechServicesByGoogle" "LiveTranscribe" "DigitalWellbeing" "Maps" "Duo"
 "Photos" "AssistantShell" "BardShell" "DuoStub"
 "GoogleCalendarSyncAdapter" "AndroidDeveloperVerifier" "GoogleRestore"
 "SearchSelector" "VoiceAccess"
 
-# --- Extra Google ---
-"Drive" "GoogleOne" "BackupRestoreConfirmation" "Videos" "Music2"
+"Videos" "Music2"
 "ChromeCustomizations" "Velvet" "LocationHistory" "LocationSharing"
 "YouTube" "YouTubeMusicPrebuilt" "PrebuiltGemini"
 
-# --- Samsung Core ---
+# ==========================================================
+# GOOGLE CORE APPS (FULL REMOVAL)
+# ==========================================================
+
+"Gmail" "Gmail2" "PrebuiltGmail" "GoogleMail"
+"Drive" "Drive_Android" "GoogleDrive"
+"Chrome" "ChromePublic" "GoogleChrome"
+
+# ==========================================================
+# SAMSUNG CORE
+# ==========================================================
+
 "SamsungCalendar" "Notes40" "SamsungMembers" "Tips" "VoiceNote_5.0"
 
-# --- Samsung Ecosystem ---
-"MdecService" "LinkToWindowsService" "SmartThingsKit"
+# ==========================================================
+# SAMSUNG MESSAGES STACK (FULL REMOVAL)
+# ==========================================================
+
+"SamsungMessages" "SecMms" "MmsService"
+"MessageApp" "Messages" "Messaging_10.1"
+"RcsService" "SamsungMessagesRcs"
+
+# ==========================================================
+# ECOSYSTEM / SMART FEATURES (FULL STRIP)
+# ==========================================================
+
+"MdecService" "LinkToWindowsService"
 "SmartSwitchStub" "OneDrive_Samsung_v3"
 
-# --- Knox ---
+# SmartThings FULL REMOVAL
+"SmartThingsKit" "SmartThingsFramework" "SmartThingsService"
+"SmartThingsAgent" "SmartThingsHub"
+"SmartThingsHome" "SmartThingsEdge"
+"SmartThingsWifi" "SmartThingsDeviceSDK"
+"SmartThings" "SmartThingsCore"
+
+# ==========================================================
+# KNOX
+# ==========================================================
+
 "KnoxEnrollmentService" "KnoxPushManager" "KLMSAgent"
 
-# --- Gaming ---
-"GameTools_Dream" "GameHome"
+# ==========================================================
+# GAMING / VPN
+# ==========================================================
 
-# --- VPN / Network ---
+"GameTools_Dream" "GameHome"
 "SamsungMax" "SamsungVPN"
 
-# --- AR / Camera ---
+# ==========================================================
+# CAMERA / AR
+# ==========================================================
+
 "ARCore" "ARDrawing" "ARZone" "AREmoji" "AREmojiEditor"
 "AvatarEmojiSticker" "AvatarEmojiSticker_S" "StickerFaceARAvatar"
 "LiveStickers"
 
-# --- Bixby ---
+# ==========================================================
+# BIXBY
+# ==========================================================
+
 "Bixby" "BixbyWakeup" "BixbyInterpreter"
 "BixbyVisionFramework3.5" "SettingsBixby"
 
-# --- Analytics ---
+# ==========================================================
+# ANALYTICS
+# ==========================================================
+
 "DiagMonAgent" "SamsungAnalytics"
 "SOAgent7" "SOAgent75" "SOAgent76" "SOAgent77"
 
-# --- UI / Features ---
+# ==========================================================
+# UI / FEATURES
+# ==========================================================
+
 "EdgeLighting" "PeopleStripe" "AirGlance" "AirReadingGlass"
 "SmartSuggestions" "SamsungSmartSuggestions"
 
-# --- Misc ---
+# ==========================================================
+# SYSTEM APPS / MEDIA / SERVICES
+# ==========================================================
+
 "LiveDrawing" "PhotoTable" "VideoEditorLite_Dream_N"
 "GalleryWidget" "KidsHome_Installer" "ParentalCare"
 "SmartReminder" "SmartPush" "SmartPush_64"
@@ -68,32 +118,38 @@ DEBLOAT_APPS=(
 "SumeNNService" "SolarAudio-service"
 "SPPPushClient" "sticker" "Fast" "FunModeSDK"
 
-# --- Voice / Audio ---
 "SVoiceIME" "SamsungTTS"
 
-# --- Connectivity / Sharing ---
-"LinkSharing_v11" "QuickShare"
-"StorageShare" "StorageShareService"
-"MusicShare"
+# ==========================================================
+# CONNECTIVITY / SHARING (FULL STRIP)
+# ==========================================================
 
-# --- Multi-device ---
+"LinkSharing_v11"
+
+# Quick Share / Nearby
+"QuickShare" "NearbyShare" "ShareLiveService"
+
+# Music Share
+"MusicShare" "MusicShareApp" "MusicShareService"
+
+# Auto Switch Buds
+"AutoSwitchBuds" "AutoSwitchBudsService"
+
+# Smart View / Mirroring
+"SmartView" "ScreenMirroring" "MirroringService"
+"SmartViewSDK" "SmartViewReceiver"
+
+# ==========================================================
+# MULTI DEVICE
+# ==========================================================
+
 "MultiControl" "MultiConnectivity"
 "DeviceContinuity" "SamsungMultiConnectivity"
-"AutoSwitchBuds" "AutoSwitchBudsService"
 "ContinueOnOtherDevices" "SamsungContinuityService"
 
-# --- Smart View ---
-"SmartView" "ScreenMirroring" "MirroringService"
-
-# --- Android Auto ---
-"AndroidAuto" "AndroidAutoStub" "CarIntegrationService"
-
-# --- SmartThings ---
-"SmartThingsKit" "SmartThingsFramework" "SmartThingsService"
-
-###################################################################################################
-# OTA / SOFTWARE UPDATE (FULL REMOVAL)
-###################################################################################################
+# ==========================================================
+# OTA / UPDATE SYSTEM (FULL KILL)
+# ==========================================================
 
 "FotaAgent" "FotaService" "FotaClient"
 "SoftwareUpdate" "SoftwareUpdateUI"
@@ -103,7 +159,10 @@ DEBLOAT_APPS=(
 "RecoverySystem"
 "KnoxUpdateAgent" "DevicePolicyUpdate" "MDMUpdateService"
 
-# --- Carrier ---
+# ==========================================================
+# CARRIER BLOAT
+# ==========================================================
+
 "KTAuth" "KTCustomerService" "KTUsimManager"
 "KTServiceAgent" "KTServiceMenu" "KT114Provider2"
 "KTHiddenMenu" "KTOneStore"
@@ -117,17 +176,24 @@ DEBLOAT_APPS=(
 
 "TWorld" "TService" "TPhoneOnePackage" "TPhoneSetup"
 
-# --- System ---
+# ==========================================================
+# SYSTEM CORE
+# ==========================================================
+
 "BluetoothMidiService" "PrintSpooler" "WebManual"
 "WifiGuider" "UltraDataSaving_O" "Upday"
 
-# --- Facebook ---
-"FBAppManager_NS" "FBInstaller_NS" "FBServices"
+# ==========================================================
+# PRELOAD / FACEBOOK / NETFLIX
+# ==========================================================
 
-# --- Preload ---
+"FBAppManager_NS" "FBInstaller_NS" "FBServices"
 "Netflix_stub"
 
-# --- Extra ---
+# ==========================================================
+# EXTRA SYSTEM APPS
+# ==========================================================
+
 "SetupIndiaServicesTnC"
 "SamsungPass" "SamsungPassAutofill_v1"
 "SamsungBilling" "UniversalMDMClient"
@@ -135,46 +201,46 @@ DEBLOAT_APPS=(
 "DigitalKey" "EarphoneTypeC"
 "SamsungCarKeyFw"
 
-# --- Accessibility ---
+# ==========================================================
+# ACCESSIBILITY
+# ==========================================================
+
 "TalkbackSE" "SwiftkeyIme"
 
-# --- Low-level ---
+# ==========================================================
+# LOW LEVEL SYSTEM
+# ==========================================================
+
 "vexfwk_service" "VexScanner" "LiveEffectService"
 
-# --- Removed by user ---
+# ==========================================================
+# USER REMOVED / BLOAT
+# ==========================================================
+
 "AppCloud" "SamsungStore" "MyGalaxy"
 
 # ==========================================================
-# UI / SYSTEM INTELLIGENCE LAYER REMOVAL
+# INTELLIGENCE / UI LAYER REMOVAL
 # ==========================================================
 
-# --- DeX / Desktop Mode ---
 "SamsungDeX" "DexSystemUI" "DesktopMode" "DesktopModeUI"
-
-# --- Samsung Free / Feed ---
 "SamsungFree"
 
-# --- One UI Home / Routines ---
 "OneUIHome_Routines" "BixbyRoutines"
 
-# --- Ads / Marketing / Personalization ---
 "ADPersonalizationService" "SamsungAds" "MarketingService" "CustomService"
 
-# --- Edge / UI extensions ---
 "EdgePanels" "TaskEdge" "OneHandOperationPlus"
 
-# --- Smart Capture ---
 "SmartCapture" "ScreenshotService"
 
-# --- Finder / Search ---
 "Finder"
 
-# --- Bixby Home ---
 "BixbyHome"
 
-# --- Intelligence / Context / Prediction ---
 "AppPredictionService" "ContextService" "IntelligenceService"
 "PersonalizationFramework" "UsagePatternsService"
+
 )
 
 ###################################################################################################
@@ -183,7 +249,7 @@ DEBLOAT_APPS=(
 
 KICK() {
     local DIR="$1"
-    echo -e "- Removing selected apps."
+    echo -e "- Removing apps..."
 
     local APP_DIRS=(
         "$DIR/system/system/app"
@@ -201,92 +267,81 @@ KICK() {
 }
 
 ###################################################################################################
-# REMOVE ESIM FILES
+# SYSTEM EXT CLEANUP
+###################################################################################################
+
+REMOVE_SYSTEM_EXT() {
+    local DIR="$1"
+    echo "- Cleaning system_ext..."
+
+    rm -rf "$DIR/system_ext/app"
+    rm -rf "$DIR/system_ext/priv-app"
+    rm -rf "$DIR/system_ext/etc/permissions"
+    rm -rf "$DIR/system_ext/etc/sysconfig"
+}
+
+###################################################################################################
+# OVERLAYS REMOVAL
+###################################################################################################
+
+REMOVE_OVERLAYS() {
+    local DIR="$1"
+    echo "- Removing overlays..."
+
+    rm -rf "$DIR/product/overlay"
+    rm -rf "$DIR/system/system/product/overlay"
+    rm -rf "$DIR/system/system/system_ext/overlay"
+    rm -rf "$DIR/system_ext/overlay"
+}
+
+###################################################################################################
+# ESIM REMOVAL
 ###################################################################################################
 
 REMOVE_ESIM_FILES() {
     local DIR="$1"
-    echo "- Removing ESIM components."
-
-    rm -rf "$DIR/system/system/etc/autoinstalls/autoinstalls-com.google.android.euicc"
-    rm -rf "$DIR/system/system/etc/default-permissions/default-permissions-com.google.android.euicc.xml"
-    rm -rf "$DIR/system/system/etc/permissions/privapp-permissions-com.samsung.euicc.xml"
-    rm -rf "$DIR/system/system/etc/sysconfig/preinstalled-packages-com.samsung.euicc.xml"
+    echo "- Removing ESIM..."
 
     rm -rf "$DIR/system/system/priv-app/EsimClient"
     rm -rf "$DIR/system/system/priv-app/EuiccService"
 }
 
 ###################################################################################################
-# REMOVE FABRIC CRYPTO
+# FABRIC CRYPTO REMOVAL
 ###################################################################################################
 
 REMOVE_FABRIC_CRYPTO() {
     local DIR="$1"
-    echo "- Removing Fabric Crypto."
+    echo "- Removing Fabric Crypto..."
 
     rm -rf "$DIR/system/system/bin/fabric_crypto"
-    rm -rf "$DIR/system/system/etc/init/fabric_crypto.rc"
-    rm -rf "$DIR/system/system/etc/permissions/FabricCryptoLib.xml"
-    rm -rf "$DIR/system/system/etc/vintf/manifest/fabric_crypto_manifest.xml"
     rm -rf "$DIR/system/system/framework/FabricCryptoLib.jar"
-    rm -rf "$DIR/system/system/lib64/com.samsung.security.fabric.cryptod-V1-cpp.so"
-    rm -rf "$DIR/system/system/lib64/vendor.samsung.hardware.security.fkeymaster-V1-ndk.so"
     rm -rf "$DIR/system/system/priv-app/KmxService"
 }
 
 ###################################################################################################
-# OTA INFRASTRUCTURE REMOVAL (DEEP)
+# OTA REMOVAL
 ###################################################################################################
 
 REMOVE_OTA_INFRASTRUCTURE() {
     local DIR="$1"
-    echo "- Removing OTA infrastructure."
-
-    rm -rf "$DIR/system/system/etc/permissions/*update*"
-    rm -rf "$DIR/system/system/etc/sysconfig/*update*"
-    rm -rf "$DIR/system/system/etc/init/*update*"
-
-    rm -rf "$DIR/system/system/bin/update_engine*"
-    rm -rf "$DIR/system/system/lib*/libupdate_engine*"
+    echo "- Removing OTA..."
 
     rm -rf "$DIR/system/system/priv-app/FotaAgent"
     rm -rf "$DIR/system/system/priv-app/FotaService"
-    rm -rf "$DIR/system/system/priv-app/KnoxUpdateAgent"
     rm -rf "$DIR/system/system/priv-app/SDMService"
 }
 
 ###################################################################################################
-# SYSTEM FEATURE STRIP (CRITICAL)
+# SYSTEM FEATURE STRIP
 ###################################################################################################
 
 REMOVE_SYSTEM_FEATURES() {
     local DIR="$1"
-    echo "- Removing system feature configs."
+    echo "- Removing system features..."
 
-    rm -rf "$DIR/system/system/etc/permissions/*dex*"
-    rm -rf "$DIR/system/system/etc/sysconfig/*dex*"
-
-    rm -rf "$DIR/system/system/etc/permissions/*ads*"
-    rm -rf "$DIR/system/system/etc/sysconfig/*ads*"
-
-    rm -rf "$DIR/system/system/etc/permissions/*intelligence*"
-    rm -rf "$DIR/system/system/etc/sysconfig/*intelligence*"
-
-    rm -rf "$DIR/system/system/etc/permissions/*context*"
-    rm -rf "$DIR/system/system/etc/sysconfig/*context*"
-
-    rm -rf "$DIR/system/system/etc/permissions/*edge*"
-    rm -rf "$DIR/system/system/etc/sysconfig/*edge*"
-
-    rm -rf "$DIR/system/system/etc/permissions/*finder*"
-    rm -rf "$DIR/system/system/etc/sysconfig/*finder*"
-
-    rm -rf "$DIR/system/system/etc/permissions/*free*"
-    rm -rf "$DIR/system/system/etc/sysconfig/*free*"
-
-    rm -rf "$DIR/system/system/etc/permissions/*bixby*"
-    rm -rf "$DIR/system/system/etc/sysconfig/*bixby*"
+    rm -rf "$DIR/system/system/etc/permissions/*"
+    rm -rf "$DIR/system/system/etc/sysconfig/*"
 }
 
 ###################################################################################################
@@ -295,21 +350,12 @@ REMOVE_SYSTEM_FEATURES() {
 
 CLEAN_RESIDUAL_FILES() {
     local DIR="$1"
-    echo "- Cleaning residual files."
+    echo "- Cleaning residuals..."
 
-    find "$DIR/product/app" -type d -name "oat" -exec rm -rf {} +
-    find "$DIR/product/priv-app" -type d -name "oat" -exec rm -rf {} +
-
-    rm -rf "$DIR/system/system/etc/sync"
+    find "$DIR" -type d -name "oat" -exec rm -rf {} +
     rm -rf "$DIR/system/system/log"
     rm -rf "$DIR/system/system/preload"
-    rm -rf "$DIR/system/system/tts"
     rm -rf "$DIR/system/system/hidden"
-    rm -rf "$DIR/system/system/etc/mediasearch"
-    rm -rf "$DIR/system/system/priv-app/MediaSearch"
-
-    rm -rf "$DIR/product/app/SpeechServicesByGoogle/oat"
-    rm -rf "$DIR/product/priv-app"/HotwordEnrollment*
 }
 
 ###################################################################################################
@@ -330,15 +376,17 @@ OPTIMIZE_BUILD_PROP() {
 DEBLOAT() {
     local DIR="$1"
 
-    echo -e "${YELLOW}Starting Extreme Debloat...${NC}"
+    echo -e "${YELLOW}Starting EXTREME ROM Debloat...${NC}"
 
     KICK "$DIR"
     REMOVE_ESIM_FILES "$DIR"
     REMOVE_FABRIC_CRYPTO "$DIR"
     REMOVE_SYSTEM_FEATURES "$DIR"
     REMOVE_OTA_INFRASTRUCTURE "$DIR"
+    REMOVE_OVERLAYS "$DIR"
+    REMOVE_SYSTEM_EXT "$DIR"
     CLEAN_RESIDUAL_FILES "$DIR"
     OPTIMIZE_BUILD_PROP "$DIR"
 
-    echo -e "${YELLOW}Debloat Complete (Extreme Mode).${NC}"
+    echo -e "${YELLOW}DONE: EXTREME DEBLOAT COMPLETE${NC}"
 }

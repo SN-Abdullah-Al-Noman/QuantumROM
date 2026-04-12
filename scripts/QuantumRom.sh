@@ -1822,3 +1822,27 @@ BUILD_IMG() {
         fi
     done
 }
+
+APPLY_PERFORMANCE_MOD() {
+    echo -e ""
+    echo -e "${YELLOW}Applying performance optimizations...${NC}"
+
+    local EXTRACTED_FIRM_DIR="$1"
+
+    if [ -z "$EXTRACTED_FIRM_DIR" ]; then
+        echo -e "${RED}No firmware directory provided!${NC}"
+        return 1
+    fi
+
+    # Ensure target directory exists
+    mkdir -p "$EXTRACTED_FIRM_DIR/system/system/etc/init"
+
+    # Copy performance.rc
+    cp -f "$(pwd)/QuantumROM/Mods/performance/system/system/etc/init/performance.rc" \
+    "$EXTRACTED_FIRM_DIR/system/system/etc/init/"
+
+    # Fix permissions
+    chmod 0644 "$EXTRACTED_FIRM_DIR/system/system/etc/init/performance.rc"
+
+    echo -e "- performance.rc added successfully"
+}

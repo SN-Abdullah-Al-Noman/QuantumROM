@@ -1,90 +1,74 @@
 on post-fs-data
 
     #######################################################################
-    # 🔇 REDUCE LOGGING OVERHEAD (SAFE + STABLE)
+    # 🔇 DISABLE LOGGING (MAJOR PERFORMANCE BOOST)
     #######################################################################
     stop logd
-    stop statsd
     stop traced
+    stop traced_probes
+    stop statsd
     stop bugreportd
 
-    setprop persist.sys.logd.enable 0
     setprop log.tag.statsd S
     setprop log.tag.GAv4 S
     setprop log.tag.GmsClient S
+    setprop persist.sys.logd.enable 0
 
     #######################################################################
-    # ❌ BACKGROUND SERVICES (ONLY NON-CRITICAL)
+    # ❌ DISABLE UNUSED SERVICES
     #######################################################################
-    stop samsunganalytics
     stop diagmonagent
-    stop knox_enrollment_service
+    stop samsunganalytics
+    stop knox_enrollment_agent
     stop knox_push_service
-
+    stop gameoptimizingsvc
+    stop gametools
+    stop gamehome
     stop printspooler
-
-    # DO NOT permanently kill game services on MTK (prevents instability)
-    # Only allow system to manage them dynamically
+    stop update_engine
+    stop update_engine_sideload
 
     #######################################################################
-    # 🚀 CPU SCHEDULER (BALANCED RESPONSIVENESS)
+    # 🚀 CPU / SCHEDULER TUNING
     #######################################################################
     write /proc/sys/kernel/sched_autogroup_enabled 0
     write /proc/sys/kernel/sched_latency_ns 10000000
-    write /proc/sys/kernel/sched_min_granularity_ns 3000000
+    write /proc/sys/kernel/sched_min_granularity_ns 2000000
     write /proc/sys/kernel/sched_wakeup_granularity_ns 3000000
-    write /proc/sys/kernel/sched_migration_cost_ns 750000
 
     #######################################################################
-    # 🧠 MEMORY (BALANCED + LESS STANDBY DRAIN)
+    # 🧠 MEMORY (LMK + VM)
     #######################################################################
-    write /proc/sys/vm/swappiness 20
-    write /proc/sys/vm/dirty_ratio 25
+    write /proc/sys/vm/swappiness 10
+    write /proc/sys/vm/dirty_ratio 20
     write /proc/sys/vm/dirty_background_ratio 10
-    write /proc/sys/vm/vfs_cache_pressure 70
-    write /proc/sys/vm/stat_interval 15
+    write /proc/sys/vm/vfs_cache_pressure 50
 
     #######################################################################
-    # ⚡ STORAGE (BALANCED FAST LOAD + BATTERY FRIENDLY)
+    # ⚡ I/O PERFORMANCE
     #######################################################################
-    write /sys/block/sda/queue/read_ahead_kb 256
-    write /sys/block/sda/queue/nr_requests 128
-
-    write /sys/block/mmcblk0/queue/read_ahead_kb 256
-    write /sys/block/mmcblk0/queue/nr_requests 128
+    write /sys/block/mmcblk0/queue/read_ahead_kb 128
+    write /sys/block/mmcblk0/queue/nr_requests 64
 
     #######################################################################
-    # 📶 NETWORK (STABLE LOW LATENCY)
+    # 📶 NETWORK OPTIMIZATION
     #######################################################################
     write /proc/sys/net/ipv4/tcp_low_latency 1
-    write /proc/sys/net/ipv4/tcp_timestamps 1
-    write /proc/sys/net/ipv4/tcp_sack 1
+    write /proc/sys/net/ipv4/tcp_timestamps 0
 
     #######################################################################
-    # 🎮 INPUT RESPONSIVENESS (SAFE TUNING)
+    # 🔋 POWER VS PERFORMANCE BALANCE
     #######################################################################
-    write /proc/sys/kernel/sched_tunable_scaling 0
-
-    #######################################################################
-    # 🔋 POWER POLICY (IMPORTANT CHANGE FOR BATTERY LIFE)
-    #######################################################################
-    setprop persist.sys.performance_mode 0
-    setprop debug.performance.tuning 1
-
-    # DO NOT force GAME mode globally
-    # Let system switch dynamically instead of locking it
-    setprop vendor.powerhal.state BALANCED
-
+    setprop power.saving.mode 0
+    setprop persist.sys.performance_mode 1
 
 on property:sys.boot_completed=1
 
     #######################################################################
-    # 🔁 STABILIZE AFTER BOOT
+    # 🔁 RE-ENFORCE AFTER BOOT
     #######################################################################
-    stop logd
     stop statsd
+    stop logd
+    stop traced
 
-    write /proc/sys/vm/swappiness 20
-
-    setprop persist.sys.performance_mode 0
-    setprop vendor.powerhal.state BALANCED
+    write /proc/sys/vm/swappiness 10

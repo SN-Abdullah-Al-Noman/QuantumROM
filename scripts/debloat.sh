@@ -9,59 +9,104 @@ YELLOW="\e[33m"
 NC="\e[0m"
 
 ###################################################################################################
-# FINAL BALANCED DEBLOAT LIST (SAFE + PERFORMANCE)
+# FINAL AGGRESSIVE DEBLOAT LIST
 ###################################################################################################
 
 DEBLOAT_APPS=(
 
-# --- Google (safe to remove) ---
-"DigitalWellbeing"
+# --- Google / AOSP ---
+"SpeechServicesByGoogle"
 "LiveTranscribe"
+"DigitalWellbeing"
+"Maps"
+"Duo"
+"Photos"
+"AssistantShell"
+"BardShell"
+"DuoStub"
+"GoogleCalendarSyncAdapter"
+"AndroidDeveloperVerifier"
+"GoogleRestore"
+"SearchSelector"
+"VoiceAccess"
 
-# --- Samsung Optional Apps ---
+# --- Extra Google Debloat ---
+"Drive"
+"GoogleOne"
+"BackupRestoreConfirmation"
+"Videos"
+"Music2"
+"ChromeCustomizations"
+"Velvet"
+"LocationHistory"
+"LocationSharing"
+"YouTube"
+"YouTubeMusicPrebuilt"
+"PrebuiltGemini"
+
+# --- Samsung Core ---
+"SamsungCalendar"
+"Notes40"
 "SamsungMembers"
 "Tips"
 "VoiceNote_5.0"
 
-# --- AR / Camera extras ---
+# --- Samsung Ecosystem ---
+"MdecService"
+"LinkToWindowsService"
+"SmartThingsKit"
+"SmartSwitchStub"
+"OneDrive_Samsung_v3"
+
+# --- Knox ---
+"KnoxEnrollmentService"
+"KnoxPushManager"
+"KLMSAgent"
+
+# --- Gaming ---
+"GameOptimizerService"
+"GameTools_Dream"
+"GameHome"
+
+# --- VPN / Network ---
+"SamsungMax"
+"SamsungVPN"
+
+# --- AR / Camera ---
+"ARCore"
+"ARDrawing"
+"ARZone"
 "AREmoji"
 "AREmojiEditor"
 "AvatarEmojiSticker"
 "AvatarEmojiSticker_S"
-"ARZone"
-"ARDrawing"
+"StickerFaceARAvatar"
+"LiveStickers"
 
-# --- Bixby (safe partial removal) ---
+# --- Bixby ---
+"Bixby"
 "BixbyWakeup"
+"BixbyInterpreter"
 "BixbyVisionFramework3.5"
+"SettingsBixby"
 
-# --- Logging / Analytics (HIGH IMPACT, SAFE) ---
+# --- Analytics ---
 "DiagMonAgent"
 "SamsungAnalytics"
+"SOAgent7"
+"SOAgent75"
+"SOAgent76"
+"SOAgent77"
 
-# --- Edge features (optional UI only) ---
+# --- UI / Features ---
 "EdgeLighting"
 "PeopleStripe"
-
-# --- Game services ---
-"GameTools"
-
-# --- Printing / misc ---
-"PrintSpooler"
-"BluetoothMidiService"
-
-# --- Minor background services ---
-"StickerCenter"
+"AirGlance"
+"AirReadingGlass"
 "SmartSuggestions"
+"SamsungSmartSuggestions"
 
-# --- User-approved removals ---
-"MdecService"
-"LinkToWindowsService"
-"SmartThingsKit"
-"SamsungCalendar"
-"Notes40"
-
-# --- Extra safe removals ---
+# --- Misc ---
 "LiveDrawing"
 "PhotoTable"
 "VideoEditorLite_Dream_N"
@@ -69,6 +114,76 @@ DEBLOAT_APPS=(
 "EasySetup"
 "KidsHome_Installer"
 "ParentalCare"
+"SmartReminder"
+"StickerCenter"
+"SmartPush"
+"SmartPush_64"
+
+# --- Carrier ---
+"KTAuth"
+"KTCustomerService"
+"KTUsimManager"
+"KTServiceAgent"
+"KTServiceMenu"
+"KT114Provider2"
+"KTHiddenMenu"
+"KTOneStore"
+
+"SKTMemberShip"
+"SKTMemberShip_new"
+"SKTFindLostPhone"
+"SKTFindLostPhoneApp"
+"SKTHiddenMenu"
+"SKTOneStore"
+"SktUsimService"
+
+"LGUMiniCustomerCenter"
+"LGUplusTsmProxy"
+"LGUGPSnWPS"
+"LGUHiddenMenu"
+"LGUOZStore"
+
+"TWorld"
+"TService"
+"TPhoneOnePackage"
+"TPhoneSetup"
+
+# --- Connectivity ---
+"LinkSharing_v11"
+"QuickShare"
+
+# --- System ---
+"BluetoothMidiService"
+"PrintSpooler"
+"WebManual"
+"WifiGuider"
+"UltraDataSaving_O"
+"Upday"
+
+# --- Facebook ---
+"FBAppManager_NS"
+"FBInstaller_NS"
+"FBServices"
+
+# --- Preload ---
+"Netflix_stub"
+
+# --- Extra ---
+"SetupIndiaServicesTnC"
+"SamsungPass"
+"SamsungPassAutofill_v1"
+"SamsungBilling"
+"SystemUpdate"
+
+# --- Accessibility ---
+"TalkbackSE"
+"SwiftkeyIme"
+"SamsungTTS"
+
+# --- Removed by YOU ---
+"AppCloud"
+"SamsungStore"
+"MyGalaxy"
 )
 
 ###################################################################################################
@@ -98,36 +213,47 @@ KICK() {
 }
 
 ###################################################################################################
-# CLEAN RESIDUAL FILES
+# REMOVE FABRIC CRYPTO
+###################################################################################################
+
+REMOVE_FABRIC_CRYPTO() {
+    local DIR="$1"
+    echo "- Removing fabric crypto."
+
+    rm -rf "$DIR/system/system/bin/fabric_crypto"
+    rm -rf "$DIR/system/system/etc/init/fabric_crypto.rc"
+    rm -rf "$DIR/system/system/etc/permissions/FabricCryptoLib.xml"
+    rm -rf "$DIR/system/system/etc/vintf/manifest/fabric_crypto_manifest.xml"
+    rm -rf "$DIR/system/system/framework/FabricCryptoLib.jar"
+    rm -rf "$DIR/system/system/lib64/com.samsung.security.fabric.cryptod-V1-cpp.so"
+    rm -rf "$DIR/system/system/lib64/vendor.samsung.hardware.security.fkeymaster-V1-ndk.so"
+    rm -rf "$DIR/system/system/priv-app/KmxService"
+}
+
+###################################################################################################
+# CLEAN
 ###################################################################################################
 
 CLEAN_RESIDUAL_FILES() {
     local DIR="$1"
     echo "- Cleaning residual files."
 
-    # Remove unused oat (compiled cache)
     find "$DIR/product/app" -type d -name "oat" -exec rm -rf {} +
     find "$DIR/product/priv-app" -type d -name "oat" -exec rm -rf {} +
 
-    # Remove leftover sync configs (SAFE)
     rm -rf "$DIR/system/system/etc/sync"
-
-    # Remove log cache (SAFE)
     rm -rf "$DIR/system/system/log"
 }
 
 ###################################################################################################
-# BUILD.PROP OPTIMIZATION (SAFE ONLY)
+# BUILD.PROP
 ###################################################################################################
 
 OPTIMIZE_BUILD_PROP() {
     local FILE="$1/system/system/build.prop"
     echo "- Applying performance tweaks."
 
-    # Disable excessive logging
     grep -q "persist.sys.logd.enable" "$FILE" || echo "persist.sys.logd.enable=0" >> "$FILE"
-
-    # Improve touch responsiveness
     grep -q "windowsmgr.max_events_per_sec" "$FILE" || echo "windowsmgr.max_events_per_sec=90" >> "$FILE"
 }
 
@@ -143,11 +269,12 @@ DEBLOAT() {
 
     local DIR="$1"
 
-    echo -e "${YELLOW}Starting Balanced Performance Debloat...${NC}"
+    echo -e "${YELLOW}Starting Aggressive Debloat...${NC}"
 
     KICK "$DIR"
+    REMOVE_FABRIC_CRYPTO "$DIR"
     CLEAN_RESIDUAL_FILES "$DIR"
     OPTIMIZE_BUILD_PROP "$DIR"
 
-    echo -e "${YELLOW}Debloat complete (Stable + Optimized).${NC}"
+    echo -e "${YELLOW}Debloat complete (Ultra Aggressive Mode).${NC}"
 }

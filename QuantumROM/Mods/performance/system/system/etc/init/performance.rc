@@ -1,0 +1,74 @@
+on post-fs-data
+
+    #######################################################################
+    # 🔇 DISABLE LOGGING (MAJOR PERFORMANCE BOOST)
+    #######################################################################
+    stop logd
+    stop traced
+    stop traced_probes
+    stop statsd
+    stop bugreportd
+
+    setprop log.tag.statsd S
+    setprop log.tag.GAv4 S
+    setprop log.tag.GmsClient S
+    setprop persist.sys.logd.enable 0
+
+    #######################################################################
+    # ❌ DISABLE UNUSED SERVICES
+    #######################################################################
+    stop diagmonagent
+    stop samsunganalytics
+    stop knox_enrollment_agent
+    stop knox_push_service
+    stop gameoptimizingsvc
+    stop gametools
+    stop gamehome
+    stop printspooler
+    stop update_engine
+    stop update_engine_sideload
+
+    #######################################################################
+    # 🚀 CPU / SCHEDULER TUNING
+    #######################################################################
+    write /proc/sys/kernel/sched_autogroup_enabled 0
+    write /proc/sys/kernel/sched_latency_ns 10000000
+    write /proc/sys/kernel/sched_min_granularity_ns 2000000
+    write /proc/sys/kernel/sched_wakeup_granularity_ns 3000000
+
+    #######################################################################
+    # 🧠 MEMORY (LMK + VM)
+    #######################################################################
+    write /proc/sys/vm/swappiness 10
+    write /proc/sys/vm/dirty_ratio 20
+    write /proc/sys/vm/dirty_background_ratio 10
+    write /proc/sys/vm/vfs_cache_pressure 50
+
+    #######################################################################
+    # ⚡ I/O PERFORMANCE
+    #######################################################################
+    write /sys/block/mmcblk0/queue/read_ahead_kb 128
+    write /sys/block/mmcblk0/queue/nr_requests 64
+
+    #######################################################################
+    # 📶 NETWORK OPTIMIZATION
+    #######################################################################
+    write /proc/sys/net/ipv4/tcp_low_latency 1
+    write /proc/sys/net/ipv4/tcp_timestamps 0
+
+    #######################################################################
+    # 🔋 POWER VS PERFORMANCE BALANCE
+    #######################################################################
+    setprop power.saving.mode 0
+    setprop persist.sys.performance_mode 1
+
+on property:sys.boot_completed=1
+
+    #######################################################################
+    # 🔁 RE-ENFORCE AFTER BOOT
+    #######################################################################
+    stop statsd
+    stop logd
+    stop traced
+
+    write /proc/sys/vm/swappiness 10

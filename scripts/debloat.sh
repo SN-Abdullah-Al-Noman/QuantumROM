@@ -37,6 +37,9 @@ DEBLOAT_APPS=(
 # --- Google Chrome (FULL REMOVAL) ---
 "Chrome" "ChromePublic" "GoogleChrome" "ChromeCustomizations"
 
+# --- YouTube (ADDED) ---
+"YouTube" "YouTubeMusic" "PrebuiltYouTube" "YouTubeStub"
+
 # ==========================================================
 # SAMSUNG CORE
 # ==========================================================

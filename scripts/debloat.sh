@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 ###################################################################################################
@@ -43,11 +42,6 @@ DEBLOAT_APPS=(
 # ==========================================================
 
 "SamsungCalendar" "Notes40" "SamsungMembers" "Tips" "VoiceNote_5.0"
-
-# --- Samsung Messages (FULL STACK REMOVAL) ---
-"SamsungMessages" "SecMms" "MmsService"
-"MessageApp" "Messages" "Messaging_10.1"
-"RcsService" "SamsungMessagesRcs" "RcsProvider"
 
 # ==========================================================
 # SAMSUNG ECOSYSTEM
@@ -124,22 +118,17 @@ DEBLOAT_APPS=(
 "LinkSharing_v11"
 
 # ==========================================================
-# SAMSUNG FEATURE STACK REMOVAL (REQUESTED)
+# SAMSUNG FEATURE STACK REMOVAL
 # ==========================================================
 
-# --- Music Share ---
 "MusicShare" "MusicShareService" "MusicShareClient"
 
-# --- Quick Share ---
 "QuickShare" "QuickShareService" "NearbyShare" "NearbyService"
 
-# --- Auto Switch Buds ---
 "AutoSwitchBuds" "AutoSwitchBudsService"
 
-# --- Smart View ---
 "SmartView" "ScreenMirroring" "MirroringService"
 
-# --- SmartThings ---
 "SmartThingsKit" "SmartThingsFramework" "SmartThingsService"
 "SmartThings" "SmartThingsAgent" "SmartThingsCore"
 
@@ -158,7 +147,7 @@ DEBLOAT_APPS=(
 "AndroidAuto" "AndroidAutoStub" "CarIntegrationService"
 
 # ==========================================================
-# OTA / UPDATES (FULL REMOVAL)
+# OTA / UPDATES
 # ==========================================================
 
 "FotaAgent" "FotaService" "FotaClient"
@@ -208,7 +197,7 @@ DEBLOAT_APPS=(
 "SamsungPass" "SamsungPassAutofill_v1"
 "SamsungBilling" "UniversalMDMClient"
 "Discover" "DiscoverSEP"
-"DigitalKey" "EarphoneTypeC"
+"DigitalKey"
 "SamsungCarKeyFw"
 
 # ==========================================================
@@ -241,8 +230,6 @@ DEBLOAT_APPS=(
 "ADPersonalizationService" "SamsungAds" "MarketingService" "CustomService"
 
 "EdgePanels" "TaskEdge" "OneHandOperationPlus"
-
-"SmartCapture" "ScreenshotService"
 
 "Finder"
 
@@ -418,5 +405,3 @@ DEBLOAT() {
 
     echo -e "${YELLOW}Debloat Complete (Extreme Mode).${NC}"
 }
-
-

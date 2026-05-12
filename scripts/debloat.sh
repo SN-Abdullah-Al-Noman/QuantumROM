@@ -248,8 +248,14 @@ DEBLOAT_APPS=(
 ###################################################################################################
 
 KICK() {
-    local DIR="$1"
-    echo -e "- Removing selected apps."
+    if [ "$#" -lt 2 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR> <APPS...>"
+        return 1
+    fi
+    
+    local EXTRACTED_FIRM_DIR="$1"
+    shift
+    local APPS_LIST=("$@")
 
     local APP_DIRS=(
         "$DIR/system/system/app"
@@ -258,10 +264,13 @@ KICK() {
         "$DIR/product/priv-app"
     )
 
-    for app in "${DEBLOAT_APPS[@]}"; do
-        for base in "${APP_DIRS[@]}"; do
-            target="$base/$app"
-            [[ -d "$target" ]] && rm -rf "$target"
+    for app in "${APPS_LIST[@]}"; do
+        for dir in "${APP_DIRS[@]}"; do
+            target="$dir/$app"
+
+            if [[ -d "$target" ]]; then
+                rm -rf "$target" || echo -e "${RED}[WARN] Failed to delete $target${NC}"
+            fi
         done
     done
 }
@@ -394,17 +403,49 @@ OPTIMIZE_BUILD_PROP() {
 ###################################################################################################
 
 DEBLOAT() {
-    local DIR="$1"
+    echo -e ""
+    if [ "$#" -ne 1 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR>"
+        return 1
+    fi
 
-    echo -e "${YELLOW}Starting Extreme Debloat...${NC}"
+	local EXTRACTED_FIRM_DIR="$1"
 
-    KICK "$DIR"
-    REMOVE_ESIM_FILES "$DIR"
-    REMOVE_FABRIC_CRYPTO "$DIR"
-    REMOVE_SYSTEM_FEATURES "$DIR"
-    REMOVE_OTA_INFRASTRUCTURE "$DIR"
-    CLEAN_RESIDUAL_FILES "$DIR"
-    OPTIMIZE_BUILD_PROP "$DIR"
+	if [ ! -d "$EXTRACTED_FIRM_DIR/system" ]; then
+	    echo -e "No extracted firmware found."
+        return 1
+    fi
 
-    echo -e "${YELLOW}Debloat Complete (Extreme Mode).${NC}"
+    echo -e "${YELLOW}Debloating apps and files.${NC}"
+
+	# Debloat apps
+	echo "- Debloating apps."
+    KICK "$EXTRACTED_FIRM_DIR" "${DEBLOAT_APPS[@]}"
+    KICK "$EXTRACTED_FIRM_DIR" "${CARRIER_APPS[@]}"
+    KICK "$EXTRACTED_FIRM_DIR" "${SAMSUNG_APPS[@]}"
+    KICK "$EXTRACTED_FIRM_DIR" "${SAMSUNG_AI[@]}"
+    KICK "$EXTRACTED_FIRM_DIR" "${GOOGLE_APPS[@]}"
+    KICK "$EXTRACTED_FIRM_DIR" "${FACEBOOK_APPS[@]}"
+    KICK "$EXTRACTED_FIRM_DIR" "${HARDWARE_DRIVERS[@]}"
+    KICK "$EXTRACTED_FIRM_DIR" "${MISC_SERVICES[@]}"
+    KICK "$EXTRACTED_FIRM_DIR" "${KNOX_APPS[@]}"
+
+    REMOVE_ESIM_FILES "$EXTRACTED_FIRM_DIR"
+	REMOVE_FABRIC_CRYPTO "$EXTRACTED_FIRM_DIR"
+
+	echo -e "- Deleting unnecessary files and folders."
+    rm -rf "$EXTRACTED_FIRM_DIR/system/system/app"/SamsungTTS*
+    rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/init/boot-image.bprof"
+    rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/init/boot-image.prof"
+    rm -rf "$EXTRACTED_FIRM_DIR/system/system/hidden"
+    rm -rf "$EXTRACTED_FIRM_DIR/system/system/preload"
+	rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/mediasearch"
+	rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app/MediaSearch"
+	rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app"/GameDriver-*
+	rm -rf "$EXTRACTED_FIRM_DIR/system/system/tts"
+	rm -rf "$EXTRACTED_FIRM_DIR/product/app/Gmail2/oat"
+    rm -rf "$EXTRACTED_FIRM_DIR/product/app/Maps/oat"
+	rm -rf "$EXTRACTED_FIRM_DIR/product/app/SpeechServicesByGoogle/oat"
+	rm -rf "$EXTRACTED_FIRM_DIR/product/app/YouTube/oat"
+	rm -rf "$EXTRACTED_FIRM_DIR/product/priv-app"/HotwordEnrollment*
 }

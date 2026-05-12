@@ -1,0 +1,1 @@
+https://android.googlesource.com/platform/prebuilts/fullsdk-linux/platform-tools/

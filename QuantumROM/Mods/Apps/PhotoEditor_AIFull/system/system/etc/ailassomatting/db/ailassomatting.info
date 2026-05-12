@@ -3,8 +3,7 @@
   "framework": "tflite",
   "precision": "fp16",
   "runtime": "gpu",
-  "org_model_name": "mobilenetv4_hybrid_medium_Matte_33509_f16.tflite",
-  "model_name": "12-31_PhotoEditor_AILassoMatting_v7.0",
+  "org_model_name": "mobilenetv4_hybrid_medium_Matte_0821_f16.tflite",
   "model_path": [
     "/system/etc/ailasso/db/ailassomatting.tflite"
   ]

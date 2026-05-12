@@ -29,11 +29,12 @@ $GOFILE_LINK
 #### 📱 Rom Info:
 • Ported For: $STOCK_DEVICE
 • Ported From: $TARGET_DEVICE
+• Build Version: $VERSION
 
 #### ⚙️ Build Options:
 • Filesystem: $OUTPUT_FILESYSTEM
 • Compressed IMG: $COMPRESS_IMG_TO_XZ
-• Used UI8 Tethering APEX: $USE_UI_8_TETHERING_APEX
+• Used OneUI 8 Tethering APEX: $USE_UI_8_TETHERING_APEX
 "
 
 # Convert to JSON-safe string

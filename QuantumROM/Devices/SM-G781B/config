@@ -1,0 +1,19 @@
+STOCK_HAS_AB_SLOT=FALSE
+STOCK_VNDK_VERSION=30
+STOCK_HAS_SEPARATE_SYSTEM_EXT=FALSE
+STOCK_DVFS_FILENAME=dvfs_policy_sdm8250_xx
+
+ro.odm.build.version.sdk=30
+ro.product.odm.device=r8q
+ro.product.odm.model=SM-G781B
+ro.product.odm.name=r8qxxx
+ro.vendor.qti.va_odm.support=1
+
+# partitions size as bytes
+default_img_type=ext4
+odm=4349952
+product=1262350336
+system=6041882624
+vendor=1667575808
+
+# Source: https://samfw.com/firmware/SM-G781B/ZTO/G781BXXSIHYJ2

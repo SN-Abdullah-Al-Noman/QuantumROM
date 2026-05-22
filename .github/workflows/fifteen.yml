@@ -26,7 +26,7 @@ on:
       TARGET_FW_VERSION:
         description: "Any specific firmware release version."
         required: false
-        default: "A346EXXSADYG1/A346EODMADYG1/A346EXXSADYG1/A346EXXSADYG1"
+        default: "A346EXXSEEZC7/A346EODMEEZC7/A346EXXSEEZC7/A346EXXSEEZC7"
       OUTPUT_FILESYSTEM:
         description: "OUTPUT_FILESYSTEM. e.g erofs / ext4"
         required: true

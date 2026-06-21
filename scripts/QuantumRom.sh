@@ -380,7 +380,7 @@ EXTRACT_FIRMWARE_IMG() {
             f2fs)
                 echo " "
                 echo -e "$partition.img Detected f2fs. Size: $ORG_IMG_SIZE bytes. Extracting..."
-                bash "$QT_DIR/scripts/extract_img.sh" "$imgfile" "$EXTRACTED_FIRM_DIR"
+                bash "$(pwd)/scripts/extract_img.sh" "$imgfile" "$EXTRACTED_FIRM_DIR"
                 ;;
 
             *)

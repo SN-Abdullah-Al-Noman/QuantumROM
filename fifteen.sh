@@ -15,11 +15,11 @@ export OUTPUT_FILESYSTEM="$5"
 VERSION="1"
 
 # Directories
+export FIRM_DIR="$(pwd)/FW"
 export OUT_DIR="$(pwd)/OUT"
 export WORK_DIR="$(pwd)/WORK"
-export FIRM_DIR="$(pwd)/FIRMWARE"
-export DEVICES_DIR="$(pwd)/QuantumROM/Devices"
 export APKTOOL="$(pwd)/bin/java/apktool.jar"
+export DEVICES_DIR="$(pwd)/QuantumROM/Devices"
 export VNDKS_COLLECTION="$(pwd)/QuantumROM/vndks"
 export SMART_MANAGER_CN="$(pwd)/QuantumROM/Mods/SMART_MANAGER_CN"
 
@@ -34,6 +34,7 @@ EXTRACT_FIRMWARE_IMG "$FIRM_DIR/$TARGET_DEVICE" "all"
 
 APPLY_STOCK_CONFIG "$FIRM_DIR/$TARGET_DEVICE"
 
+DECODE_OMC "$FIRM_DIR/$TARGET_DEVICE" "$WORK_DIR"
 DEBLOAT "$FIRM_DIR/$TARGET_DEVICE"
 FIX_SELINUX "$FIRM_DIR/$TARGET_DEVICE"
 APPLY_CUSTOM_FEATURES "$FIRM_DIR/$TARGET_DEVICE"

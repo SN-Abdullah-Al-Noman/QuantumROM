@@ -196,6 +196,8 @@ DOWNLOAD_FIRMWARE() {
 
 
 EXTRACT_FIRMWARE() {
+    echo " "
+
     if [ "$#" -ne 1 ]; then
         echo -e "Usage: ${FUNCNAME[0]} <FIRMWARE_DIRECTORY>"
         return 1
@@ -203,69 +205,143 @@ EXTRACT_FIRMWARE() {
 
     local FIRM_DIR="$1"
 
-    echo -e "${YELLOW}Extracting downloaded firmware.${NC}"
+    echo -e "Extracting downloaded firmware."
+
+	if [ ! -d "$FIRM_DIR" ]; then
+        echo -e "- Directory not found: $FIRM_DIR"
+        exit
+    fi
 
     # ---- ZIP ----
     for file in "$FIRM_DIR"/*.zip; do
-        if [ -f "$file" ]; then
-            echo -e "- Extracting zip: $(basename "$file")"
-            7z x -y -bd -o"$FIRM_DIR" "$file" >/dev/null 2>&1
-            rm -f "$file"
-        fi
+        [ -e "$file" ] || continue
+
+        echo -e "Extracting zip: $(basename "$file")"
+        7z x -y -bd -bsp1 -o"$FIRM_DIR" "$file"
+
+        rm -f "$file"
     done
+
+    # remove unwanted archives before extraction
+    rm -f "$FIRM_DIR"/BL_*.tar.md5
+    rm -f "$FIRM_DIR"/CP_*.tar.md5
+    rm -f "$FIRM_DIR"/HOME_CSC_*.tar.md5
+	rm -f "$FIRM_DIR"/USERDATA_*.tar.md5
 
     # ---- XZ ----
     for file in "$FIRM_DIR"/*.xz; do
-        if [ -f "$file" ]; then
-            echo -e "- Extracting xz: $(basename "$file")"
-            7z x -y -bd -o"$FIRM_DIR" "$file" >/dev/null 2>&1
-            rm -f "$file"
-        fi
+        [ -e "$file" ] || continue
+
+        echo -e "Extracting xz: $(basename "$file")"
+        7z x -y -bd -bsp1 -o"$FIRM_DIR" "$file"
+
+        rm -f "$file"
     done
 
-    # ---- MD5 rename ----
+    # ---- RENAME .MD5 -> .TAR ----
     for file in "$FIRM_DIR"/*.md5; do
-        if [ -f "$file" ]; then
-            mv -- "$file" "${file%.md5}"
-        fi
+        [ -e "$file" ] || continue
+
+        mv -- "$file" "${file%.md5}"
     done
 
     # ---- TAR ----
     for file in "$FIRM_DIR"/*.tar; do
-        if [ -f "$file" ]; then
-            echo -e "- Extracting tar: $(basename "$file")"
-            tar -xvf "$file" -C "$FIRM_DIR" >/dev/null 2>&1
-            rm -f "$file"
-        fi
+        [ -e "$file" ] || continue
+
+        echo -e "Extracting tar: $(basename "$file")"
+
+        tar -xf "$file" -C "$FIRM_DIR"
+
+        # remove only samsung firmware tar archives
+        case "$(basename "$file")" in
+            AP_*|BL_*|CP_*|CSC_*|HOME_CSC_*)
+                rm -f "$file"
+                ;;
+        esac
     done
 
-    # ---- LZ4 ----
-	rm -rf $FIRM_DIR/{cache.img.lz4,dtbo.img.lz4,efuse.img.lz4,gz-verified.img.lz4,lk-verified.img.lz4,md1img.img.lz4,md_udc.img.lz4,misc.bin.lz4,omr.img.lz4,param.bin.lz4,preloader.img.lz4,recovery.img.lz4,scp-verified.img.lz4,spmfw-verified.img.lz4,sspm-verified.img.lz4,tee-verified.img.lz4,tzar.img.lz4,up_param.bin.lz4,userdata.img.lz4,vbmeta.img.lz4,vbmeta_system.img.lz4,audio_dsp-verified.img.lz4,cam_vpu1-verified.img.lz4,cam_vpu2-verified.img.lz4,cam_vpu3-verified.img.lz4,dpm-verified.img.lz4,init_boot.img.lz4,mcupm-verified.img.lz4,pi_img-verified.img.lz4,uh.bin.lz4,vendor_boot.img.lz4}
-    for file in "$FIRM_DIR"/*.lz4; do
-        if [ -f "$file" ]; then
-            echo -e "- Extracting lz4: $(basename "$file")"
-            lz4 -d "$file" "${file%.lz4}" >/dev/null 2>&1
-            rm -f "$file"
-        fi
-    done
-
-    # ---- REMOVE UNWANTED FILES ----
+    # ---- REMOVE UNWANTED LZ4 FILES ----
     rm -rf \
+        "$FIRM_DIR/meta-data" \
         "$FIRM_DIR"/*.txt \
         "$FIRM_DIR"/*.pit \
         "$FIRM_DIR"/*.bin \
-        "$FIRM_DIR"/meta-data
+        "$FIRM_DIR"/cache.img.lz4 \
+        "$FIRM_DIR"/dtbo.img.lz4 \
+        "$FIRM_DIR"/efuse.img.lz4 \
+        "$FIRM_DIR"/gz-verified.img.lz4 \
+        "$FIRM_DIR"/lk-verified.img.lz4 \
+        "$FIRM_DIR"/md1img.img.lz4 \
+        "$FIRM_DIR"/md_udc.img.lz4 \
+        "$FIRM_DIR"/misc.bin.lz4 \
+        "$FIRM_DIR"/omr.img.lz4 \
+        "$FIRM_DIR"/param.bin.lz4 \
+        "$FIRM_DIR"/preloader.img.lz4 \
+        "$FIRM_DIR"/recovery.img.lz4 \
+        "$FIRM_DIR"/scp-verified.img.lz4 \
+        "$FIRM_DIR"/spmfw-verified.img.lz4 \
+        "$FIRM_DIR"/sspm-verified.img.lz4 \
+        "$FIRM_DIR"/tee-verified.img.lz4 \
+        "$FIRM_DIR"/tzar.img.lz4 \
+        "$FIRM_DIR"/up_param.bin.lz4 \
+        "$FIRM_DIR"/userdata.img.lz4 \
+        "$FIRM_DIR"/vbmeta.img.lz4 \
+        "$FIRM_DIR"/vbmeta_system.img.lz4 \
+        "$FIRM_DIR"/audio_dsp-verified.img.lz4 \
+        "$FIRM_DIR"/cam_vpu1-verified.img.lz4 \
+        "$FIRM_DIR"/cam_vpu2-verified.img.lz4 \
+        "$FIRM_DIR"/cam_vpu3-verified.img.lz4 \
+        "$FIRM_DIR"/dpm-verified.img.lz4 \
+        "$FIRM_DIR"/init_boot.img.lz4 \
+        "$FIRM_DIR"/mcupm-verified.img.lz4 \
+        "$FIRM_DIR"/pi_img-verified.img.lz4 \
+        "$FIRM_DIR"/uh.bin.lz4 \
+        "$FIRM_DIR"/vendor_boot.img.lz4 \
+        "$FIRM_DIR"/ssu.img.lz4
 
-    # ---- SUPER.IMG ----
+    # ---- LZ4 ----
+    for file in "$FIRM_DIR"/*.lz4; do
+        [ -e "$file" ] || continue
+
+        echo -e "Extracting lz4: $(basename "$file")"
+
+        lz4 -d "$file" "${file%.lz4}"
+
+        rm -f "$file"
+    done
+
+    echo -e "Firmware Extraction complete."
+}
+
+
+EXTRACT_SUPER_IMG() {
+    echo " "
+
+    if [ "$#" -ne 1 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <FIRMWARE_DIRECTORY>"
+        return 1
+    fi
+
+    local FIRM_DIR="$1"
+
     if [ -f "$FIRM_DIR/super.img" ]; then
-        echo -e "- Extracting super.img"
-        simg2img "$FIRM_DIR/super.img" "$FIRM_DIR/super_raw.img"
+        echo -e "Extracting super.img"
+        if [ "$(DETECT_FILESYSTEM "$FIRM_DIR/super.img")" = "sparse" ]; then
+		    echo -e "Converting to raw super.img"
+            simg2img "$FIRM_DIR/super.img" "$FIRM_DIR/super_raw.img"
+            rm -f "$FIRM_DIR/super.img"
+            mv -f "$FIRM_DIR/super_raw.img" "$FIRM_DIR/super.img"
+        fi
+
+        echo "- Extracting partitions from super.img"
+        "$lpunpack" "$FIRM_DIR/super.img" "$FIRM_DIR" || return 1
         rm -f "$FIRM_DIR/super.img"
 
-        sudo "$(pwd)/bin/lp/lpunpack" "$FIRM_DIR/super_raw.img" "$FIRM_DIR"
-        rm -f "$FIRM_DIR/super_raw.img"
+        echo -e "super.img extraction complete"
 
-        echo -e "- Extraction complete"
+    else
+        echo -e "No super.img found."
     fi
 }
 
@@ -1538,6 +1614,56 @@ APPLY_CUSTOM_FEATURES() {
 }
 
 
+DECODE_OMC() {
+    echo " "
+
+    if [ "$#" -ne 2 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR> <OUT_DIR>"
+        return 1
+    fi
+
+    echo -e "Decoding CSC - odm,optics."
+
+    if ! command -v java >/dev/null 2>&1; then
+        echo -e "Java is not installed."
+        return 1
+    fi
+
+    local FW_DIR="$1"
+	local OUT_DIR="$2"
+
+    if [ -d "${FW_DIR}/odm/etc/omc" ]; then
+        rm -rf "${OUT_DIR}/odm_decoded"
+
+        echo "Decoding odm/etc/omc in ${OUT_DIR}"
+
+        java -jar "$omc_decoder" \
+            -i "${FW_DIR}/odm/etc/omc" \
+            -o "${OUT_DIR}/odm_decoded" \
+            >/dev/null 2>&1 || {
+                echo -e "Failed decoding odm/etc/omc."
+            }
+	else
+	     echo "No odm found."
+    fi
+
+    if [ -d "${FW_DIR}/optics" ]; then
+        rm -rf "${OUT_DIR}/optics_decoded"
+
+        echo "Decoding optics in ${OUT_DIR}"
+
+        java -jar "$omc_decoder" \
+            -i "${FW_DIR}/optics" \
+            -o "${OUT_DIR}/optics_decoded" \
+            >/dev/null 2>&1 || {
+                echo -e "Failed decoding optics."
+            }
+	else
+	     echo "No optics found."
+    fi
+}
+
+
 GEN_FS_CONFIG() {
     echo " "
 
@@ -1831,3 +1957,70 @@ BUILD_IMG() {
     chmod -R u+rwX "$OUT_DIR"
 }
 
+
+BUILD_SUPER_IMG() {
+    echo " "
+
+    local IMG_DIR="$1"
+    local OUTPUT_DIR="$2"
+    local OUTPUT_IMG="$OUTPUT_DIR/super.img"
+
+    echo "Building: super.img"
+
+    [ ! -d "$IMG_DIR" ] && {
+        echo "- Input folder not found: $IMG_DIR"
+        return 1
+    }
+
+    local PARTITIONS=""
+    local IMAGES=""
+    local TOTAL_SIZE=0
+    local VALID_IMAGES=0
+
+    rm -f "$OUTPUT_IMG"
+
+    for img in "$IMG_DIR"/*.img; do
+        [ -e "$img" ] || continue
+
+        local name="$(basename "$img")"
+
+        case "$name" in
+            boot.img|init_boot.img|recovery.img|vbmeta.img|vbmeta_system.img|vbmeta_vendor.img|dtbo.img|userdata.img|cache.img|metadata.img|vendor_boot.img|super.img)
+                echo "- Skipping $name"
+                continue
+                ;;
+        esac
+
+        local part_name="${name%.img}"
+        local size=$(stat -c%s "$img")
+
+        [ "$size" -le 0 ] && {
+            echo "- Skipping empty image: $name"
+            continue
+        }
+
+        echo "Adding: $part_name ($size bytes)"
+
+        PARTITIONS+=" --partition ${part_name}:readonly:${size}:main"
+        IMAGES+=" --image ${part_name}=$img"
+        TOTAL_SIZE=$((TOTAL_SIZE + size))
+        VALID_IMAGES=1
+    done
+
+    [ "$VALID_IMAGES" -eq 0 ] && {
+        echo "- No valid logical partition images found"
+        return 1
+    }
+
+    TOTAL_SIZE=$((TOTAL_SIZE + 4194304))
+
+    $lpmake \
+	    --device super:$TOTAL_SIZE \
+        --metadata-size 65536 \
+        --metadata-slots 2 \
+		--group main:$TOTAL_SIZE \
+		--block-size 4096 \
+        $PARTITIONS \
+        $IMAGES \
+        --output "$OUTPUT_IMG"
+}

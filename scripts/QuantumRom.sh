@@ -7,11 +7,29 @@ NC="\e[0m"
 
 REAL_USER=${SUDO_USER:-$USER}
 
+REAL_USER=${SUDO_USER:-$USER}
+
+# QT DIR
+QT_DIR="$(pwd)"
+
 # Binary
-chmod +x $(pwd)/bin/lp/lpunpack
-chmod +x $(pwd)/bin/ext4/make_ext4fs
-chmod +x $(pwd)/bin/erofs-utils/extract.erofs
-chmod +x $(pwd)/bin/erofs-utils/mkfs.erofs
+export lpmake="$QT_DIR/bin/lp/lpmake"
+export lpunpack="$QT_DIR/bin/lp/lpunpack"
+export make_ext4fs="$QT_DIR/bin/ext4/make_ext4fs"
+export make_f2fs="$QT_DIR/bin/f2fs-tools/mkfs.f2fs"
+export sload_f2fs="$QT_DIR/bin/f2fs-tools/sload.f2fs"
+export omc_decoder="$QT_DIR/bin/java/omc-decoder.jar"
+export mkfs_erofs="$QT_DIR/bin/erofs-utils/mkfs.erofs"
+export extract_erofs="$QT_DIR/bin/erofs-utils/extract.erofs"
+export imgextractor_py="$QT_DIR/bin/py_scripts/imgextractor.py"
+
+chmod +x "$lpmake"
+chmod +x "$lpunpack"
+chmod +x "$make_f2fs"
+chmod +x "$sload_f2fs"
+chmod +x "$mkfs_erofs"
+chmod +x "$make_ext4fs"
+chmod +x "$extract_erofs"
 
 export TARGET_FLOATING_FEATURE="$FIRM_DIR/$TARGET_DEVICE/system/system/etc/floating_feature.xml"
 
@@ -1528,84 +1546,87 @@ APPLY_CUSTOM_FEATURES() {
 
 
 GEN_FS_CONFIG() {
-    if [ "$#" -ne 1 ]; then
-        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR>"
+    echo " "
+
+    if [ "$#" -ne 2 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR> <PARTITION_FOLDER_NAME>"
         return 1
     fi
 
     local EXTRACTED_FIRM_DIR="$1"
+    local PARTITION="$2"
 
-    [ ! -d "$EXTRACTED_FIRM_DIR" ] && {
-        echo -e "- $EXTRACTED_FIRM_DIR not found."
+    [ ! -d "${EXTRACTED_FIRM_DIR}/$PARTITION" ] && {
+        echo -e "- Partition not found: $PARTITION"
         return 1
     }
 
-    [ ! -d "$EXTRACTED_FIRM_DIR/config" ] && {
-        echo -e "[ERROR] config directory missing"
-        return 1
-    }
+    [ "$PARTITION" = "config" ] && return
 
-    for ROOT in "$EXTRACTED_FIRM_DIR"/*; do
-        [ ! -d "$ROOT" ] && continue
+    local FS_CONFIG="${EXTRACTED_FIRM_DIR}/config/${PARTITION}_fs_config"
+    local TMP_EXISTING="$(mktemp)"
 
-        PARTITION="$(basename "$ROOT")"
-        [ "$PARTITION" = "config" ] && continue
+    touch "$FS_CONFIG"
 
-        local FS_CONFIG="$EXTRACTED_FIRM_DIR/config/${PARTITION}_fs_config"
-        local TMP_EXISTING="$(mktemp)"
+    echo -e "Generating fs_config for partition: $PARTITION"
 
-        touch "$FS_CONFIG"
+    awk '{print $1}' "$FS_CONFIG" | sort -u > "$TMP_EXISTING"
 
-        echo -e ""
-        echo -e "${YELLOW}Generating fs_config for partition:${NC} $PARTITION"
+    find "${EXTRACTED_FIRM_DIR}/$PARTITION" -mindepth 1 \( -type f -o -type d -o -type l \) | while IFS= read -r item; do
 
-        awk '{print $1}' "$FS_CONFIG" | sort -u > "$TMP_EXISTING"
+        REL_PATH="${item#${EXTRACTED_FIRM_DIR}/$PARTITION/}"
+        PATH_ENTRY="$PARTITION/$REL_PATH"
 
-        find "$ROOT" -mindepth 1 \( -type f -o -type d -o -type l \) | while IFS= read -r item; do
+        grep -qxF "$PATH_ENTRY" "$TMP_EXISTING" && continue
 
-            REL_PATH="${item#$ROOT/}"
-            PATH_ENTRY="$PARTITION/$REL_PATH"
+        if [ -d "$item" ]; then
+            echo -e "- Adding: $PATH_ENTRY 0 0 0755"
+            printf "%s 0 0 0755\n" "$PATH_ENTRY" >> "$FS_CONFIG"
 
-            grep -qxF "$PATH_ENTRY" "$TMP_EXISTING" && continue
-
-            if [ -d "$item" ]; then
-                echo -e "- Adding: $PATH_ENTRY 0 0 0755"
-                printf "%s 0 0 0755\n" "$PATH_ENTRY" >> "$FS_CONFIG"
-
+        else
+            if [[ "$REL_PATH" == */bin/* ]]; then
+                echo -e "- Adding: $PATH_ENTRY 0 2000 0755"
+                printf "%s 0 2000 0755\n" "$PATH_ENTRY" >> "$FS_CONFIG"
             else
-                if [[ "$REL_PATH" == */bin/* ]]; then
-                    echo -e "- Adding: $PATH_ENTRY 0 2000 0755"
-                    printf "%s 0 2000 0755\n" "$PATH_ENTRY" >> "$FS_CONFIG"
-                else
-                    echo -e "- Adding: $PATH_ENTRY 0 0 0644"
-                    printf "%s 0 0 0644\n" "$PATH_ENTRY" >> "$FS_CONFIG"
-                fi
+                echo -e "- Adding: $PATH_ENTRY 0 0 0644"
+                printf "%s 0 0 0644\n" "$PATH_ENTRY" >> "$FS_CONFIG"
             fi
+        fi
 
-        done
-
-        rm -f "$TMP_EXISTING"
-        echo -e "- $PARTITION fs_config generated"
     done
+
+    rm -f "$TMP_EXISTING"
+
+    echo -e "- $PARTITION fs_config generated"
 }
 
 
 GEN_FILE_CONTEXTS() {
-    if [ "$#" -ne 1 ]; then
-        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR>"
+    echo " "
+
+    if [ "$#" -ne 2 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR> <PARTITION_FOLDER_NAME>"
         return 1
     fi
 
     local EXTRACTED_FIRM_DIR="$1"
-    [ ! -d "$EXTRACTED_FIRM_DIR" ] && { echo -e "- $EXTRACTED_FIRM_DIR not found."; return 1; }
-    [ ! -d "$EXTRACTED_FIRM_DIR/config" ] && { echo -e "[ERROR] config directory missing"; return 1; }
+    local PARTITION="$2"
+
+    [ ! -d "${EXTRACTED_FIRM_DIR}/$PARTITION" ] && {
+        echo -e "- Partition not found: $PARTITION"
+        return 1
+    }
+
+    [ "$PARTITION" = "config" ] && return
 
     escape_path() {
         local path="$1"
         local result=""
         local c
+
         for ((i=0; i<${#path}; i++)); do
             c="${path:i:1}"
+
             case "$c" in
                 '.'|'+'|'['|']'|'*'|'?'|'^'|'$'|'\\')
                     result+="\\$c"
@@ -1615,104 +1636,205 @@ GEN_FILE_CONTEXTS() {
                     ;;
             esac
         done
+
         printf '%s' "$result"
     }
 
-    for ROOT in "$EXTRACTED_FIRM_DIR"/*; do
-        [ ! -d "$ROOT" ] && continue
-        local PARTITION
-        PARTITION="$(basename "$ROOT")"
-        [ "$PARTITION" = "config" ] && continue
+    local FILE_CONTEXTS="${EXTRACTED_FIRM_DIR}/config/${PARTITION}_file_contexts"
 
-        local FILE_CONTEXTS="$EXTRACTED_FIRM_DIR/config/${PARTITION}_file_contexts"
-        touch "$FILE_CONTEXTS"
+    touch "$FILE_CONTEXTS"
 
-        echo -e ""
-        echo -e "${YELLOW}Generating file_contexts for partition:${NC} $PARTITION"
+    echo -e "Generating file_contexts for partition: $PARTITION"
 
-        declare -A EXISTING=()
-        while IFS= read -r line || [[ -n "$line" ]]; do
-            [ -z "$line" ] && continue
-            local PATH_ONLY
-            PATH_ONLY=$(echo -e "$line" | awk '{print $1}')
-            EXISTING["$PATH_ONLY"]=1
-        done < "$FILE_CONTEXTS"
+    declare -A EXISTING=()
 
-        find "$ROOT" -mindepth 1 \( -type f -o -type d -o -type l \) | while IFS= read -r item; do
-            local REL_PATH="${item#$ROOT}"
-            local PATH_ENTRY="/$PARTITION$REL_PATH"
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        [ -z "$line" ] && continue
 
-            local ESCAPED_PATH
-            ESCAPED_PATH="/$(escape_path "${PATH_ENTRY#/}")"
+        local PATH_ONLY=$(echo -e "$line" | awk '{print $1}')
 
-            [[ -n "${EXISTING[$ESCAPED_PATH]-}" ]] && continue
+        EXISTING["$PATH_ONLY"]=1
 
-            local CONTEXT="u:object_r:system_file:s0"
-            local BASENAME
-            BASENAME=$(basename "$item")
-            if [[ "$BASENAME" == "linker" || "$BASENAME" == "linker64" ]]; then
-                CONTEXT="u:object_r:system_linker_exec:s0"
-            fi
-            if [[ "$BASENAME" == "[" ]]; then
-                CONTEXT="u:object_r:system_file:s0"
-            fi
+    done < "$FILE_CONTEXTS"
 
-            printf "%s %s\n" "$ESCAPED_PATH" "$CONTEXT" >> "$FILE_CONTEXTS"
-            echo -e "- Added: $ESCAPED_PATH"
+    find "${EXTRACTED_FIRM_DIR}/$PARTITION" -mindepth 1 \( -type f -o -type d -o -type l \) | while IFS= read -r item; do
 
-            EXISTING["$ESCAPED_PATH"]=1
-        done
+        local REL_PATH="${item#${EXTRACTED_FIRM_DIR}/$PARTITION}"
+        local PATH_ENTRY="/$PARTITION$REL_PATH"
 
-        echo -e "- $PARTITION file_contexts generated"
-        unset EXISTING
+        local ESCAPED_PATH="/$(escape_path "${PATH_ENTRY#/}")"
+
+        [[ -n "${EXISTING[$ESCAPED_PATH]-}" ]] && continue
+
+        local CONTEXT="u:object_r:system_file:s0"
+        
+        if [[ "$PARTITION" == odm* || "$PARTITION" == vendor* ]]; then
+            CONTEXT="u:object_r:vendor_file:s0"
+        fi
+
+        local BASENAME=$(basename "$item")
+
+        if [[ "$BASENAME" == "linker" || "$BASENAME" == "linker64" ]]; then
+            CONTEXT="u:object_r:system_linker_exec:s0"
+        fi
+
+        if [[ "$BASENAME" == "[" ]]; then
+            CONTEXT="u:object_r:system_file:s0"
+        fi
+
+        printf "%s %s\n" "$ESCAPED_PATH" "$CONTEXT" >> "$FILE_CONTEXTS"
+
+        echo -e "- Added: $ESCAPED_PATH"
+
+        EXISTING["$ESCAPED_PATH"]=1
+
     done
+
+    echo -e "- $PARTITION file_contexts generated"
+
+    unset EXISTING
 }
 
 
 BUILD_IMG() {
-    if [ "$#" -ne 3 ]; then
-        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR> <FILE_SYSTEM> <OUT_DIR>"
+    echo " "
+
+    if [ "$#" -ne 4 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR> all|img_name <FILE_SYSTEM> <OUT_DIR>"
         return 1
     fi
 
     local EXTRACTED_FIRM_DIR="$1"
-    local FILE_SYSTEM="$2"
-	local OUT_DIR="$3"
+    local MODE="$2"
+    local FILE_SYSTEM="$3"
+    local OUT_DIR="$4"
 
-    GEN_FS_CONFIG "$EXTRACTED_FIRM_DIR"
-	GEN_FILE_CONTEXTS "$EXTRACTED_FIRM_DIR"
+    mkdir -p "$OUT_DIR"
 
-    for PART in "$EXTRACTED_FIRM_DIR"/*; do
-        [[ -d "$PART" ]] || continue    
-        PARTITION="$(basename "$PART")"
-        [[ "$PARTITION" == "config" ]] && continue 
+    build_img() {
+        local PARTITION="$1"
 
-        local SRC_DIR="$EXTRACTED_FIRM_DIR/$PARTITION"
+        mkdir -p "${EXTRACTED_FIRM_DIR}/${PARTITION}/lost+found"
+
+        GEN_FS_CONFIG "$EXTRACTED_FIRM_DIR" "$PARTITION"
+        GEN_FILE_CONTEXTS "$EXTRACTED_FIRM_DIR" "$PARTITION"
+
+        local SOURCE_DIR="${EXTRACTED_FIRM_DIR}/$PARTITION"
         local OUT_IMG="$OUT_DIR/${PARTITION}.img"
-        local FS_CONFIG="$EXTRACTED_FIRM_DIR/config/${PARTITION}_fs_config"
-        local FILE_CONTEXTS="$EXTRACTED_FIRM_DIR/config/${PARTITION}_file_contexts"
-        local SIZE=$(du -sb --apparent-size "$SRC_DIR" | awk '{printf "%.0f", $1 * 1.2}')
-		MOUNT_POINT="/$PARTITION"
+        local FS_CONFIG="${EXTRACTED_FIRM_DIR}/config/${PARTITION}_fs_config"
+        local FILE_CONTEXTS="${EXTRACTED_FIRM_DIR}/config/${PARTITION}_file_contexts"
 
-        echo -e ""
-        [[ -f "$FS_CONFIG" ]] || { echo -e "Warning: $FS_CONFIG missing, skipping $PARTITION"; continue; }
-        [[ -f "$FILE_CONTEXTS" ]] || { echo -e "Warning: $FILE_CONTEXTS missing, skipping $PARTITION"; continue; }
+        [[ -d "$SOURCE_DIR" ]] || return
+
+        local EXTRACTED_SIZE=$(du -sb --apparent-size "$SOURCE_DIR" | cut -f1)
+        local MOUNT_POINT="/$PARTITION"
+
+        rm -rf "$OUT_IMG"
+
+        [[ -f "$FS_CONFIG" ]] || {
+            echo -e "Warning: $FS_CONFIG missing, skipping $PARTITION"
+            return
+        }
+
+        [[ -f "$FILE_CONTEXTS" ]] || {
+            echo -e "Warning: $FILE_CONTEXTS missing, skipping $PARTITION"
+            return
+        }
 
         sort -u "$FILE_CONTEXTS" -o "$FILE_CONTEXTS"
         sort -u "$FS_CONFIG" -o "$FS_CONFIG"
 
         if [[ "$FILE_SYSTEM" == "erofs" ]]; then
-            echo -e "${YELLOW}Building EROFS image:${NC} $OUT_IMG"
-            $(pwd)/bin/erofs-utils/mkfs.erofs --mount-point="$MOUNT_POINT" --fs-config-file="$FS_CONFIG" --file-contexts="$FILE_CONTEXTS" -z lz4hc -b 4096 -T 1199145600 "$OUT_IMG" "$SRC_DIR" >/dev/null 2>&1
+            echo " "
+            echo -e "Building erofs image: $OUT_IMG"
+
+            $mkfs_erofs \
+                --mount-point="$MOUNT_POINT" \
+                --fs-config-file="$FS_CONFIG" \
+                --file-contexts="$FILE_CONTEXTS" \
+                -z lz4hc \
+                -b 4096 \
+                -T 1199145600 \
+                "$OUT_IMG" "$SOURCE_DIR" >/dev/null 2>&1
 
         elif [[ "$FILE_SYSTEM" == "ext4" ]]; then
-            echo -e "${YELLOW}Building ext4 image:${NC} $OUT_IMG"
-            $(pwd)/bin/ext4/make_ext4fs -l "$(awk "BEGIN {printf \"%.0f\", $SIZE * 1.1}")" -J -b 4096 -S "$FILE_CONTEXTS" -C "$FS_CONFIG"  -a "$MOUNT_POINT" -L "$PARTITION" "$OUT_IMG" "$SRC_DIR"
-			# Resize img to reduce size.
-			resize2fs -M "$OUT_IMG"
+            echo " "
+            echo -e "Building ext4 image: $OUT_IMG"
+
+            SIZE=$(((EXTRACTED_SIZE + 4095) / 4096 * 4096))
+            EXTENDED_SIZE=$((SIZE + SIZE / 5))
+
+            if [ "$EXTENDED_SIZE" -lt "4349952" ]; then
+                EXTENDED_SIZE="4349952"
+            fi
+
+            $make_ext4fs \
+                -l "$EXTENDED_SIZE" \
+                -J \
+                -b 4096 \
+                -S "$FILE_CONTEXTS" \
+                -C "$FS_CONFIG" \
+                -a "$MOUNT_POINT" \
+                -L "$PARTITION" \
+                "$OUT_IMG" "$SOURCE_DIR"
+
+            resize2fs -M "$OUT_IMG"
+
+        elif [[ "$FILE_SYSTEM" == "f2fs" ]]; then
+            echo " "
+            echo -e "Building f2fs image: $OUT_IMG"
+
+            SIZE=$(((EXTRACTED_SIZE + 511) / 512 * 512))
+            EXTENDED_SIZE=$((SIZE + SIZE / 4))
+
+            dd if=/dev/zero of="$OUT_IMG" bs=512 count=$((EXTENDED_SIZE / 512))
+
+            $make_f2fs \
+                -f -q \
+                -g android \
+                -O extra_attr,inode_checksum,sb_checksum,compression \
+                -l "$MOUNT_POINT" \
+                "$OUT_IMG"
+
+            $sload_f2fs \
+                -f "$SOURCE_DIR" \
+                -C "$FS_CONFIG" \
+                -s "$FILE_CONTEXTS" \
+                -t "$MOUNT_POINT" \
+                -P \
+                -c \
+                -L 2 \
+                -a lz4 \
+                "$OUT_IMG"
+
+            img2simg "$OUT_IMG" "${OUT_IMG}.sparse"
+
+            rm -rf "$OUT_IMG"
+            mv "${OUT_IMG}.sparse" "$OUT_IMG"
+
         else
-            echo -e "Unknown filesystem: $FILE_SYSTEM, skipping $PARTITION"
-            continue
+            echo -e "Unsupported filesystem: $FILE_SYSTEM"
+            return
         fi
-    done
+    }
+
+    if [ "$MODE" = "all" ]; then
+
+        for PART in "$EXTRACTED_FIRM_DIR"/*; do
+            [[ -d "$PART" ]] || continue
+
+            local PARTITION="$(basename "$PART")"
+
+            [[ "$PARTITION" == "config" ]] && continue
+
+            build_img "$PARTITION"
+        done
+
+    else
+        build_img "$MODE"
+    fi
+
+    chown -R "$REAL_USER:$REAL_USER" "$OUT_DIR"
+    chmod -R u+rwX "$OUT_DIR"
 }
+

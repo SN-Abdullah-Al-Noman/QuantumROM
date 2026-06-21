@@ -1,0 +1,7 @@
+omc-decoder.jar
+fei-ke
+https://github.com/fei-ke/OmcTextDecoder
+
+apktool.jar
+iBotPeaches
+https://github.com/ibotpeaches/apktool

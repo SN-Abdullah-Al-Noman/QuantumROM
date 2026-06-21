@@ -87,6 +87,49 @@ GET_PROP() {
 }
 
 
+DETECT_FILESYSTEM() {
+    local imgfile="$1"
+
+    [ ! -f "$imgfile" ] && {
+        echo "unknown"
+        return 1
+    }
+
+    local fstype=$(blkid -o value -s TYPE "$imgfile" 2>/dev/null)
+    [ -z "$fstype" ] && fstype=$(file -b "$imgfile" 2>/dev/null)
+
+    case "$fstype" in
+        *"Android sparse image"*)
+            echo "sparse"
+            ;;
+        *"ext2"*)
+            echo "ext2"
+            ;;
+        *"ext3"*)
+            echo "ext3"
+            ;;
+        *"ext4"*)
+            echo "ext4"
+            ;;
+        *"f2fs"*|*"F2FS"*)
+            echo "f2fs"
+            ;;
+        *"erofs"*|*"EROFS"*)
+            echo "erofs"
+            ;;
+        *"squashfs"*|*"Squashfs"*)
+            echo "squashfs"
+            ;;
+        *"LZ4 compressed"*)
+            echo "lz4"
+            ;;
+        *)
+            echo "unknown"
+            ;;
+    esac
+}
+
+
 DOWNLOAD_FIRMWARE() {
     echo " "
 
@@ -265,59 +308,109 @@ PREPARE_PARTITIONS() {
 
 
 EXTRACT_FIRMWARE_IMG() {
-    echo -e ""
-	if [ "$#" -ne 1 ]; then
-        echo -e "Usage: ${FUNCNAME[0]} <FIRMWARE_DIRECTORY>"
+    echo " "
+
+    if [ "$#" -ne 2 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR> all|img_name"
         return 1
     fi
 
-	local FIRM_DIR="$1"
+    local EXTRACTED_FIRM_DIR="$1"
+    local MODE="$2"
 
-    PREPARE_PARTITIONS "$FIRM_DIR"
-	echo -e "${YELLOW}Extracting imges from:${NC} $FIRM_DIR"
-    for imgfile in "$FIRM_DIR"/*.img; do
-        [ -e "$imgfile" ] || continue
+    if ! ls "$EXTRACTED_FIRM_DIR"/*.img >/dev/null 2>&1; then
+        echo -e "No .img files found in: $EXTRACTED_FIRM_DIR"
+        return 1
+    fi
 
-        if [[ "$(basename "$imgfile")" == "boot.img" ]]; then
-            continue
+    echo -e "Extracting images from: $EXTRACTED_FIRM_DIR"
+
+    extract_img() {
+        local imgfile="$1"
+
+        [ -e "$imgfile" ] || return
+
+        local img_name="$(basename "$imgfile")"
+
+        if [[ "$img_name" == "boot.img" || "$img_name" == "recovery.img" ]]; then
+            echo -e "- Skipping $img_name"
+            return
         fi
 
-        local partition
-        local fstype
-        local IMG_SIZE
+        local partition="$(basename "${imgfile%.img}")"
+        local ORG_IMG_SIZE=$(stat -c%s -- "$imgfile")
 
-        partition="$(basename "${imgfile%.img}")"
-        fstype=$(blkid -o value -s TYPE "$imgfile")
+        rm -rf "${EXTRACTED_FIRM_DIR}/$partition"
+
+        local fstype=$(DETECT_FILESYSTEM "$imgfile")
+        if [ "$fstype" = "sparse" ]; then
+            echo -e "$partition.img is SPARSE. Converting to raw img."
+
+            local tmp_raw="${imgfile}.raw"
+
+            if ! simg2img "$imgfile" "$tmp_raw" >/dev/null 2>&1; then
+                echo -e "Failed to convert sparse image: $img_name"
+                return
+            fi
+
+            if [ ! -f "$tmp_raw" ]; then
+                echo -e "- Sparse conversion output missing: $tmp_raw"
+                return
+            fi
+
+            rm -f "$imgfile"
+            mv "$tmp_raw" "$imgfile"
+        fi
+
+        local fstype=$(DETECT_FILESYSTEM "$imgfile")
 
         case "$fstype" in
             ext4)
-                IMG_SIZE=$(stat -c%s -- "$imgfile")
-				echo -e "- $partition.img Detected $fstype. Size: $IMG_SIZE bytes. Extracting..."
-				sudo rm -rf "$FIRM_DIR/$partition"
-                sudo python3 $(pwd)/bin/py_scripts/imgextractor.py "$imgfile" "$FIRM_DIR"
+                echo " "
+                echo -e "$partition.img Detected ext4. Size: $ORG_IMG_SIZE bytes. Extracting..."
+                python3 "$imgextractor_py" "$imgfile" "$EXTRACTED_FIRM_DIR"
                 ;;
+
             erofs)
-                IMG_SIZE=$(stat -c%s -- "$imgfile")
-				echo -e "- $partition.img Detected $fstype. Size: $IMG_SIZE bytes. Extracting..."
-				sudo rm -rf "$FIRM_DIR/$partition"
-                sudo $(pwd)/bin/erofs-utils/extract.erofs -i "$imgfile" -x -f -o "$FIRM_DIR" >/dev/null 2>&1
+                echo " "
+                echo -e "$partition.img Detected erofs. Size: $ORG_IMG_SIZE bytes. Extracting..."
+                "$extract_erofs" -i "$imgfile" -x -f -o "$EXTRACTED_FIRM_DIR" >/dev/null 2>&1
                 ;;
+
+            f2fs)
+                echo " "
+                echo -e "$partition.img Detected f2fs. Size: $ORG_IMG_SIZE bytes. Extracting..."
+                bash "$QT_DIR/scripts/extract_img.sh" "$imgfile" "$EXTRACTED_FIRM_DIR"
+                ;;
+
             *)
-                echo -e "- $imgfile unsupported filesystem type ($fstype), exiting"
-                exit 1
+                echo -e "- $img_name unsupported filesystem type: ($fstype), skipping"
                 ;;
         esac
-    done
+    }
 
-    rm -rf "$FIRM_DIR"/*.img
+    if [ "$MODE" = "all" ]; then
+	    PREPARE_PARTITIONS "$EXTRACTED_FIRM_DIR"
+        for imgfile in "$EXTRACTED_FIRM_DIR"/*.img; do
+            [ -e "$imgfile" ] || continue
+            extract_img "$imgfile"
+        done
 
-	if ! ls "$FIRM_DIR"/system* >/dev/null 2>&1; then
-        echo -e "Maybe your firmware is not downloaded, is corrupt, or contains an unsupported image."
-        exit 1
+	    rm -rf "$EXTRACTED_FIRM_DIR"/*.img
+
+    else
+        local TARGET_IMG="${EXTRACTED_FIRM_DIR}/$MODE"
+
+        if [ ! -f "$TARGET_IMG" ]; then
+            echo -e "- Image not found: $TARGET_IMG"
+            return 1
+        fi
+
+        extract_img "$TARGET_IMG"
     fi
 
-    sudo chown -R "$REAL_USER:$REAL_USER" "$FIRM_DIR"
-    sudo chmod -R u+rwX "$FIRM_DIR"
+    chown -R "$REAL_USER:$REAL_USER" "$EXTRACTED_FIRM_DIR"
+    chmod -R u+rwX "$EXTRACTED_FIRM_DIR"
 }
 
 

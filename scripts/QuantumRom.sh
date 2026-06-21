@@ -2,11 +2,6 @@
 
 ###################################################################################################
 
-YELLOW="\e[33m"
-NC="\e[0m"
-
-REAL_USER=${SUDO_USER:-$USER}
-
 REAL_USER=${SUDO_USER:-$USER}
 
 # QT DIR
@@ -30,8 +25,6 @@ chmod +x "$sload_f2fs"
 chmod +x "$mkfs_erofs"
 chmod +x "$make_ext4fs"
 chmod +x "$extract_erofs"
-
-export TARGET_FLOATING_FEATURE="$FIRM_DIR/$TARGET_DEVICE/system/system/etc/floating_feature.xml"
 
 CHECK_FILE() {
     if [ ! -f "$1" ]; then

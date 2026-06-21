@@ -1333,66 +1333,6 @@ APPLY_STOCK_CONFIG() {
 }
 
 
-DEBLOAT_APPS=("Duo" "Photos" "FactoryCameraFB" "WlanTest" "AssistantShell" "BardShell" "DuoStub" "GoogleCalendarSyncAdapter" "AndroidDeveloperVerifier" "AndroidGlassesCore" "SOAgent77" "YourPhone_Stub" "AndroidAutoStub" "SingleTakeService" "SamsungBilling" "AndroidSystemIntelligence" "GoogleRestore" "Messages" "SearchSelector" "AirGlance" "AirReadingGlass" "SamsungTTS" "WlanTest" "ARCore" "ARDrawing" "ARZone" "BGMProvider" "BixbyWakeup" "BlockchainBasicKit" "Cameralyzer" "DictDiotekForSec" "EasymodeContactsWidget81" "Fast" "FBAppManager_NS" "FunModeSDK" "GearManagerStub" "KidsHome_Installer" "LinkSharing_v11" "LiveDrawing" "MAPSAgent" "MdecService" "MinusOnePage" "MoccaMobile" "Netflix_stub" "Notes40" "ParentalCare" "PhotoTable" "PlayAutoInstallConfig" "SamsungPassAutofill_v1" "SamsungTTSVoice_de_DE_f00" "SamsungTTSVoice_el_GR_f00" "SamsungTTSVoice_en_GB_f00" "SamsungTTSVoice_en_US_f00" "SamsungTTSVoice_en_US_l03" "SamsungTTSVoice_es_ES_f00" "SamsungTTSVoice_es_MX_f00" "SamsungTTSVoice_es_US_f00" "SamsungTTSVoice_fr_FR_f00" "SamsungTTSVoice_hi_IN_f00" "SamsungTTSVoice_it_IT_f00" "SamsungTTSVoice_pl_PL_f00" "SamsungTTSVoice_pt_BR_f00" "SamsungTTSVoice_ru_RU_f00" "SamsungTTSVoice_th_TH_f00" "SamsungTTSVoice_vi_VN_f00" "SamsungTTSVoice_en_IN_f00" "SmartReminder" "SmartSwitchStub" "UnifiedWFC" "UniversalMDMClient" "VideoEditorLite_Dream_N" "VisionIntelligence3.7" "VoiceAccess" "VTCameraSetting" "WebManual" "WifiGuider" "KTAuth" "KTCustomerService" "KTUsimManager" "LGUMiniCustomerCenter" "LGUplusTsmProxy" "SamsungTTSVoice_ko_KR_r00" "SketchBook" "SKTMemberShip_new" "SktUsimService" "TWorld" "AirCommand" "AppUpdateCenter" "AREmoji" "AREmojiEditor" "AuthFramework" "AutoDoodle" "AvatarEmojiSticker" "AvatarEmojiSticker_S" "Bixby" "BixbyInterpreter" "BixbyVisionFramework3.5" "DevGPUDriver-EX2200" "DigitalKey" "Discover" "DiscoverSEP" "EarphoneTypeC" "EasySetup" "FBInstaller_NS" "FBServices" "FotaAgent" "GalleryWidget" "GameDriver-EX2100" "GameDriver-EX2200" "GameDriver-SM8150" "HashTagService" "MultiControlVP6" "LedCoverService" "LinkToWindowsService" "LiveStickers" "MemorySaver_O_Refresh" "MultiControl" "OMCAgent5" "OneDrive_Samsung_v3" "OneStoreService" "SamsungCarKeyFw" "SamsungPass" "SamsungSmartSuggestions" "SettingsBixby" "SetupIndiaServicesTnC" "SKTFindLostPhone" "SKTHiddenMenu" "SKTMemberShip" "SKTOneStore" "SktUsimService" "SmartEye" "SmartPush" "SmartThingsKit" "SmartTouchCall" "SOAgent7" "SOAgent75" "SolarAudio-service" "SPPPushClient" "sticker" "StickerFaceARAvatar" "StoryService" "SumeNNService" "SVoiceIME" "SwiftkeyIme" "SwiftkeySetting" "SystemUpdate" "TADownloader" "TalkbackSE" "TaPackAuthFw" "TPhoneOnePackage" "TPhoneSetup" "TWorld" "UltraDataSaving_O" "Upday" "UsimRegistrationKOR" "YourPhone_P1_5" "AvatarPicker" "GpuWatchApp" "KT114Provider2" "KTHiddenMenu" "KTOneStore" "KTServiceAgent" "KTServiceMenu" "LGUGPSnWPS" "LGUHiddenMenu" "LGUOZStore" "SKTFindLostPhoneApp" "SmartPush_64" "SOAgent76" "TService" "vexfwk_service" "VexScanner" "LiveEffectService" "YourPhone_P1_5" "vexfwk_service")
-
-KICK() {
-    if [ "$#" -ne 1 ]; then
-        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR>"
-        return 1
-    fi
-    
-	local EXTRACTED_FIRM_DIR="$1"
-
-    echo -e "- Debloating apps."
-    local APP_DIRS=(
-        "$EXTRACTED_FIRM_DIR/system/system/app"
-        "$EXTRACTED_FIRM_DIR/system/system/priv-app"
-        "$EXTRACTED_FIRM_DIR/product/app"
-        "$EXTRACTED_FIRM_DIR/product/priv-app"
-    )
-
-    for app in "${DEBLOAT_APPS[@]}"; do
-        for dir in "${APP_DIRS[@]}"; do
-            target="$dir/$app"
-
-            if [[ -d "$target" ]]; then
-                rm -rf "$target" || echo -e "[WARN] Failed to remove $target"
-            fi
-        done
-    done
-}
-
-
-DEBLOAT() {
-    echo -e ""
-    if [ "$#" -ne 1 ]; then
-        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR>"
-        return 1
-    fi
-
-	local EXTRACTED_FIRM_DIR="$1"
-    echo -e "${YELLOW}Debloating apps and files.${NC}"
-    KICK "$EXTRACTED_FIRM_DIR"
-    REMOVE_ESIM_FILES "$EXTRACTED_FIRM_DIR"
-	REMOVE_FABRIC_CRYPTO "$EXTRACTED_FIRM_DIR"
-	echo -e "- Deleting unnecessary files and folders."
-    rm -rf "$EXTRACTED_FIRM_DIR/system/system/app"/SamsungTTSVoice_*
-    rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/init/boot-image.bprof"
-    rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/init/boot-image.prof"
-	rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/mediasearch"
-    rm -rf "$EXTRACTED_FIRM_DIR/system/system/hidden"
-    rm -rf "$EXTRACTED_FIRM_DIR/system/system/preload"
-	rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app/MediaSearch"
-	rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app"/GameDriver-*
-	rm -rf "$EXTRACTED_FIRM_DIR/system/system/tts"
-	rm -rf "$EXTRACTED_FIRM_DIR/product/app/Gmail2/oat"
-    rm -rf "$EXTRACTED_FIRM_DIR/product/app/Maps/oat"
-	rm -rf "$EXTRACTED_FIRM_DIR/product/app/SpeechServicesByGoogle/oat"
-	rm -rf "$EXTRACTED_FIRM_DIR/product/app/YouTube/oat"
-	rm -rf "$EXTRACTED_FIRM_DIR/product/priv-app"/HotwordEnrollmentXGoogle*
-}
-
-
 BUILD_PROP() {
     if [ "$#" -lt 3 ]; then
         echo -e "Usage: BUILD_PROP <EXTRACTED_FIRM_DIR> <PARTITION> <KEY> [VALUE]"
@@ -1472,6 +1412,8 @@ REMOVE_TLC_ICC() {
 
 
 DISABLE_SECURITY() {
+    echo " "
+
     if [ "$#" -ne 1 ]; then
         echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR>"
         return 1
@@ -1479,17 +1421,21 @@ DISABLE_SECURITY() {
 
 	local EXTRACTED_FIRM_DIR="$1"
 
-    echo -e "- Disabling security related things..."
-    if [ -f "$EXTRACTED_FIRM_DIR/product/etc/build.prop" ]; then
+    echo -e "Disabling security related things."
+
+    if [ -f "${EXTRACTED_FIRM_DIR}/product/etc/build.prop" ]; then
+        echo "- Disabling factory reset protection from product."
         BUILD_PROP "$EXTRACTED_FIRM_DIR" "product" "ro.frp.pst" ""
     fi
 
-	if [ -f "$EXTRACTED_FIRM_DIR/vendor/build.prop" ]; then
+	if [ -f "${EXTRACTED_FIRM_DIR}/vendor/build.prop" ]; then
+        echo "- Disabling factory reset protection from vendor."
 		BUILD_PROP "$EXTRACTED_FIRM_DIR" "vendor" "ro.frp.pst" ""
     fi
 
-    if [ -f "$EXTRACTED_FIRM_DIR/vendor/recovery-from-boot.p" ]; then
-        rm -rf "$EXTRACTED_FIRM_DIR/vendor/recovery-from-boot.p"
+    if [ -f "${EXTRACTED_FIRM_DIR}/vendor/recovery-from-boot.p" ]; then
+        echo "- Disabling stock recovery restoration."
+        rm -rf "${EXTRACTED_FIRM_DIR}/vendor/recovery-from-boot.p"
     fi
 
 	DISABLE_FBE "$EXTRACTED_FIRM_DIR"

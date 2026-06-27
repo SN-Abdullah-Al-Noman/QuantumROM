@@ -172,8 +172,8 @@ DOWNLOAD_FIRMWARE() {
     echo -e "======================================"
     echo -e "MODEL: $MODEL | CSC: $CSC"
 
-    # VERSION=$(python3 -m samloader -m "$MODEL" -r "$CSC" -i "$IMEI" checkupdate 2>&1)
-	VERSION=$(python3 -m samloader -m "$MODEL" -r "$CSC" checkupdate 2>&1)
+    VERSION=$(python3 -m samloader -m "$MODEL" -r "$CSC" -i "$IMEI" checkupdate 2>&1)
+	# VERSION=$(python3 -m samloader -m "$MODEL" -r "$CSC" checkupdate 2>&1)
 
     if [ $? -ne 0 ] || [ -z "$VERSION" ]; then
         echo -e "⛔️ MODEL/CSC/IMEI not valid or no update found."
@@ -186,8 +186,8 @@ DOWNLOAD_FIRMWARE() {
     fi
 
     # --- Step 2: Download Firmware ---
-    # python3 -m samloader -m "$MODEL" -r "$CSC" -i "$IMEI" download -O "$DOWN_DIR"
-	python3 -m samloader -m "$MODEL" -r "$CSC" download -O "$DOWN_DIR"
+    python3 -m samloader -m "$MODEL" -r "$CSC" -i "$IMEI" download -O "$DOWN_DIR"
+	# python3 -m samloader -m "$MODEL" -r "$CSC" download -O "$DOWN_DIR"
     if [ $? -ne 0 ]; then
         echo -e "⛔️ Download failed. Check IMEI/MODEL/CSC."
         exit 1

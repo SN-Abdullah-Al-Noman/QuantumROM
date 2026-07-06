@@ -221,7 +221,7 @@ EXTRACT_FIRMWARE() {
         [ -e "$file" ] || continue
 
         echo -e "Extracting zip: $(basename "$file")"
-        7z x -y -bd -bsp1 -o"$FIRM_DIR" "$file"
+        7z x -y -bd -bsp1 -o "$FIRM_DIR" "$file"
 
         rm -f "$file"
     done
@@ -237,7 +237,7 @@ EXTRACT_FIRMWARE() {
         [ -e "$file" ] || continue
 
         echo -e "Extracting xz: $(basename "$file")"
-        7z x -y -bd -bsp1 -o"$FIRM_DIR" "$file"
+        7z x -y -bd -bsp1 -o "$FIRM_DIR" "$file"
 
         rm -f "$file"
     done
@@ -1011,7 +1011,7 @@ PATCH_BT_LIB() {
 
     7z e "${EXTRACTED_FIRM_DIR}/system/system/apex/com.android.bt"*.apex \
         "apex_payload.img" \
-        -o"$WORK_DIR" -y >/dev/null
+        -o "$WORK_DIR" -y >/dev/null
 
 	debugfs -R "dump /lib64/libbluetooth_jni.so $WORK_DIR/libbluetooth_jni.so" \
         "$WORK_DIR/apex_payload.img" >/dev/null
@@ -1109,7 +1109,7 @@ FIX_VNDK() {
     else
         echo -e "- VNDK mismatch. Adding SDK $SDK com.android.vndk.v${STOCK_VNDK_VERSION}.apex"
         rm -rf "${TARGET_ROM_SYSTEM_EXT_DIR}/apex/"com.android.vndk.v*.apex
-        7z x "$VNDKS_COLLECTION/$SDK/${STOCK_VNDK_VERSION}.zip" -o"${TARGET_ROM_SYSTEM_EXT_DIR}/" -y >/dev/null 2>&1
+        7z x "$VNDKS_COLLECTION/$SDK/${STOCK_VNDK_VERSION}.zip" -o "${TARGET_ROM_SYSTEM_EXT_DIR}/" -y >/dev/null 2>&1
     fi
 }
 
@@ -1807,8 +1807,13 @@ APPLY_STOCK_CONFIG() {
 	find "${EXTRACTED_FIRM_DIR}/system/system/media" -maxdepth 1 -type f \( -iname "*.spi" -o -iname "*.qmg" -o -iname "*.txt" \) -delete
 	rm -rf "$EXTRACTED_FIRM_DIR"/product/overlay/framework-res*auto_generated_rro_product.apk
 	rm -rf ${EXTRACTED_FIRM_DIR}/product/overlay/SystemUI*auto_generated_rro_product.apk
-	cp -a "${DEVICES_DIR}/$STOCK_DEVICE/Stock/." "${EXTRACTED_FIRM_DIR}/"
-    if [ -d "${DEVICES_DIR}/$STOCK_DEVICE/extra" ]; then
+
+	if [ -f "${DEVICES_DIR}/${STOCK_DEVICE}.zip" ]; then
+	    rm -rf "${DEVICES_DIR}/${STOCK_DEVICE}"
+	    7z x "${DEVICES_DIR}/${STOCK_DEVICE}.zip" -o "${DEVICES_DIR}/" -y >/dev/null 2>&1
+		cp -a "${DEVICES_DIR}/$STOCK_DEVICE/Stock/." "${EXTRACTED_FIRM_DIR}/"
+
+	if [ -d "${DEVICES_DIR}/${STOCK_DEVICE}/extra" ]; then
         cp -af "${DEVICES_DIR}/$STOCK_DEVICE/extra/." "$(pwd)/OUT"
     fi
 
@@ -1935,7 +1940,26 @@ APPLY_JDM_SPECIAL() {
 
 	local EXTRACTED_FIRM_DIR="$1"
 	rm -rf "${EXTRACTED_FIRM_DIR}/system/system/priv-app/SamSungCamera"
-    cp -rfa "$(pwd)/QuantumROM/Mods/Apps/JDM_Special/SamSungCamera/." "${EXTRACTED_FIRM_DIR}/"
+
+	if [ ! -f "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}.zip" ]; then
+		if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
+            wget --no-check-certificate \
+                "https://github.com/SN-Abdullah-Al-Noman/Samsung_Special/releases/download/Android_${ANDROID_VERSION}/JDM_Camera_Files_Android_${ANDROID_VERSION}.zip" \
+                -O "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}.zip"
+        else
+            echo "- No internet connection available. Unable to download: Samsung_OCRDataProvider_Android_${ANDROID_VERSION}.zip"
+            return 1
+        fi
+    fi
+
+    if [ -f "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}.zip" ]; then
+
+        rm -rf "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}"
+        unzip -o "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}.zip" \
+            -d "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}" >/dev/null 2>&1
+
+        cp -rfa "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}/." "${EXTRACTED_FIRM_DIR}/"
+    fi
 }
 
 

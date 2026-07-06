@@ -1797,7 +1797,6 @@ APPLY_STOCK_CONFIG() {
     fi
 
     if [ "$STOCK_DEVICE_TYPE" = "jdm" ]; then
-	    echo -e "Applying jdm device feature."
 	    APPLY_JDM_SPECIAL "$EXTRACTED_FIRM_DIR"
     else
 	    rm -rf "${EXTRACTED_FIRM_DIR}/system/system/cameradata/portrait_data"
@@ -1808,13 +1807,10 @@ APPLY_STOCK_CONFIG() {
 	rm -rf "$EXTRACTED_FIRM_DIR"/product/overlay/framework-res*auto_generated_rro_product.apk
 	rm -rf ${EXTRACTED_FIRM_DIR}/product/overlay/SystemUI*auto_generated_rro_product.apk
 
-	if [ -f "${DEVICES_DIR}/${STOCK_DEVICE}.zip" ]; then
-	    rm -rf "${DEVICES_DIR}/${STOCK_DEVICE}"
-	    7z x "${DEVICES_DIR}/${STOCK_DEVICE}.zip" -o "${DEVICES_DIR}/" -y >/dev/null 2>&1
-		cp -a "${DEVICES_DIR}/$STOCK_DEVICE/Stock/." "${EXTRACTED_FIRM_DIR}/"
+	cp -a "${DEVICES_DIR}/$STOCK_DEVICE/Stock/." "${EXTRACTED_FIRM_DIR}/"
 
-	if [ -d "${DEVICES_DIR}/${STOCK_DEVICE}/extra" ]; then
-        cp -af "${DEVICES_DIR}/$STOCK_DEVICE/extra/." "$(pwd)/OUT"
+    if [ -d "${DEVICES_DIR}/${STOCK_DEVICE}/extra" ]; then
+        cp -af "${DEVICES_DIR}/${STOCK_DEVICE}/extra/." "$(pwd)/OUT"
     fi
 
 	BUILD_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.product.system.model" "$STOCK_DEVICE"
@@ -1933,13 +1929,19 @@ DISABLE_SECURITY() {
 
 
 APPLY_JDM_SPECIAL() {
+    echo " "
+
     if [ "$#" -ne 1 ]; then
         echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR>"
         return 1
     fi
 
+	echo -e "Applying jdm device feature."
+
 	local EXTRACTED_FIRM_DIR="$1"
-	rm -rf "${EXTRACTED_FIRM_DIR}/system/system/priv-app/SamSungCamera"
+	local ANDROID_VERSION=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")
+
+	rm -rf "${EXTRACTED_FIRM_DIR}/system/system/priv-app/SamsungCamera"
 
 	if [ ! -f "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}.zip" ]; then
 		if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
@@ -1953,7 +1955,6 @@ APPLY_JDM_SPECIAL() {
     fi
 
     if [ -f "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}.zip" ]; then
-
         rm -rf "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}"
         unzip -o "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}.zip" \
             -d "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}" >/dev/null 2>&1

@@ -221,7 +221,7 @@ EXTRACT_FIRMWARE() {
         [ -e "$file" ] || continue
 
         echo -e "Extracting zip: $(basename "$file")"
-        7z x -y -bd -bsp1 -o "$FIRM_DIR" "$file"
+        7z x -y -bd -bsp1 -o"$FIRM_DIR" "$file"
 
         rm -f "$file"
     done
@@ -237,7 +237,7 @@ EXTRACT_FIRMWARE() {
         [ -e "$file" ] || continue
 
         echo -e "Extracting xz: $(basename "$file")"
-        7z x -y -bd -bsp1 -o "$FIRM_DIR" "$file"
+        7z x -y -bd -bsp1 -o"$FIRM_DIR" "$file"
 
         rm -f "$file"
     done
@@ -1010,8 +1010,7 @@ PATCH_BT_LIB() {
     fi
 
     7z e "${EXTRACTED_FIRM_DIR}/system/system/apex/com.android.bt"*.apex \
-        "apex_payload.img" \
-        -o "$WORK_DIR" -y >/dev/null
+        "apex_payload.img" -o"$WORK_DIR" -y >/dev/null
 
 	debugfs -R "dump /lib64/libbluetooth_jni.so $WORK_DIR/libbluetooth_jni.so" \
         "$WORK_DIR/apex_payload.img" >/dev/null
@@ -1109,7 +1108,7 @@ FIX_VNDK() {
     else
         echo -e "- VNDK mismatch. Adding SDK $SDK com.android.vndk.v${STOCK_VNDK_VERSION}.apex"
         rm -rf "${TARGET_ROM_SYSTEM_EXT_DIR}/apex/"com.android.vndk.v*.apex
-        7z x "$VNDKS_COLLECTION/$SDK/${STOCK_VNDK_VERSION}.zip" -o "${TARGET_ROM_SYSTEM_EXT_DIR}/" -y >/dev/null 2>&1
+        7z x "$VNDKS_COLLECTION/$SDK/${STOCK_VNDK_VERSION}.zip" -o"${TARGET_ROM_SYSTEM_EXT_DIR}/" -y >/dev/null 2>&1
     fi
 }
 

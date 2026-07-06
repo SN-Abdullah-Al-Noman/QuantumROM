@@ -44,15 +44,16 @@ jobs:
       - name: Validate STOCK_DEVICE
         run: |
           STOCK_DEVICE="${{ github.event.inputs.STOCK_DEVICE }}"
-          if [ "$STOCK_DEVICE" != "None" ] && \
-              gh release view QuantumROM_Devices \
-                  --repo SN-Abdullah-Al-Noman/QuantumROM \
-                  --json assets \
-                  --jq '.assets[].name' | grep -Fxq '$STOCK_DEVICE'; then
-              echo "$STOCK_DEVICE is supported"
-          else
-              echo "❌ $STOCK_DEVICE is not supported by this tool."
-              exit 1
+          if [ "$STOCK_DEVICE" != "None" ]; then
+              if curl -fsSL \
+                  "https://api.github.com/repos/SN-Abdullah-Al-Noman/QuantumROM/releases/tags/QuantumROM_Devices" |
+                  jq -e --arg dev "${STOCK_DEVICE}.zip" '.assets[].name == $dev' |
+                  grep -q true; then
+                  echo "$STOCK_DEVICE is supported"
+              else
+                 echo "❌ $STOCK_DEVICE is not supported by this tool."
+                 exit 1
+              fi
           fi
 
       - name: Remove unnecessary files.

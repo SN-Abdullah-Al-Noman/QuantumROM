@@ -103,6 +103,7 @@ jobs:
           COMPRESS_IMG_TO_XZ: ${{ github.event.inputs.COMPRESS_IMG_TO_XZ }}
         run: |
           bash release.sh
+          
 
       - name: Clean everything.
         run: sudo rm -rf *

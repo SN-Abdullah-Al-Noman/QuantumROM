@@ -342,10 +342,10 @@ EXTRACT_SUPER_IMG() {
         "$lpunpack" "$FIRM_DIR/super.img" "$FIRM_DIR" || return 1
         rm -f "$FIRM_DIR/super.img"
 
-        echo -e "super.img extraction complete"
+        echo -e "- super.img extraction complete"
 
     else
-        echo -e "No super.img found."
+        echo -e "- No super.img found."
     fi
 }
 
@@ -762,7 +762,7 @@ PATCH_FLAG_SECURE() {
     return v0
     '
     REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_1" "$REPLACE_BODY_1"
-  
+
 	local FILE_2="${1}/smali_classes2/com/android/server/wm/WindowManagerService.smali"
     local METHOD_NAME_2=".method public final notifyScreenshotListeners(I)Ljava/util/List;"
     local REPLACE_BODY_2='

@@ -674,10 +674,10 @@ REPLACE_SMALI_METHOD() {
     local NEW_BODY=$(echo -e "$3" | tail -n +2)
 
     echo -e "- Patching: $FILE"
-    echo -e "- Method: $METHOD_NAME"
+    echo -e "  Method: $METHOD_NAME"
 
     if ! grep -Fq "$METHOD_NAME" "$FILE"; then
-        echo -e "- Method not found → Skipped"
+        echo -e "- Warning- Method: $METHOD_NAME not found in: $FILE"
         return 0
     fi
 
@@ -744,14 +744,16 @@ PATCH_FLAG_SECURE() {
     fi
 
 	echo -e "Patching flag secure."
+
+	# https://github.com/ShaDisNX255/NcX_Stock/commit/c2cc85818df4fe040b4f89ca8f9b78e939b211b4
+    # https://forum.xda-developers.com/t/mods-samsung-not-android-mods-collection-exynos.3772017/post-86811691
     #
 	# For android 13
 	# local FILE="${1}/smali_classes3/com/android/server/wm/WindowState.smali"
 	# local METHOD_NAME_1=".method public isSecureLocked()Z"
 	# Only one method.
+    #
 
-    # https://github.com/ShaDisNX255/NcX_Stock/commit/c2cc85818df4fe040b4f89ca8f9b78e939b211b4
-    # https://forum.xda-developers.com/t/mods-samsung-not-android-mods-collection-exynos.3772017/post-86811691
 	local FILE_1="${1}/smali_classes2/com/android/server/wm/WindowState.smali"
     local METHOD_NAME_1=".method public final isSecureLocked()Z"
     local REPLACE_BODY_1='
@@ -818,6 +820,13 @@ PATCH_SECURE_FOLDER() {
     echo -e "Patching secure folder."
 
 	#https://forum.xda-developers.com/t/mods-samsung-not-android-mods-collection-exynos.3772017/post-86770885
+    #
+	# For android 13
+	# local FILE_1="${1}/smali_classes2/com/android/server/knox/dar/DarManagerService.smali"
+	# local METHOD_NAME_2=".method public isDeviceRootKeyInstalled()Z"
+	# local METHOD_NAME_3=".method public isKnoxKeyInstallable()Z"
+    #
+
 	local FILE_1="${1}/smali/com/android/server/knox/dar/DarManagerService.smali"
 	local METHOD_NAME_1=".method public final checkDeviceIntegrity([Ljava/security/cert/Certificate;)Z"
 	local METHOD_NAME_2=".method public final isDeviceRootKeyInstalled()Z"
@@ -836,6 +845,7 @@ PATCH_SECURE_FOLDER() {
 	REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_3" "$REPLACE_BODY_1"
 
     local FILE_2="${1}/smali/com/android/server/StorageManagerService.smali"
+	# METHOD_NAME_4 Is not available in Android 13
     local METHOD_NAME_4=".method public static isRootedDevice()Z"
     local REPLACE_BODY_2='
     .locals 1
@@ -2182,7 +2192,7 @@ DECODE_OMC() {
     echo -e "Decoding CSC - odm,optics."
 
     if ! command -v java >/dev/null 2>&1; then
-        echo -e "Java is not installed."
+        echo -e "- Java is not installed."
         return 1
     fi
 
@@ -2198,10 +2208,10 @@ DECODE_OMC() {
             -i "${FW_DIR}/odm/etc/omc" \
             -o "${OUT_DIR}/odm_decoded" \
             >/dev/null 2>&1 || {
-                echo -e "Failed decoding odm/etc/omc."
+                echo -e "- Failed decoding odm/etc/omc."
             }
 	else
-	     echo "No odm found."
+	     echo "- No odm found."
     fi
 
     if [ -d "${FW_DIR}/optics" ]; then
@@ -2213,10 +2223,10 @@ DECODE_OMC() {
             -i "${FW_DIR}/optics" \
             -o "${OUT_DIR}/optics_decoded" \
             >/dev/null 2>&1 || {
-                echo -e "Failed decoding optics."
+                echo -e "- Failed decoding optics."
             }
 	else
-	     echo "No optics found."
+	     echo "- No optics found."
     fi
 }
 

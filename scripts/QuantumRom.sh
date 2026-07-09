@@ -975,27 +975,41 @@ PATCH_SSRM() {
     echo -e "Patching SSRM."
     echo -e "- Patching: $FILE"
 
-    if [ ! -f "$FILE" ]; then
-        echo -e "- File not found! Skipping..."
-        return 1
+	if [ ! -f "$FILE" ]; then
+	    echo "- File name not found: $FILE"
+		return
+	fi
+
+    if FOUND=$(grep -E 'const-string v0, "dvfs_policy_.*_xx"' "$FILE"); then
+        echo "- Found DVFS policy: $FOUND"
+
+        if [ -n "$STOCK_DVFS_FILENAME" ]; then
+            sed -i -E \
+            's|const-string v0, "dvfs_policy_.*_xx"|const-string v0, "'"$STOCK_DVFS_FILENAME"'"|' \
+            "$FILE"
+
+            echo "- DVFS policy file name replaced to: ${STOCK_DVFS_FILENAME}"
+        else
+            echo "- STOCK_DVFS_FILENAME is empty. Skipping replacement."
+        fi
+    else
+        echo "- DVFS policy file name not found."
     fi
 
-    if grep -Eq 'const-string v[0-9]+, "siop_' "$FILE"; then
-        echo -e "- Found siop_ → Replacing"
-        sed -i 's/\(const-string v[0-9]\+,\s*"\)siop_[^"]*"/\1'"$STOCK_SIOP_POLICY_FILENAME"'"/g' "$FILE"
+    if FOUND=$(grep -E 'const-string v6, "siop_.*_.*"' "$FILE"); then
+        echo "- Found SIOP policy: $FOUND"
+
+        if [ -n "$STOCK_SIOP_POLICY_FILENAME" ]; then
+            sed -i -E \
+            's|const-string v6, "siop_.*_.*"|const-string v6, "'"$STOCK_SIOP_POLICY_FILENAME"'"|' \
+            "$FILE"
+
+            echo "- SIOP policy file name replaced to: ${STOCK_SIOP_POLICY_FILENAME}"
+        else
+            echo "- STOCK_SIOP_POLICY_FILENAME is empty. Skipping replacement."
+        fi
     else
-        echo -e "- siop filename not found → Skipped"
-    fi
-
-    if grep -Eq 'const-string v[0-9]+, "dvfs_policy_[^"]*_[^"]*"' "$FILE"; then
-        echo -e "- Found dvfs_policy_*_* → Replacing"
-
-        sed -i '/dvfs_policy_default/! {
-            s/\(const-string v[0-9]\+,\s*"\)dvfs_policy_[^"]*_[^"]*"/\1'"$STOCK_DVFS_FILENAME"'"/g
-        }' "$FILE"
-
-    else
-        echo -e "- dvfs_policy file name not found → Skipped"
+        echo "- SIOP policy file name not found."
     fi
 }
 

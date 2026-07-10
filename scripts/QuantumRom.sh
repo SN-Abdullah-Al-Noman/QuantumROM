@@ -443,8 +443,6 @@ EXTRACT_FIRMWARE_IMG() {
         local partition="$(basename "${imgfile%.img}")"
         local ORG_IMG_SIZE=$(stat -c%s -- "$imgfile")
 
-        rm -rf "${EXTRACTED_FIRM_DIR}/$partition"
-
         local fstype=$(DETECT_FILESYSTEM "$imgfile")
         if [ "$fstype" = "sparse" ]; then
             echo -e "$partition.img is SPARSE. Converting to raw img."
@@ -471,12 +469,14 @@ EXTRACT_FIRMWARE_IMG() {
             ext4)
                 echo " "
                 echo -e "$partition.img Detected ext4. Size: $ORG_IMG_SIZE bytes. Extracting..."
+				rm -rf "${EXTRACTED_FIRM_DIR}/$partition"
                 python3 "$imgextractor_py" "$imgfile" "$EXTRACTED_FIRM_DIR"
                 ;;
 
             erofs)
                 echo " "
                 echo -e "$partition.img Detected erofs. Size: $ORG_IMG_SIZE bytes. Extracting..."
+				rm -rf "${EXTRACTED_FIRM_DIR}/$partition"
                 "$extract_erofs" -i "$imgfile" -x -f -o "$EXTRACTED_FIRM_DIR" >/dev/null 2>&1
                 ;;
 
@@ -2071,7 +2071,7 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
         rm -rf "${EXTRACTED_FIRM_DIR}/system/system/etc/style_transfer"
         rm -rf "${EXTRACTED_FIRM_DIR}/system/system/priv-app"/PhotoEditor_*
 
-		#========== GENAI ==========#
+	    #========== GENAI ==========#
         UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_IMAGE_CLIPPER" "TRUE"
         UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_OBJECT_ERASER" "TRUE"
         UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_REFLECTION_ERASER" "TRUE"
@@ -2182,7 +2182,7 @@ APPLY_CUSTOM_FEATURES() {
 
     # Apply custom floating feature.
 	APPLY_CUSTOM_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY"
-	
+
 	# Fix samsung device health manager service
 	UPDATE_SDHMS "$EXTRACTED_FIRM_DIR"
 

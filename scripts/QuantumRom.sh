@@ -1798,6 +1798,9 @@ APPLY_STOCK_CONFIG() {
 	# FIX CAMERA IF NEED
 	FIX_CAMERA "$EXTRACTED_FIRM_DIR"
 
+	# Fix samsung device health manager service
+	UPDATE_SDHMS "$EXTRACTED_FIRM_DIR"
+
     # Apply stock floating feature.
 	APPLY_STOCK_ROM_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY"
 
@@ -2178,9 +2181,6 @@ APPLY_CUSTOM_FEATURES() {
 
     # Apply custom floating feature.
 	APPLY_CUSTOM_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY"
-
-	# Fix samsung device health manager service
-	UPDATE_SDHMS "$EXTRACTED_FIRM_DIR"
 
 	chown -R "$REAL_USER:$REAL_USER" "$EXTRACTED_FIRM_DIR"
     chmod -R u+rwX "$EXTRACTED_FIRM_DIR"

@@ -366,11 +366,11 @@ PREPARE_PARTITIONS() {
     fi
 
     if [ -z "$STOCK_DEVICE" ] || [ "$STOCK_DEVICE" = "None" ]; then
-        export BUILD_PARTITIONS="odm,odm_dlkm,product,system,system_ext,system_dlkm,vendor,vendor_dlkm,odm_a,odm_dlkm_a,product_a,system_a,system_ext_a,system_dlkm_a,vendor_a,vendor_dlkm_a,optics,optics_a"
+        local BUILD_PARTITIONS="odm,odm_dlkm,product,system,system_ext,system_dlkm,vendor,vendor_dlkm,odm_a,odm_dlkm_a,product_a,system_a,system_ext_a,system_dlkm_a,vendor_a,vendor_dlkm_a,optics,optics_a"
     fi
 
     if [ -n "$STOCK_DEVICE" ] && [ -f "${DEVICES_DIR}/$STOCK_DEVICE/config" ]; then
-        export STOCK_HAS_AB_SLOT="$(grep -m1 '^STOCK_HAS_AB_SLOT=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
+        local STOCK_HAS_AB_SLOT="$(grep -m1 '^STOCK_HAS_AB_SLOT=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
     fi
 
 	# Delete empty b slot images
@@ -580,12 +580,13 @@ INSTALL_FRAMEWORK() {
 	local APKTOOL="$1"
     local framework_apk="$2"
 
+	echo -e "Installing: $framework_apk"
+
 	if [ ! -f "$framework_apk" ]; then
         echo -e "- File not found: $framework_apk"
         return 1
     fi
 
-    echo -e "Installing: $framework_apk"
     java -jar "$APKTOOL" install-framework "$framework_apk"
 }
 
@@ -642,18 +643,18 @@ RECOMPILE() {
 	local FRAMEWORK_DIR="$2"
 	local DECOMPILED_DIR="$3"
     local RECOMPILE_DIR="$4"
+	
+	echo -e "Recompiling: $DECOMPILED_DIR"
+
+	if [ ! -d "$DECOMPILED_DIR" ]; then
+        echo "- Directory not found: $DECOMPILED_DIR"
+        return 1
+    fi
 
     local org_file_name=$(awk '/^apkFileName:/ {print $2}' "$DECOMPILED_DIR/apktool.yml")
     local name="${org_file_name%.*}"
     local ext="${org_file_name##*.}"
     local built_file="$RECOMPILE_DIR/${name}.$ext"
-
-    echo -e "Recompiling: $DECOMPILED_DIR"
-
-	if [ ! -d "$DECOMPILED_DIR" ]; then
-        echo -e "- Directory not found: $DECOMPILED_DIR"
-        return 1
-    fi
 
     java -jar "$APKTOOL" b "$DECOMPILED_DIR" --copy-original --frame-path "$FRAMEWORK_DIR" -o "$built_file"
     rm -rf "$DECOMPILED_DIR"
@@ -673,8 +674,8 @@ REPLACE_SMALI_METHOD() {
     local METHOD_NAME="$2"
     local NEW_BODY=$(echo -e "$3" | tail -n +2)
 
-    echo -e "- Patching: $FILE"
-    echo -e "  Method: $METHOD_NAME"
+    echo -e "Patching: $FILE"
+    echo -e "- Method: $METHOD_NAME"
 
     if ! grep -Fq "$METHOD_NAME" "$FILE"; then
         echo -e "- Warning- Method: $METHOD_NAME not found in: $FILE"
@@ -738,24 +739,16 @@ HEX_PATCH() {
 PATCH_FLAG_SECURE() {
 	echo " "
 
-	if [ "$#" -ne 1 ]; then
-        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_SERVICES_DIRECTORY>"
+	if [ "$#" -ne 2 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRMWARE_DIRECTORY> <EXTRACTED_SERVICES_DIRECTORY>"
         return 1
     fi
 
-	echo -e "Patching flag secure."
-
 	# https://github.com/ShaDisNX255/NcX_Stock/commit/c2cc85818df4fe040b4f89ca8f9b78e939b211b4
     # https://forum.xda-developers.com/t/mods-samsung-not-android-mods-collection-exynos.3772017/post-86811691
-    #
-	# For android 13
-	# local FILE="${1}/smali_classes3/com/android/server/wm/WindowState.smali"
-	# local METHOD_NAME_1=".method public isSecureLocked()Z"
-	# Only one method.
-    #
 
-	local FILE_1="${1}/smali_classes2/com/android/server/wm/WindowState.smali"
-    local METHOD_NAME_1=".method public final isSecureLocked()Z"
+    local FILE_1 FILE_2
+
     local REPLACE_BODY_1='
     .locals 1
 
@@ -763,98 +756,115 @@ PATCH_FLAG_SECURE() {
 
     return v0
     '
-    REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_1" "$REPLACE_BODY_1"
 
-	local FILE_2="${1}/smali_classes2/com/android/server/wm/WindowManagerService.smali"
-    local METHOD_NAME_2=".method public final notifyScreenshotListeners(I)Ljava/util/List;"
     local REPLACE_BODY_2='
-    .locals 3
-    .annotation system Ldalvik/annotation/Signature;
-        value = {
-            "(I)",
-            "Ljava/util/List<",
-            "Landroid/content/ComponentName;",
-            ">;"
-        }
-    .end annotation
-
-    const-string/jumbo v0, "android.permission.STATUS_BAR_SERVICE"
-
-    const-string/jumbo v1, "notifyScreenshotListeners()"
-
-    const/4 v2, 0x1
-
-    invoke-virtual {p0, v0, v1, v2}, Lcom/android/server/wm/WindowManagerService;->checkCallingPermission$1(Ljava/lang/String;Ljava/lang/String;Z)Z
-
-    move-result v0
-
-    if-eqz v0, :cond_43
+    .locals 1
 
     invoke-static {}, Ljava/util/Collections;->emptyList()Ljava/util/List;
-
-    move-result-object p0
-
-    return-object p0
-
-    :cond_43
-    new-instance p0, Ljava/lang/SecurityException;
-
-    const-string/jumbo p1, "Requires STATUS_BAR_SERVICE permission"
-
-    invoke-direct {p0, p1}, Ljava/lang/SecurityException;-><init>(Ljava/lang/String;)V
-
-    throw p0
+    move-result-object v0
+    return-object v0
     '
-    REPLACE_SMALI_METHOD "$FILE_2" "$METHOD_NAME_2" "$REPLACE_BODY_2"
+
+	echo -e "Patching flag secure."
+
+    local EXTRACTED_FIRM_DIR="$1"
+	local WORK_DIR="$2"
+
+	if [ ! -d "$WORK_DIR" ]; then
+        echo "- Directory not found: $WORK_DIR"
+        return 1
+    fi
+
+	local ANDROID_VERSION=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")
+
+	echo "Android version: $ANDROID_VERSION"
+
+	case "$ANDROID_VERSION" in
+        11)
+            FILE_1="${WORK_DIR}/smali_classes2/com/android/server/wm/WindowState.smali"
+            METHOD_NAME_1=".method isSecureLocked()Z"
+            ;;
+        12)
+            FILE_1="${WORK_DIR2}/smali_classes3/com/android/server/wm/WindowState.smali"
+            METHOD_NAME_1=".method isSecureLocked()Z"
+            ;;
+        13)
+            FILE_1="${WORK_DIR}/smali_classes3/com/android/server/wm/WindowState.smali"
+            METHOD_NAME_1=".method public isSecureLocked()Z"
+            ;;
+        14)
+            FILE_1="${WORK_DIR}/smali_classes3/com/android/server/wm/WindowState.smali"
+            METHOD_NAME_1=".method public isSecureLocked()Z"
+			FILE_2="${WORK_DIR}/smali_classes3/com/android/server/wm/WindowManagerService.smali"
+            METHOD_NAME_2=".method public notifyScreenshotListeners(I)Ljava/util/List;"
+            ;;
+        15|16|17)
+            FILE_1="${WORK_DIR}/smali_classes2/com/android/server/wm/WindowState.smali"
+            METHOD_NAME_1=".method public final isSecureLocked()Z"
+			FILE_2="${WORK_DIR}/smali_classes2/com/android/server/wm/WindowManagerService.smali"
+            METHOD_NAME_2=".method public final notifyScreenshotListeners(I)Ljava/util/List;"
+            ;;
+        *)
+            echo "- Unsupported Android version: $ANDROID_VERSION"
+            return 1
+            ;;
+    esac
+
+    if [[ -v FILE_1 ]]; then
+        REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_1" "$REPLACE_BODY_1"
+    fi
+
+    if [[ -v FILE_2 ]]; then
+        REPLACE_SMALI_METHOD "$FILE_2" "$METHOD_NAME_2" "$REPLACE_BODY_2"
+    fi
 }
 
 
 PATCH_SECURE_FOLDER() {
     echo " "
 
-	if [ "$#" -ne 1 ]; then
-        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_SERVICES_DIRECTORY>"
+	if [ "$#" -ne 2 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRMWARE_DIRECTORY> <EXTRACTED_SERVICES_DIRECTORY>"
         return 1
     fi
 
-    echo -e "Patching secure folder."
-
-	#https://forum.xda-developers.com/t/mods-samsung-not-android-mods-collection-exynos.3772017/post-86770885
-    #
-	# For android 13
-	# local FILE_1="${1}/smali_classes2/com/android/server/knox/dar/DarManagerService.smali"
-	# local METHOD_NAME_2=".method public isDeviceRootKeyInstalled()Z"
-	# local METHOD_NAME_3=".method public isKnoxKeyInstallable()Z"
-    #
-
-	local FILE_1="${1}/smali/com/android/server/knox/dar/DarManagerService.smali"
-	local METHOD_NAME_1=".method public final checkDeviceIntegrity([Ljava/security/cert/Certificate;)Z"
-	local METHOD_NAME_2=".method public final isDeviceRootKeyInstalled()Z"
-    local METHOD_NAME_3=".method public final isKnoxKeyInstallable()Z"
-    
-    local REPLACE_BODY_1='
-    .locals 0
- 
-    const/4 p0, 0x1
- 
-    return p0
-    '
-
-    REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_1" "$REPLACE_BODY_1"
-    REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_2" "$REPLACE_BODY_1"
-	REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_3" "$REPLACE_BODY_1"
-
-    local FILE_2="${1}/smali/com/android/server/StorageManagerService.smali"
-	# METHOD_NAME_4 Is not available in Android 13
-    local METHOD_NAME_4=".method public static isRootedDevice()Z"
-    local REPLACE_BODY_2='
+	# https://forum.xda-developers.com/t/mods-samsung-not-android-mods-collection-exynos.3772017/post-86770885
+	local REPLACE_BODY_1='
     .locals 1
  
     const/4 v0, 0x0
  
     return v0
     '
-    REPLACE_SMALI_METHOD "$FILE_2" "$METHOD_NAME_4" "$REPLACE_BODY_2"
+
+    echo -e "Patching secure folder."
+
+	local EXTRACTED_FIRM_DIR="$1"
+	local WORK_DIR="$2"
+	local ANDROID_VERSION=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")
+
+	echo "Android version: $ANDROID_VERSION"
+
+	case "$ANDROID_VERSION" in
+        12|13|14)
+            FILE_1="${WORK_DIR}/smali_classes2/com/android/server/knox/dar/DarManagerService.smali"
+			METHOD_NAME_1=".method public isDeviceRootKeyInstalled()Z"
+	        METHOD_NAME_2=".method public isKnoxKeyInstallable()Z"
+			REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_1" "$REPLACE_BODY_1"
+            REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_2" "$REPLACE_BODY_1"
+            ;;
+        15|16|17)
+            FILE_1="${WORK_DIR}/smali/com/android/server/knox/dar/DarManagerService.smali"
+			METHOD_NAME_1=".method public final isDeviceRootKeyInstalled()Z"
+	        METHOD_NAME_2=".method public final isKnoxKeyInstallable()Z"
+			REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_1" "$REPLACE_BODY_1"
+            REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_2" "$REPLACE_BODY_1"
+            ;;
+        *)
+            echo "- Unsupported Android version: $ANDROID_VERSION"
+            return 1
+            ;;
+    esac
 }
 
 
@@ -980,14 +990,11 @@ PATCH_SSRM() {
 		return
 	fi
 
-    if FOUND=$(grep -E 'const-string v0, "dvfs_policy_.*_xx"' "$FILE"); then
+    if FOUND=$(grep -E 'const-string [vp][0-9]+, "dvfs_policy_.*_xx"' "$FILE"); then
         echo "- Found DVFS policy: $FOUND"
 
         if [ -n "$STOCK_DVFS_FILENAME" ]; then
-            sed -i -E \
-            's|const-string v0, "dvfs_policy_.*_xx"|const-string v0, "'"$STOCK_DVFS_FILENAME"'"|' \
-            "$FILE"
-
+            sed -i -E 's|(const-string [^,]+, ")[^"]+(")|\1'"$STOCK_DVFS_FILENAME"'\2|' "$FILE"
             echo "- DVFS policy file name replaced to: ${STOCK_DVFS_FILENAME}"
         else
             echo "- STOCK_DVFS_FILENAME is empty. Skipping replacement."
@@ -996,13 +1003,11 @@ PATCH_SSRM() {
         echo "- DVFS policy file name not found."
     fi
 
-    if FOUND=$(grep -E 'const-string v6, "siop_.*_.*"' "$FILE"); then
+    if FOUND=$(grep -E 'const-string [^,]+, "siop_[^"]*"' "$FILE"); then
         echo "- Found SIOP policy: $FOUND"
 
         if [ -n "$STOCK_SIOP_POLICY_FILENAME" ]; then
-            sed -i -E \
-            's|const-string v6, "siop_.*_.*"|const-string v6, "'"$STOCK_SIOP_POLICY_FILENAME"'"|' \
-            "$FILE"
+            sed -i -E 's|(const-string [^,]+, ")siop_[^"]*(")|\1'"$STOCK_SIOP_POLICY_FILENAME"'\2|' "$FILE"
 
             echo "- SIOP policy file name replaced to: ${STOCK_SIOP_POLICY_FILENAME}"
         else
@@ -1125,7 +1130,7 @@ FIX_VNDK() {
 	local TARGET_ROM_SYSTEM_EXT_DIR="$(GET_SYSTEM_EXT_DIR "$EXTRACTED_FIRM_DIR")"
 
     echo -e "Checking $STOCK_DEVICE and $TARGET_DEVICE vndk version."
-    export SDK="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" ro.build.version.sdk_full)"
+    local SDK="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" ro.build.version.sdk_full)"
 	echo "- Target rom SDK version: $SDK"
     if [ -f "${TARGET_ROM_SYSTEM_EXT_DIR}/apex/com.android.vndk.v${STOCK_VNDK_VERSION}.apex" ]; then
         echo -e "- VNDK matched. ${TARGET_ROM_SYSTEM_EXT_DIR}/apex/com.android.vndk.v${STOCK_VNDK_VERSION}.apex"
@@ -1187,7 +1192,7 @@ ADD_SYSTEM_EXT_IN_SYSTEM_ROOT() {
     cat "$SYSTEM_EXT_CONTEXTS_FILE" >> "$SYSTEM_CONTEXTS_FILE"
 
     rm -rf "$EXTRACTED_FIRM_DIR"/config/system_ext*
-    export TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system/system_ext"
+    local TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system/system_ext"
 }
 
 
@@ -1242,7 +1247,7 @@ SEPARATE_SYSTEM_EXT() {
 		sort -u "$SYSTEM_EXT_FS_CONFIG" -o "$SYSTEM_EXT_FS_CONFIG"
     fi
 
-    export TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system_ext"
+    local TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system_ext"
 }
 
 
@@ -1258,10 +1263,10 @@ ADJUST_SYSTEM_EXT() {
         echo "- STOCK_HAS_SEPARATE_SYSTEM_EXT: $STOCK_HAS_SEPARATE_SYSTEM_EXT"
 
         if [ -d "${EXTRACTED_FIRM_DIR}/system/system/system_ext/etc" ]; then
-            export TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system/system/system_ext"
+            local TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system/system/system_ext"
 
         elif [ -d "${EXTRACTED_FIRM_DIR}/system/system_ext/etc" ]; then
-            export TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system/system_ext"
+            local TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system/system_ext"
 			
 		elif [ -d "${EXTRACTED_FIRM_DIR}/system_ext/etc" ]; then
 		    ADD_SYSTEM_EXT_IN_SYSTEM_ROOT "$EXTRACTED_FIRM_DIR"
@@ -1288,11 +1293,11 @@ GET_SYSTEM_EXT_DIR() {
     local EXTRACTED_FIRM_DIR="$1"
 
     if [ -d "${EXTRACTED_FIRM_DIR}/system_ext/etc" ]; then
-        export TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system_ext"
+        local TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system_ext"
     elif [ -d "${EXTRACTED_FIRM_DIR}/system/system_ext/etc" ]; then
-        export TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system/system_ext"
+        local TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system/system_ext"
     elif [ -d "${EXTRACTED_FIRM_DIR}/system/system/system_ext/etc" ]; then
-        export TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system/system/system_ext"
+        local TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system/system/system_ext"
     else
         return 1
     fi
@@ -1355,11 +1360,11 @@ PATCH_SELINUX() {
 
 UPDATE_FLOATING_FEATURE() {
     if [ "$#" -ne 3 ]; then
-        echo "Usage: ${FUNCNAME[0]} <FLOATING_FEATURE_FILE_DIRECTORY> <FLOATING_FEATURE_LINE> <VALUE>"
+        echo "Usage: ${FUNCNAME[0]} <TARGET_ROM_FLOATING_FEATURE> <FLOATING_FEATURE_LINE> <VALUE>"
         return 1
     fi
 
-    local FLOATING_FEATURE_FILE_DIRECTORY="$1"
+    local TARGET_ROM_FLOATING_FEATURE="$1"
     local key="$2"
     local value="$3"
 
@@ -1373,12 +1378,12 @@ UPDATE_FLOATING_FEATURE() {
     local escaped_value
     escaped_value=$(printf '%s' "$value" | sed 's/[\/&]/\\&/g')
 
-    if grep -Fq "<${key}>" "$FLOATING_FEATURE_FILE_DIRECTORY"; then
+    if grep -Fq "<${key}>" "$TARGET_ROM_FLOATING_FEATURE"; then
 
         local current_value
         current_value=$(
             sed -n "s|.*<${key}>\\(.*\\)</${key}>.*|\\1|p" \
-            "$FLOATING_FEATURE_FILE_DIRECTORY" | head -n1 | xargs
+            "$TARGET_ROM_FLOATING_FEATURE" | head -n1 | xargs
         )
 
         if [ "$current_value" = "$value" ]; then
@@ -1387,14 +1392,14 @@ UPDATE_FLOATING_FEATURE() {
 
         sed -i \
             "/<${key}>.*<\/${key}>/c\\    <${key}>${escaped_value}</${key}>" \
-            "$FLOATING_FEATURE_FILE_DIRECTORY"
+            "$TARGET_ROM_FLOATING_FEATURE"
 
         #echo "- Updated $key with: $value"
 
     else
         sed -i \
             "3i\\    <${key}>${escaped_value}</${key}>" \
-            "$FLOATING_FEATURE_FILE_DIRECTORY"
+            "$TARGET_ROM_FLOATING_FEATURE"
 
         #echo "- Added $key with value: $value"
     fi
@@ -1403,216 +1408,228 @@ UPDATE_FLOATING_FEATURE() {
 
 APPLY_CUSTOM_FLOATING_FEATURE() {
     if [ "$#" -ne 1 ]; then
-        echo -e "Usage: ${FUNCNAME[0]} <FLOATING_FEATURE_FILE_DIRECTORY>"
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR>"
         return 1
     fi
 
-	local FLOATING_FEATURE_FILE_DIRECTORY="$1"
+	local EXTRACTED_FIRM_DIR="$1"
 
 	echo -e "- Applying Custom Floating Feature."
-    #========== COMMON ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_COMMON_CONFIG_SEP_CATEGORY" "sep_basic"
 
-    #============= AI ==========#
-    sed -i '/SEC_FLOATING_FEATURE_COMMON_DISABLE_NATIVE_AI/d' "$FLOATING_FEATURE_FILE_DIRECTORY"
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_VISION_SUPPORT_AI_MY_FAVORITE_CONTENTS" "TRUE"
-
-	#========== EDGE ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_COMMON_CONFIG_EDGE" "panel"
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_SYSTEMUI_SUPPORT_BRIEF_NOTIFICATION" "TRUE"
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_SYSTEMUI_CONFIG_EDGELIGHTING_FRAME_EFFECT" "frame_effect"
-
-    #========== SCREEN RECORDER ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_FRAMEWORK_SUPPORT_SCREEN_RECORDER" "TRUE"
-
-	#========== VOICE RECORDER ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_VOICERECORDER_CONFIG_DEF_MODE" "normal,interview,voicememo"
-
-    #========== AUDIO ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_AUDIO_SUPPORT_BT_RECORDING" "TRUE"
-
-    #========== BATTERY ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_GALAXYDIAGNOSTICS" "TRUE"
-
-    #========== SETTINGS ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_DEFAULT_DOUBLE_TAP_TO_WAKE" "TRUE"
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_FUNCTION_KEY_MENU" "TRUE"
-
-    #========== SYSTEM ============#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_SYSTEM_SUPPORT_ENHANCED_CPU_RESPONSIVENESS" "TRUE"
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_SYSTEM_SUPPORT_ENHANCED_PROCESSING" "TRUE"
-
-    #========== LAUNCHER ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_CLOCK_LIVE_ICON" "TRUE"
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE" "HighEnd"
-
-    #========== AOD ==========#
-	if [ -d "$FIRM_DIR/$TARGET_DEVICE/system/system/priv-app"/AODService_* ]; then
-	    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_FRAMEWORK_CONFIG_AOD_ITEM" "aodversion=7,clocktransition,coverboldfont"
-        UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_LCD_CONFIG_AOD_FULLSCREEN" "1"
+	if [ -f "${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml" ]; then
+        local TARGET_ROM_FLOATING_FEATURE="${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml"
+    elif [ -f "${EXTRACTED_FIRM_DIR}/vendor/etc/floating_feature.xml" ]; then
+        local TARGET_ROM_FLOATING_FEATURE="${EXTRACTED_FIRM_DIR}/vendor/etc/floating_feature.xml"
+    else
+        echo "- Error: floating_feature.xml not found!"
+        return 1
     fi
 
+    #========== COMMON ==========#
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_CONFIG_SEP_CATEGORY" "sep_basic"
+
+    #============= AI ==========#
+    sed -i '/SEC_FLOATING_FEATURE_COMMON_DISABLE_NATIVE_AI/d' "$TARGET_ROM_FLOATING_FEATURE"
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_VISION_SUPPORT_AI_MY_FAVORITE_CONTENTS" "TRUE"
+
+	#========== EDGE ==========#
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_CONFIG_EDGE" "panel"
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SYSTEMUI_SUPPORT_BRIEF_NOTIFICATION" "TRUE"
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SYSTEMUI_CONFIG_EDGELIGHTING_FRAME_EFFECT" "frame_effect"
+
+    #========== SCREEN RECORDER ==========#
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_FRAMEWORK_SUPPORT_SCREEN_RECORDER" "TRUE"
+
+	#========== VOICE RECORDER ==========#
+    # Do not edit AOD item line for Android 14
+    #UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_VOICERECORDER_CONFIG_DEF_MODE" "normal,interview,voicememo"
+
+    #========== AUDIO ==========#
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_AUDIO_SUPPORT_BT_RECORDING" "TRUE"
+
+    #========== BATTERY ==========#
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_BATTERY_SUPPORT_BSOH_GALAXYDIAGNOSTICS" "TRUE"
+
+    #========== SETTINGS ==========#
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_DEFAULT_DOUBLE_TAP_TO_WAKE" "TRUE"
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_FUNCTION_KEY_MENU" "TRUE"
+
+    #========== SYSTEM ============#
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SYSTEM_SUPPORT_ENHANCED_CPU_RESPONSIVENESS" "TRUE"
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SYSTEM_SUPPORT_ENHANCED_PROCESSING" "TRUE"
+
+    #========== LAUNCHER ==========#
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_LAUNCHER_SUPPORT_CLOCK_LIVE_ICON" "TRUE"
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE" "HighEnd"
+
+    #========== AOD ==========#
+    # Do not edit AOD item line for Android 14
+	#if [ -d "$FIRM_DIR/$TARGET_DEVICE/system/system/priv-app"/AODService_* ]; then
+	    #UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_FRAMEWORK_CONFIG_AOD_ITEM" "aodversion=7,clocktransition,coverboldfont"
+        #UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_LCD_CONFIG_AOD_FULLSCREEN" "1"
+    #fi
+
     #========== CAMERA ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_CAMERA_SUPPORT_PRIVACY_TOGGLE" "TRUE"
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_CAMERA_SUPPORT_PRIVACY_TOGGLE" "TRUE"
 }
 
 
 APPLY_STOCK_ROM_FLOATING_FEATURE() {
     echo " "
 
-    if [ "$#" -ne 1 ]; then
-        echo -e "Usage: ${FUNCNAME[0]} <FLOATING_FEATURE_FILE_DIRECTORY>"
+    if [ "$#" -ne 2 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <STOCK_ROM_FLOATING_FEATURE> <TARGET_ROM_FLOATING_FEATURE>"
         return 1
     fi
 
-	local FLOATING_FEATURE_FILE_DIRECTORY="$1"
+	local TARGET_ROM_FLOATING_FEATURE="$1"
 
     echo "Applying Stock Floating Feature."
 
     #========== AUDIO ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_AUDIO_CONFIG_VOLUMEMONITOR_STAGE" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_AUDIO_CONFIG_VOLUMEMONITOR_STAGE" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_AUDIO_SUPPORT_VOLUME_MONITOR" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_AUDIO_SUPPORT_VOLUME_MONITOR" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_AUDIO_CONFIG_REMOTE_MIC" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_AUDIO_CONFIG_REMOTE_MIC" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_AUDIO_CONFIG_SOUNDALIVE_VERSION" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_AUDIO_CONFIG_SOUNDALIVE_VERSION" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_AUDIO_CONFIG_VOLUMEMONITOR_GAIN" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_AUDIO_CONFIG_VOLUMEMONITOR_GAIN" "$STOCK_ROM_FLOATING_FEATURE")"
 
-	UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+	UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_AUDIO_SUPPORT_DUAL_SPEAKER" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_AUDIO_SUPPORT_DUAL_SPEAKER" "$STOCK_ROM_FLOATING_FEATURE")"
 
-	UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+	UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_AUDIO_NUMBER_OF_SPEAKER" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_AUDIO_NUMBER_OF_SPEAKER" "$STOCK_ROM_FLOATING_FEATURE")"
 
     #========== SETTINGS ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_ELECTRIC_RATED_VALUE" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_ELECTRIC_RATED_VALUE" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_BRAND_NAME" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_DEFAULT_FONT_SIZE" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_DEFAULT_FONT_SIZE" "$STOCK_ROM_FLOATING_FEATURE")"
 
     #========== REFRESH RATE ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_LCD_CONFIG_HFR_MODE" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_LCD_CONFIG_HFR_MODE" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_LCD_CONFIG_HFR_DEFAULT_REFRESH_RATE" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_LCD_CONFIG_HFR_DEFAULT_REFRESH_RATE" "$STOCK_ROM_FLOATING_FEATURE")"
 
     #========== SYSTEM ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_SYSTEM_CONFIG_SIOP_POLICY_FILENAME" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_SYSTEM_CONFIG_SIOP_POLICY_FILENAME" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_COMMON_CONFIG_DEVICE_MANUFACTURING_TYPE" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_COMMON_CONFIG_DEVICE_MANUFACTURING_TYPE" "$STOCK_ROM_FLOATING_FEATURE")"
 
     #========== LAUNCHER ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_LAUNCHER_CONFIG_ANIMATION_TYPE" "$STOCK_ROM_FLOATING_FEATURE")"
 
     #========== DISPLAY ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_LCD_CONFIG_CONTROL_AUTO_BRIGHTNESS" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_LCD_CONFIG_CONTROL_AUTO_BRIGHTNESS" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_LCD_CONFIG_DEFAULT_SCREEN_MODE" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_LCD_CONFIG_DEFAULT_SCREEN_MODE" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_LCD_SUPPORT_NATURAL_SCREEN_MODE" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_LCD_SUPPORT_NATURAL_SCREEN_MODE" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_LCD_SUPPORT_SCREEN_MODE_TYPE" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_LCD_SUPPORT_SCREEN_MODE_TYPE" "$STOCK_ROM_FLOATING_FEATURE")"
 
     #========== CAMERA ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_CAMERA_CONFIG_CAMID_TELE_BINNING" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_CAMERA_CONFIG_CAMID_TELE_BINNING" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_CAMERA_CONFIG_MEMORY_USAGE_LEVEL" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_CAMERA_CONFIG_MEMORY_USAGE_LEVEL" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_CAMERA_CONFIG_QRCODE_INTERVAL" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_CAMERA_CONFIG_QRCODE_INTERVAL" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_CAMERA_CONFIG_UW_DISTORTION_CORRECTION" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_CAMERA_CONFIG_UW_DISTORTION_CORRECTION" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_CAMERA_CONFIG_AVATAR_MAX_FACE_NUM" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_CAMERA_CONFIG_AVATAR_MAX_FACE_NUM" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_CAMERA_CONFIG_CAMID_TELE_STANDARD_CROP" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_CAMERA_CONFIG_CAMID_TELE_STANDARD_CROP" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_CAMERA_CONFIG_HIGH_RESOLUTION_MAX_CAPTURE" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_CAMERA_CONFIG_HIGH_RESOLUTION_MAX_CAPTURE" "$STOCK_ROM_FLOATING_FEATURE")"
 
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_CAMERA_CONFIG_NIGHT_FRONT_DISPLAY_FLASH_TRANSPARENT" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_CAMERA_CONFIG_NIGHT_FRONT_DISPLAY_FLASH_TRANSPARENT" "$STOCK_ROM_FLOATING_FEATURE")"
 
     #========== BIOAUTH ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_BIOAUTH_CONFIG_FINGERPRINT_FEATURES" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_BIOAUTH_CONFIG_FINGERPRINT_FEATURES" "$STOCK_ROM_FLOATING_FEATURE")"
 
     #========== LOCKSCREEN ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_LOCKSCREEN_CONFIG_PUNCHHOLE_VI" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_LOCKSCREEN_CONFIG_PUNCHHOLE_VI" "$STOCK_ROM_FLOATING_FEATURE")"
 
 	#========== VIDEO EDITOR ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_COMMON_CONFIG_MULTIMEDIA_EDITOR_PLUGIN_PACKAGES" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_COMMON_CONFIG_MULTIMEDIA_EDITOR_PLUGIN_PACKAGES" "$STOCK_ROM_FLOATING_FEATURE")"
 
 	#============= PHOTO REMASTER FIX ==========#
     if grep -q "<SEC_FLOATING_FEATURE_SAIV_CONFIG_MIDAS>" "$STOCK_ROM_FLOATING_FEATURE"; then
-        UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_COMMON_CONFIG_MULTIMEDIA_EDITOR_PLUGIN_PACKAGES" \
+        UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_CONFIG_MULTIMEDIA_EDITOR_PLUGIN_PACKAGES" \
         "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_COMMON_CONFIG_MULTIMEDIA_EDITOR_PLUGIN_PACKAGES" "$STOCK_ROM_FLOATING_FEATURE")"
     else
-        sed -i '/<SEC_FLOATING_FEATURE_SAIV_CONFIG_MIDAS>/d' "$FLOATING_FEATURE_FILE_DIRECTORY"
+        sed -i '/<SEC_FLOATING_FEATURE_SAIV_CONFIG_MIDAS>/d' "$TARGET_ROM_FLOATING_FEATURE"
     fi
 	
 	#========== SIM RELATED ==========#
-    UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
     "SEC_FLOATING_FEATURE_COMMON_CONFIG_EMBEDDED_SIM_SLOTSWITCH" \
     "$(GET_FF_VALUE "SEC_FLOATING_FEATURE_COMMON_CONFIG_EMBEDDED_SIM_SLOTSWITCH" "$STOCK_ROM_FLOATING_FEATURE")"
 }
@@ -1660,7 +1677,7 @@ REMOVE_CAMERA_FILES() {
     rm -rf "${EXTRACTED_FIRM_DIR}/system/system/priv-app/SamsungCamera"
     rm -rf "${EXTRACTED_FIRM_DIR}/system/system/cameradata"
 
-    export FIRST_CAM_LINE="$(
+    local FIRST_CAM_LINE="$(
         grep -n '^    <SEC_FLOATING_FEATURE_CAMERA' \
         "${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml" |
         head -n 1 | cut -d: -f1
@@ -1743,8 +1760,24 @@ APPLY_STOCK_CONFIG() {
     fi
 
     local EXTRACTED_FIRM_DIR="$1"
-	local FLOATING_FEATURE_FILE_DIRECTORY="${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml"
-	export TARGET_ROM_CPU_ABILIST="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" ro.system.product.cpu.abilist)"
+
+	if [ -f "${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml" ]; then
+        local TARGET_ROM_FLOATING_FEATURE="${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml"
+    elif [ -f "${EXTRACTED_FIRM_DIR}/vendor/etc/floating_feature.xml" ]; then
+        local TARGET_ROM_FLOATING_FEATURE="${EXTRACTED_FIRM_DIR}/vendor/etc/floating_feature.xml"
+    else
+        echo "- Error: floating_feature.xml not found!"
+        return 1
+    fi
+
+    if GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.product.cpu.abilist" >/dev/null 2>&1; then
+        local TARGET_ROM_CPU_ABILIST="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.product.cpu.abilist")"
+    elif GET_PROP "$EXTRACTED_FIRM_DIR" "product" "ro.product.cpu.abilist" >/dev/null 2>&1; then
+        local TARGET_ROM_CPU_ABILIST="$(GET_PROP "$EXTRACTED_FIRM_DIR" "product" "ro.product.cpu.abilist")"
+    else
+        echo "- CPU abilist property not found!"
+        return 1
+    fi
 
 	if [ -z "$STOCK_DEVICE" ] || [ "$STOCK_DEVICE" = "None" ]; then
         echo -e "No target device is set. Just modifying ROM without any device config."
@@ -1763,19 +1796,23 @@ APPLY_STOCK_CONFIG() {
 
     if [ -f "${DEVICES_DIR}/$STOCK_DEVICE/config" ]; then
         echo -e "$STOCK_DEVICE config found."
-        export STOCK_VNDK_VERSION="$(grep -m1 '^STOCK_VNDK_VERSION=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
-        export STOCK_HAS_SEPARATE_SYSTEM_EXT="$(grep -m1 '^STOCK_HAS_SEPARATE_SYSTEM_EXT=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
-    	export STOCK_DVFS_FILENAME="$(grep -m1 '^STOCK_DVFS_FILENAME=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
-		export STOCK_DEVICE_CPU_ABILIST="$(grep -m1 '^STOCK_DEVICE_CPU_ABILIST=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
-		export STOCK_DEVICE_CHIPSET="$(grep -m1 '^STOCK_DEVICE_CHIPSET=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
-		export USE_ALT_SDHMS_APP="$(grep -m1 '^USE_ALT_SDHMS_APP=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
-		export STOCK_HAS_ESIM_SUPPORT="$(grep -m1 '^STOCK_HAS_ESIM_SUPPORT=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
+        local STOCK_VNDK_VERSION="$(grep -m1 '^STOCK_VNDK_VERSION=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
+        local STOCK_HAS_SEPARATE_SYSTEM_EXT="$(grep -m1 '^STOCK_HAS_SEPARATE_SYSTEM_EXT=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
+		local STOCK_DEVICE_CPU_ABILIST="$(grep -m1 '^STOCK_DEVICE_CPU_ABILIST=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
+		local STOCK_DEVICE_CHIPSET="$(grep -m1 '^STOCK_DEVICE_CHIPSET=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
+		local USE_ALT_SDHMS_APP="$(grep -m1 '^USE_ALT_SDHMS_APP=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
+		local STOCK_HAS_ESIM_SUPPORT="$(grep -m1 '^STOCK_HAS_ESIM_SUPPORT=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
+		export STOCK_DVFS_FILENAME="$(grep -m1 '^STOCK_DVFS_FILENAME=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
+		export STOCK_SIOP_POLICY_FILENAME="$(grep -m1 '^STOCK_SIOP_POLICY_FILENAME=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
     fi
 
 	echo "Stock device vndk version: $STOCK_VNDK_VERSION"
     export STOCK_ROM_FLOATING_FEATURE="${DEVICES_DIR}/$STOCK_DEVICE/floating_feature.xml"
-	export STOCK_SIOP_POLICY_FILENAME="$(awk -F'[<>]' '$2 == "SEC_FLOATING_FEATURE_SYSTEM_CONFIG_SIOP_POLICY_FILENAME" {print $3}' "$STOCK_ROM_FLOATING_FEATURE" | tr -d '\r' | xargs)"
-	export STOCK_DEVICE_TYPE="$(awk -F'[<>]' '$2 == "SEC_FLOATING_FEATURE_COMMON_CONFIG_DEVICE_MANUFACTURING_TYPE" {print $3}' "$STOCK_ROM_FLOATING_FEATURE")"
+
+	if [ ! -f "$STOCK_ROM_FLOATING_FEATURE" ]; then
+        echo "- File not found: STOCK_ROM_FLOATING_FEATURE"
+        return 1
+    fi
 
 	if [ "$STOCK_DEVICE_CPU_ABILIST" != "$TARGET_ROM_CPU_ABILIST" ]; then
         echo "CPU ABI MISMATCH!"
@@ -1802,7 +1839,7 @@ APPLY_STOCK_CONFIG() {
 	UPDATE_SDHMS "$EXTRACTED_FIRM_DIR"
 
     # Apply stock floating feature.
-	APPLY_STOCK_ROM_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY"
+	APPLY_STOCK_ROM_FLOATING_FEATURE "$STOCK_ROM_FLOATING_FEATURE" "$TARGET_ROM_FLOATING_FEATURE"
 
     # Fix unsupported BPF error for kernels lower than 5.10.
     if [ "$USE_UI_8_TETHERING_APEX" = "True" ]; then
@@ -1977,7 +2014,7 @@ APPLY_JDM_SPECIAL() {
 }
 
 
-ADD_SAMSUNG_FLAGSHIP_APPS() {
+ADD_CHINA_SMART_MANAGER() {
     echo " "
 
     if [ "$#" -ne 1 ]; then
@@ -1985,26 +2022,38 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
         return 1
     fi
 
-    echo -e "Adding samsung full ONEUI apps."
-
     local EXTRACTED_FIRM_DIR="$1"
-    local FLOATING_FEATURE_FILE_DIRECTORY="${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml"
 
-    if [ ! -d "${EXTRACTED_FIRM_DIR}/system" ]; then
+	echo "Adding China smart manager."
+
+	if [ ! -d "${EXTRACTED_FIRM_DIR}/system" ]; then
         echo "No extracted firmware found."
         return 1
     fi
 
-    export PRODUCT_BRAND=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.product.system.brand")
-    export ANDROID_VERSION=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")
+    local PRODUCT_BRAND=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.product.system.brand")
+    local ANDROID_VERSION=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")
 	
     if [ "$PRODUCT_BRAND" != "samsung" ]; then
+	     echo "- Unsupported Android product: $PRODUCT_BRAND"
+        return 1
+    fi
+
+    if [[ ! "$ANDROID_VERSION" =~ ^(14|15|16)$ ]]; then
+        echo "- Unsupported Android version: $ANDROID_VERSION"
+        return 1
+    fi
+
+	if [ -f "${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml" ]; then
+        local TARGET_ROM_FLOATING_FEATURE="${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml"
+    elif [ -f "${EXTRACTED_FIRM_DIR}/vendor/etc/floating_feature.xml" ]; then
+        local TARGET_ROM_FLOATING_FEATURE="${EXTRACTED_FIRM_DIR}/vendor/etc/floating_feature.xml"
+    else
+        echo "- Error: floating_feature.xml not found!"
         return 1
     fi
 
     # ================= SMART MANAGER =================
-    echo "- Adding China smart manager."
-	
 	if [ ! -d "${EXTRACTED_FIRM_DIR}/system/system/priv-app/SmartManagerCN" ] && \
         [ ! -f "$(pwd)/QuantumROM/Mods/Apps/Samsung_SmartManagerCN_Android_${ANDROID_VERSION}.zip" ]; then
 
@@ -2032,9 +2081,52 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
 
         cp -rfa "$(pwd)/QuantumROM/Mods/Apps/Samsung_SmartManagerCN_Android_${ANDROID_VERSION}/." "${EXTRACTED_FIRM_DIR}/"
 
-        UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" \
+        UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" \
             "SEC_FLOATING_FEATURE_SMARTMANAGER_CONFIG_PACKAGE_NAME" \
             "com.samsung.android.sm_cn"
+    fi
+
+    chown -R "$REAL_USER:$REAL_USER" "$EXTRACTED_FIRM_DIR"
+    chmod -R u+rwX "$EXTRACTED_FIRM_DIR"
+}
+
+
+ADD_SAMSUNG_FLAGSHIP_APPS() {
+    echo " "
+
+    if [ "$#" -ne 1 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR>"
+        return 1
+    fi
+
+    local EXTRACTED_FIRM_DIR="$1"
+
+	echo -e "Adding samsung full ONEUI apps."
+
+	if [ ! -d "${EXTRACTED_FIRM_DIR}/system" ]; then
+        echo "No extracted firmware found."
+        return 1
+    fi
+
+	local PRODUCT_BRAND=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.product.system.brand")
+    local ANDROID_VERSION=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")
+
+	if [ "$PRODUCT_BRAND" != "samsung" ]; then
+        return 1
+    fi
+
+	if [[ ! "$ANDROID_VERSION" =~ ^(14|15|16)$ ]]; then
+        echo "- Unsupported Android version: $ANDROID_VERSION"
+        return 1
+    fi
+
+	if [ -f "${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml" ]; then
+        local TARGET_ROM_FLOATING_FEATURE="${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml"
+    elif [ -f "${EXTRACTED_FIRM_DIR}/vendor/etc/floating_feature.xml" ]; then
+        local TARGET_ROM_FLOATING_FEATURE="${EXTRACTED_FIRM_DIR}/vendor/etc/floating_feature.xml"
+    else
+        echo "- Error: floating_feature.xml not found!"
+		return 1
     fi
 
     # ================= PHOTO EDITOR AI FULL =================
@@ -2071,13 +2163,15 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
         rm -rf "${EXTRACTED_FIRM_DIR}/system/system/priv-app"/PhotoEditor_*
 
 	    #========== GENAI ==========#
-        UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_IMAGE_CLIPPER" "TRUE"
-        UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_OBJECT_ERASER" "TRUE"
-        UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_REFLECTION_ERASER" "TRUE"
-        UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_SHADOW_ERASER" "TRUE"
-        UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_SMART_LASSO" "TRUE"
-        UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_SPOT_FIXER" "TRUE"
-        UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_STYLE_TRANSFER" "TRUE"
+		if [ -f "$TARGET_ROM_FLOATING_FEATURE" ]; then
+            UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_IMAGE_CLIPPER" "TRUE"
+            UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_OBJECT_ERASER" "TRUE"
+            UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_REFLECTION_ERASER" "TRUE"
+            UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_SHADOW_ERASER" "TRUE"
+            UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_SMART_LASSO" "TRUE"
+            UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_SPOT_FIXER" "TRUE"
+            UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_STYLE_TRANSFER" "TRUE"
+		fi
 
         cp -rfa "$(pwd)/QuantumROM/Mods/Apps/Samsung_PhotoEditor_AIFull_Android_${ANDROID_VERSION}/." "${EXTRACTED_FIRM_DIR}/"
     fi
@@ -2112,8 +2206,8 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
             -d "$(pwd)/QuantumROM/Mods/Apps/Samsung_OCRDataProvider_Android_${ANDROID_VERSION}" >/dev/null 2>&1
 
 	    #============= OCR ==========#
-        sed -i '/SEC_FLOATING_FEATURE_CAMERA_CONFIG_OCR_ENGINE_UNSUPPORT /d' "$FLOATING_FEATURE_FILE_DIRECTORY"
-        UPDATE_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY" "SEC_FLOATING_FEATURE_CAMERA_CONFIG_STRIDE_OCR_VERSION" "V2"
+        sed -i '/SEC_FLOATING_FEATURE_CAMERA_CONFIG_OCR_ENGINE_UNSUPPORT /d' "$TARGET_ROM_FLOATING_FEATURE"
+        UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_CAMERA_CONFIG_STRIDE_OCR_VERSION" "V2"
 
         cp -rfa "$(pwd)/QuantumROM/Mods/Apps/Samsung_OCRDataProvider_Android_${ANDROID_VERSION}/." "${EXTRACTED_FIRM_DIR}/"
 
@@ -2158,14 +2252,18 @@ APPLY_CUSTOM_FEATURES() {
     fi
 
 	local EXTRACTED_FIRM_DIR="$1"
-	local FLOATING_FEATURE_FILE_DIRECTORY="${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml"
+
+	echo -e "Applying usefull features."
+
+    if [ -d "$(pwd)/QuantumROM/usefull_things" ]; then
+        cp -a "$(pwd)/QuantumROM/usefull_things/." "$(pwd)/OUT"
+    fi
 
 	if [ ! -d "${EXTRACTED_FIRM_DIR}/system" ]; then
-		echo "No extracted firmware found."
+		echo "- No extracted firmware found."
         return 1
     fi
 
-    echo -e "Applying usefull features."
 	echo -e "- Adding build prop tweak."
 	BUILD_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.product.locale" "en-US"
     BUILD_PROP "$EXTRACTED_FIRM_DIR" "system" "fw.max_users" "5"
@@ -2177,14 +2275,10 @@ APPLY_CUSTOM_FEATURES() {
 	BUILD_PROP "$EXTRACTED_FIRM_DIR" "product" "ro.product.locale" "en-US"
 
     # Apply custom floating feature.
-	APPLY_CUSTOM_FLOATING_FEATURE "$FLOATING_FEATURE_FILE_DIRECTORY"
+	APPLY_CUSTOM_FLOATING_FEATURE "$EXTRACTED_FIRM_DIR"
 
 	chown -R "$REAL_USER:$REAL_USER" "$EXTRACTED_FIRM_DIR"
     chmod -R u+rwX "$EXTRACTED_FIRM_DIR"
-	
-	if [ -d "$(pwd)/QuantumROM/usefull_things" ]; then
-        cp -a "$(pwd)/QuantumROM/usefull_things/." "$(pwd)/OUT"
-    fi
 }
 
 
@@ -2506,7 +2600,7 @@ BUILD_IMG() {
             mv "${OUT_IMG}.sparse" "$OUT_IMG"
 
         else
-            echo -e "Unsupported filesystem: $FILE_SYSTEM"
+            echo -e "- Unsupported filesystem: $FILE_SYSTEM"
             return
         fi
     }

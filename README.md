@@ -133,10 +133,7 @@ In your forked repository, go to:
 
 #### Components Used from UN1CA.
 - `HEX_PATCH` function (modified from UN1CA implementation)
-- Knox Patch (from UN1CA)
-- Secure Folder Patch (from UN1CA)
 - Knox Guard Patch (from UN1CA)
-- Secure Flag Patch (from UN1CA)
 - SSRM Patch (from UN1CA)
 - Some SELinux patches followed the UN1CA implementation.
 

@@ -746,8 +746,9 @@ PATCH_FLAG_SECURE() {
 
 	# https://github.com/ShaDisNX255/NcX_Stock/commit/c2cc85818df4fe040b4f89ca8f9b78e939b211b4
     # https://forum.xda-developers.com/t/mods-samsung-not-android-mods-collection-exynos.3772017/post-86811691
+	# https://xdaforums.com/t/module-smalipatcherex-1-2-2.4627905/
 
-    local FILE_1 FILE_2
+    local FILE_1 FILE_2 FILE_3
 
     local REPLACE_BODY_1='
     .locals 1
@@ -803,6 +804,8 @@ PATCH_FLAG_SECURE() {
             METHOD_NAME_1=".method public final isSecureLocked()Z"
 			FILE_2="${WORK_DIR}/smali_classes2/com/android/server/wm/WindowManagerService.smali"
             METHOD_NAME_2=".method public final notifyScreenshotListeners(I)Ljava/util/List;"
+			FILE_3="${WORK_DIR}/smali/com/android/server/devicepolicy/DevicePolicyManagerService.smali"
+			METHOD_NAME_3=".method public final getScreenCaptureDisabled(Landroid/content/ComponentName;IZ)Z"
             ;;
         *)
             echo "- Unsupported Android version: $ANDROID_VERSION"
@@ -816,6 +819,10 @@ PATCH_FLAG_SECURE() {
 
     if [[ -v FILE_2 ]]; then
         REPLACE_SMALI_METHOD "$FILE_2" "$METHOD_NAME_2" "$REPLACE_BODY_2"
+    fi
+
+	if [[ -v FILE_3 ]]; then
+        REPLACE_SMALI_METHOD "$FILE_3" "$METHOD_NAME_3" "$REPLACE_BODY_1"
     fi
 }
 

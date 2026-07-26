@@ -781,6 +781,10 @@ PATCH_FLAG_SECURE() {
 	echo "Android version: $ANDROID_VERSION"
 
 	case "$ANDROID_VERSION" in
+	    10)
+            FILE_1="${WORK_DIR}/smali/com/android/server/devicepolicy/DevicePolicyManagerService.smali"
+	        METHOD_NAME_1=".method public getScreenCaptureDisabled(Landroid/content/ComponentName;I)Z"
+            ;;
         11)
             FILE_1="${WORK_DIR}/smali_classes2/com/android/server/wm/WindowState.smali"
             METHOD_NAME_1=".method isSecureLocked()Z"

@@ -782,7 +782,7 @@ PATCH_FLAG_SECURE() {
 
 	case "$ANDROID_VERSION" in
 	    10)
-            FILE_1="${WORK_DIR}/smali/com/android/server/devicepolicy/DevicePolicyManagerService.smali"
+            FILE_3="${WORK_DIR}/smali/com/android/server/devicepolicy/DevicePolicyManagerService.smali"
 	        METHOD_NAME_1=".method public getScreenCaptureDisabled(Landroid/content/ComponentName;I)Z"
             ;;
         11)

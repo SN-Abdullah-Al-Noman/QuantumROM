@@ -8,7 +8,7 @@ if [ "$#" -ne 2 ]; then
 fi
 
 IMG_NAME="$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
-FIRM_DIR="$2"
+EXTRACTED_FIRM_DIR="$2"
 
 if [ ! -f "$IMG_NAME" ]; then
     echo "- ERROR: Image not found"
@@ -16,20 +16,20 @@ if [ ! -f "$IMG_NAME" ]; then
 fi
 
 IMG_NAME_BASE=$(basename "$IMG_NAME" .img)
-SRC_MOUNT="${FIRM_DIR}/${IMG_NAME_BASE}_mount"
+SRC_MOUNT="${EXTRACTED_FIRM_DIR}/${IMG_NAME_BASE}_mount"
 
-FILE_CONTEXTS="${FIRM_DIR}/config/${IMG_NAME_BASE}_file_contexts"
-FS_CONFIG="${FIRM_DIR}/config/${IMG_NAME_BASE}_fs_config"
+FILE_CONTEXTS="${EXTRACTED_FIRM_DIR}/config/${IMG_NAME_BASE}_file_contexts"
+FS_CONFIG="${EXTRACTED_FIRM_DIR}/config/${IMG_NAME_BASE}_fs_config"
 
 # umount img if previously mounted
 umount "$SRC_MOUNT" 2>/dev/null || true
 rm -rf "$SRC_MOUNT"
 
-rm -rf "${FIRM_DIR}/$IMG_NAME_BASE"
-mkdir "${FIRM_DIR}/$IMG_NAME_BASE"
+rm -rf "${EXTRACTED_FIRM_DIR}/$IMG_NAME_BASE"
+mkdir "${EXTRACTED_FIRM_DIR}/$IMG_NAME_BASE"
 
 # config directory
-mkdir -p "${FIRM_DIR}/config"
+mkdir -p "${EXTRACTED_FIRM_DIR}/config"
 mkdir -p "$SRC_MOUNT"
 
 
@@ -164,7 +164,7 @@ GENERATE_FS_CONFIG
 GENERATE_FILE_CONTEXTS
 
 echo "- Extracting ${IMG_NAME_BASE}"
-cp -ar "$SRC_MOUNT"/* "${FIRM_DIR}/$IMG_NAME_BASE"
+cp -ar "$SRC_MOUNT"/* "${EXTRACTED_FIRM_DIR}/$IMG_NAME_BASE"
 
 # umount and delete mounted folder
 umount "$SRC_MOUNT" 2>/dev/null || true

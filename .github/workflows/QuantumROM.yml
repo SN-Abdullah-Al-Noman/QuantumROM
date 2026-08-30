@@ -102,7 +102,7 @@ jobs:
           echo "OUTPUT_FILESYSTEM=${{ inputs.OUTPUT_FILESYSTEM }}" | tee -a "$GITHUB_ENV"
           echo "COMPRESS_IMG_TO_XZ=${{ inputs.COMPRESS_IMG_TO_XZ }}" | tee -a "$GITHUB_ENV"
  
-      - name: Validate STOCK_DEVICE
+      - name: Validate STOCK_DEVICE - ${{ inputs.STOCK_DEVICE }}
         run: |
           if [ "$STOCK_DEVICE" != "None" ]; then
               if curl -fsSL \
@@ -155,7 +155,7 @@ jobs:
           source "$(pwd)/scripts/QuantumRom.sh"
           EXTRACT_FIRMWARE_IMG "$FIRM_DIR/$TARGET_DEVICE" "all"
 
-      - name: Decode omc
+      - name: Decode odm, omc
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
           DECODE_OMC "$FIRM_DIR/$TARGET_DEVICE" "$OUT_DIR"
@@ -240,13 +240,13 @@ jobs:
           source "$(pwd)/scripts/QuantumRom.sh"
           BUILD_IMG "$FIRM_DIR/$TARGET_DEVICE" "all" "$OUTPUT_FILESYSTEM" "$OUT_DIR"
 
-      - name: Compress all .img & make zip file before upload.
+      - name: Compress all .img & make zip file before upload - - ${{ inputs.COMPRESS_IMG_TO_XZ }}
         run: |
           echo "BUILD_TIME=$(TZ='Asia/Dhaka' date '+%Y-%m-%d %I:%M:%S %p UTC+6')" | tee -a "$GITHUB_ENV"
           ZIP_NAME="${{ inputs.TARGET_DEVICE }}_Port_For_${{ inputs.STOCK_DEVICE }}.zip"
           ZIP_PATH="$OUT_DIR/$ZIP_NAME"
 
-          if [ "${{ inputs.COMPRESS_IMG_TO_XZ }}" = "True" ]; then
+          if [ "$COMPRESS_IMG_TO_XZ" = "True" ]; then
               echo "Compressing all .img files to .xz (level 9)..."
               for img in "$OUT_DIR"/*.img; do
                   [ -f "$img" ] || continue

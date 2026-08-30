@@ -78,13 +78,27 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set variables
+        run: |
+          echo "FIRM_DIR=$(pwd)/FW" | tee -a "$GITHUB_ENV"
+          echo "OUT_DIR=$(pwd)/OUT" | tee -a "$GITHUB_ENV"
+          echo "WORK_DIR=$(pwd)/WORK" | tee -a "$GITHUB_ENV"
+          echo "DEVICES_DIR=$(pwd)/QuantumROM/Devices" | tee -a "$GITHUB_ENV"
+          echo "APKTOOL=$(pwd)/bin/java/apktool.jar" | tee -a "$GITHUB_ENV"
 
-          
+          echo "STOCK_DEVICE=${{ github.event.inputs.STOCK_DEVICE }}" | tee -a "$GITHUB_ENV"
+          echo "TARGET_DEVICE=${{ github.event.inputs.TARGET_DEVICE }}" | tee -a "$GITHUB_ENV"
+          echo "TARGET_DEVICE_CSC=${{ github.event.inputs.TARGET_DEVICE_CSC }}" | tee -a "$GITHUB_ENV"
+          echo "TARGET_FW_VERSION=${{ github.event.inputs.TARGET_FW_VERSION }}" | tee -a "$GITHUB_ENV"
+          echo "USE_UI_8_TETHERING_APEX=${{ github.event.inputs.USE_UI_8_TETHERING_APEX }}" | tee -a "$GITHUB_ENV"
+          echo "PATCH_FLAG_SECURE=${{ github.event.inputs.PATCH_FLAG_SECURE }}" | tee -a "$GITHUB_ENV"
+          echo "PATCH_SECURE_FOLDER=${{ github.event.inputs.PATCH_SECURE_FOLDER }}" | tee -a "$GITHUB_ENV"
+          echo "OUTPUT_FILESYSTEM=${{ github.event.inputs.OUTPUT_FILESYSTEM }}" | tee -a "$GITHUB_ENV"
+          echo "COMPRESS_IMG_TO_XZ=${{ github.event.inputs.COMPRESS_IMG_TO_XZ }}" | tee -a "$GITHUB_ENV"
+
+          echo 'source "$(pwd)/scripts/QuantumRom.sh"' >> "$BASH_ENV"
+ 
       - name: Validate STOCK_DEVICE
         run: |
-          DEVICES_DIR="$(pwd)/QuantumROM/Devices"
-          STOCK_DEVICE="${{ github.event.inputs.STOCK_DEVICE }}"
-
           if [ "$STOCK_DEVICE" != "None" ]; then
               if curl -fsSL \
                   "https://api.github.com/repos/SN-Abdullah-Al-Noman/QuantumROM/releases/tags/QuantumROM_Devices" |
@@ -118,12 +132,10 @@ jobs:
 
       - name: Download firmware ▶️ ${{ github.event.inputs.TARGET_DEVICE }} - ${{ github.event.inputs.TARGET_DEVICE_CSC }}
         run: |
-          source "$(pwd)/scripts/QuantumRom.sh"
           DOWNLOAD_FIRMWARE "$TARGET_DEVICE" "$TARGET_DEVICE_CSC" "$FIRM_DIR" "$TARGET_FW_VERSION"
 
       - name: Extract firmware
         run: |
-          source "$(pwd)/scripts/QuantumRom.sh"
           EXTRACT_FIRMWARE "$FIRM_DIR/$TARGET_DEVICE"
 
       - name: Extract super.img
@@ -154,14 +166,6 @@ jobs:
           source "$(pwd)/scripts/debloat.sh"
           source "$(pwd)/scripts/QuantumRom.sh"
 
-          FIRM_DIR="$(pwd)/FW"
-          WORK_DIR="$(pwd)/WORK"
-          APKTOOL="$(pwd)/bin/java/apktool.jar"
-          DEVICES_DIR="$(pwd)/QuantumROM/Devices"
-          STOCK_DEVICE="${{ github.event.inputs.STOCK_DEVICE }}"
-          TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
-          
-
           if [ "$STOCK_DEVICE" != "None" ]; then
               APPLY_STOCK_CONFIG "$STOCK_DEVICE" "$FIRM_DIR/$TARGET_DEVICE"
               DECOMPILE "$APKTOOL" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/ssrm.jar" "$WORK_DIR"
@@ -172,8 +176,6 @@ jobs:
 
       - name: Add china smart manager
         run: |
-          FIRM_DIR="$(pwd)/FW"
-          TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
           source "$(pwd)/scripts/QuantumRom.sh"
 
           if [ "${{ github.event.inputs.ADD_CHINA_SMART_MANAGER }}" = "True" ]; then
@@ -182,8 +184,6 @@ jobs:
 
       - name: Add samsung flagship apps
         run: |
-          FIRM_DIR="$(pwd)/FW"
-          TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
           source "$(pwd)/scripts/QuantumRom.sh"
 
           if [ "${{ github.event.inputs.ADD_SAMSUNG_FLAGSHIP_APPS }}" = "True" ]; then
@@ -192,8 +192,6 @@ jobs:
 
       - name: Add custom features
         run: |
-          FIRM_DIR="$(pwd)/FW"
-          TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
           source "$(pwd)/scripts/QuantumRom.sh"
 
           if [ "${{ github.event.inputs.ADD_CUSTOM_FEATURES }}" = "True" ]; then
@@ -202,12 +200,6 @@ jobs:
 
       - name: Patch flag secure and secure folder
         run: |
-          FIRM_DIR="$(pwd)/FW"
-          WORK_DIR="$(pwd)/WORK"
-          APKTOOL="$(pwd)/bin/java/apktool.jar"
-          TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
-          PATCH_FLAG_SECURE="${{ github.event.inputs.PATCH_FLAG_SECURE }}"
-          PATCH_SECURE_FOLDER="${{ github.event.inputs.PATCH_SECURE_FOLDER }}"
           source "$(pwd)/scripts/QuantumRom.sh"
 
           if [ "$PATCH_FLAG_SECURE" = "True" ] || [ "$PATCH_SECURE_FOLDER" = "True" ]; then

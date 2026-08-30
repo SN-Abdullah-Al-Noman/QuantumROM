@@ -86,21 +86,21 @@ jobs:
           echo "APKTOOL=$(pwd)/bin/java/apktool.jar" | tee -a "$GITHUB_ENV"
           echo "VNDKS_COLLECTION=$(pwd)/QuantumROM/vndks" | tee -a "$GITHUB_ENV"
 
-          echo "STOCK_DEVICE=${{ github.event.inputs.STOCK_DEVICE }}" | tee -a "$GITHUB_ENV"
-          echo "TARGET_DEVICE=${{ github.event.inputs.TARGET_DEVICE }}" | tee -a "$GITHUB_ENV"
-          echo "TARGET_DEVICE_CSC=${{ github.event.inputs.TARGET_DEVICE_CSC }}" | tee -a "$GITHUB_ENV"
-          echo "TARGET_FW_VERSION=${{ github.event.inputs.TARGET_FW_VERSION }}" | tee -a "$GITHUB_ENV"
+          echo "STOCK_DEVICE=${{ inputs.STOCK_DEVICE }}" | tee -a "$GITHUB_ENV"
+          echo "TARGET_DEVICE=${{ inputs.TARGET_DEVICE }}" | tee -a "$GITHUB_ENV"
+          echo "TARGET_DEVICE_CSC=${{ inputs.TARGET_DEVICE_CSC }}" | tee -a "$GITHUB_ENV"
+          echo "TARGET_FW_VERSION=${{ inputs.TARGET_FW_VERSION }}" | tee -a "$GITHUB_ENV"
 
-          echo "DEBLOAT_ROM=${{ github.event.inputs.DEBLOAT_ROM }}" | tee -a "$GITHUB_ENV"
-          echo "USE_UI_8_TETHERING_APEX=${{ github.event.inputs.USE_UI_8_TETHERING_APEX }}" | tee -a "$GITHUB_ENV"
-          echo "ADD_CHINA_SMART_MANAGER=${{ github.event.inputs.ADD_CHINA_SMART_MANAGER }}" | tee -a "$GITHUB_ENV"
-          echo "ADD_SAMSUNG_FLAGSHIP_APPS=${{ github.event.inputs.ADD_SAMSUNG_FLAGSHIP_APPS }}" | tee -a "$GITHUB_ENV"
-          echo "ADD_CUSTOM_FEATURES=${{ github.event.inputs.ADD_CUSTOM_FEATURES }}" | tee -a "$GITHUB_ENV"
-          echo "PATCH_FLAG_SECURE=${{ github.event.inputs.PATCH_FLAG_SECURE }}" | tee -a "$GITHUB_ENV"
-          echo "PATCH_SECURE_FOLDER=${{ github.event.inputs.PATCH_SECURE_FOLDER }}" | tee -a "$GITHUB_ENV"
+          echo "DEBLOAT_ROM=${{ inputs.DEBLOAT_ROM }}" | tee -a "$GITHUB_ENV"
+          echo "USE_UI_8_TETHERING_APEX=${{ inputs.USE_UI_8_TETHERING_APEX }}" | tee -a "$GITHUB_ENV"
+          echo "ADD_CHINA_SMART_MANAGER=${{ inputs.ADD_CHINA_SMART_MANAGER }}" | tee -a "$GITHUB_ENV"
+          echo "ADD_SAMSUNG_FLAGSHIP_APPS=${{ inputs.ADD_SAMSUNG_FLAGSHIP_APPS }}" | tee -a "$GITHUB_ENV"
+          echo "ADD_CUSTOM_FEATURES=${{ inputs.ADD_CUSTOM_FEATURES }}" | tee -a "$GITHUB_ENV"
+          echo "PATCH_FLAG_SECURE=${{ inputs.PATCH_FLAG_SECURE }}" | tee -a "$GITHUB_ENV"
+          echo "PATCH_SECURE_FOLDER=${{ inputs.PATCH_SECURE_FOLDER }}" | tee -a "$GITHUB_ENV"
 
-          echo "OUTPUT_FILESYSTEM=${{ github.event.inputs.OUTPUT_FILESYSTEM }}" | tee -a "$GITHUB_ENV"
-          echo "COMPRESS_IMG_TO_XZ=${{ github.event.inputs.COMPRESS_IMG_TO_XZ }}" | tee -a "$GITHUB_ENV"
+          echo "OUTPUT_FILESYSTEM=${{ inputs.OUTPUT_FILESYSTEM }}" | tee -a "$GITHUB_ENV"
+          echo "COMPRESS_IMG_TO_XZ=${{ inputs.COMPRESS_IMG_TO_XZ }}" | tee -a "$GITHUB_ENV"
  
       - name: Validate STOCK_DEVICE
         run: |
@@ -190,7 +190,7 @@ jobs:
               ADD_CHINA_SMART_MANAGER "$FIRM_DIR/$TARGET_DEVICE"
           fi
 
-      - name: Add samsung flagship apps - ${{ env.ADD_SAMSUNG_FLAGSHIP_APPS  }}
+      - name: Add samsung flagship apps - ${{ env.ADD_SAMSUNG_FLAGSHIP_APPS }}
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
 
@@ -206,7 +206,7 @@ jobs:
               APPLY_CUSTOM_FEATURES "$FIRM_DIR/$TARGET_DEVICE"
           fi
 
-      - name: Patch flag secure and secure folder - ${{ env.PATCH_FLAG_SECURE }} - ${{ env.$PATCH_SECURE_FOLDER }}
+      - name: Patch flag secure and secure folder - ${{ env.PATCH_FLAG_SECURE }} - ${{ env.PATCH_SECURE_FOLDER }}
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
 
@@ -243,10 +243,10 @@ jobs:
       - name: Compress all .img & make zip file before upload.
         run: |
           echo "BUILD_TIME=$(TZ='Asia/Dhaka' date '+%Y-%m-%d %I:%M:%S %p UTC+6')" | tee -a "$GITHUB_ENV"
-          ZIP_NAME="${{ github.event.inputs.TARGET_DEVICE }}_Port_For_${{ github.event.inputs.STOCK_DEVICE }}.zip"
+          ZIP_NAME="${{ inputs.TARGET_DEVICE }}_Port_For_${{ inputs.STOCK_DEVICE }}.zip"
           ZIP_PATH="$OUT_DIR/$ZIP_NAME"
 
-          if [ "${{ github.event.inputs.COMPRESS_IMG_TO_XZ }}" = "True" ]; then
+          if [ "${{ inputs.COMPRESS_IMG_TO_XZ }}" = "True" ]; then
               echo "Compressing all .img files to .xz (level 9)..."
               for img in "$OUT_DIR"/*.img; do
                   [ -f "$img" ] || continue

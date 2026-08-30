@@ -139,6 +139,7 @@ jobs:
       - name: Extract firmware img
         run: |
           FIRM_DIR="$(pwd)/FW"
+          export STOCK_DEVICE="${{ github.event.inputs.STOCK_DEVICE }}"
           TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
           source "$(pwd)/scripts/QuantumRom.sh"
           EXTRACT_FIRMWARE_IMG "$FIRM_DIR/$TARGET_DEVICE" "all"

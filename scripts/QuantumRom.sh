@@ -372,6 +372,8 @@ PREPARE_PARTITIONS() {
 
     if [ -z "$STOCK_DEVICE" ] || [ "$STOCK_DEVICE" = "None" ]; then
         local BUILD_PARTITIONS="odm,odm_dlkm,product,system,system_ext,system_dlkm,vendor,vendor_dlkm,odm_a,odm_dlkm_a,product_a,system_a,system_ext_a,system_dlkm_a,vendor_a,vendor_dlkm_a,optics,optics_a"
+	else
+	    local BUILD_PARTITIONS="product,system_ext,system"
     fi
 
     if [ -n "$STOCK_DEVICE" ] && [ -f "${DEVICES_DIR}/$STOCK_DEVICE/config" ]; then
@@ -1419,7 +1421,6 @@ UPDATE_FLOATING_FEATURE() {
             "$TARGET_ROM_FLOATING_FEATURE"
 
         #echo "- Updated $key with: $value"
-
     else
         sed -i \
             "3i\\    <${key}>${escaped_value}</${key}>" \

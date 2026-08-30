@@ -84,14 +84,21 @@ jobs:
           echo "WORK_DIR=$(pwd)/WORK" | tee -a "$GITHUB_ENV"
           echo "DEVICES_DIR=$(pwd)/QuantumROM/Devices" | tee -a "$GITHUB_ENV"
           echo "APKTOOL=$(pwd)/bin/java/apktool.jar" | tee -a "$GITHUB_ENV"
+          echo "VNDKS_COLLECTION=$(pwd)/QuantumROM/vndks" | tee -a "$GITHUB_ENV"
 
           echo "STOCK_DEVICE=${{ github.event.inputs.STOCK_DEVICE }}" | tee -a "$GITHUB_ENV"
           echo "TARGET_DEVICE=${{ github.event.inputs.TARGET_DEVICE }}" | tee -a "$GITHUB_ENV"
           echo "TARGET_DEVICE_CSC=${{ github.event.inputs.TARGET_DEVICE_CSC }}" | tee -a "$GITHUB_ENV"
           echo "TARGET_FW_VERSION=${{ github.event.inputs.TARGET_FW_VERSION }}" | tee -a "$GITHUB_ENV"
+
+          echo "DEBLOAT_ROM=${{ github.event.inputs.DEBLOAT_ROM }}" | tee -a "$GITHUB_ENV"
           echo "USE_UI_8_TETHERING_APEX=${{ github.event.inputs.USE_UI_8_TETHERING_APEX }}" | tee -a "$GITHUB_ENV"
+          echo "ADD_CHINA_SMART_MANAGER=${{ github.event.inputs.ADD_CHINA_SMART_MANAGER }}" | tee -a "$GITHUB_ENV"
+          echo "ADD_SAMSUNG_FLAGSHIP_APPS=${{ github.event.inputs.ADD_SAMSUNG_FLAGSHIP_APPS }}" | tee -a "$GITHUB_ENV"
+          echo "ADD_CUSTOM_FEATURES=${{ github.event.inputs.ADD_CUSTOM_FEATURES }}" | tee -a "$GITHUB_ENV"
           echo "PATCH_FLAG_SECURE=${{ github.event.inputs.PATCH_FLAG_SECURE }}" | tee -a "$GITHUB_ENV"
           echo "PATCH_SECURE_FOLDER=${{ github.event.inputs.PATCH_SECURE_FOLDER }}" | tee -a "$GITHUB_ENV"
+
           echo "OUTPUT_FILESYSTEM=${{ github.event.inputs.OUTPUT_FILESYSTEM }}" | tee -a "$GITHUB_ENV"
           echo "COMPRESS_IMG_TO_XZ=${{ github.event.inputs.COMPRESS_IMG_TO_XZ }}" | tee -a "$GITHUB_ENV"
  
@@ -128,7 +135,7 @@ jobs:
           sudo modprobe f2fs || true
           mkdir -p FW WORK OUT
 
-      - name: Download firmware ▶️ ${{ github.event.inputs.TARGET_DEVICE }} - ${{ github.event.inputs.TARGET_DEVICE_CSC }}
+      - name: Download firmware ▶️ $TARGET_DEVICE - $TARGET_DEVICE_CSC
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
           DOWNLOAD_FIRMWARE "$TARGET_DEVICE" "$TARGET_DEVICE_CSC" "$FIRM_DIR" "$TARGET_FW_VERSION"
@@ -153,12 +160,12 @@ jobs:
           source "$(pwd)/scripts/QuantumRom.sh"
           DECODE_OMC "$FIRM_DIR/$TARGET_DEVICE" "$OUT_DIR"
 
-      - name: Debloat Rom
+      - name: Debloat Rom - $DEBLOAT_ROM
         run: |
           source "$(pwd)/scripts/debloat.sh"
           source "$(pwd)/scripts/QuantumRom.sh"
 
-          if [ "${{ github.event.inputs.DEBLOAT_ROM }}" = "True" ]; then
+          if [ "$DEBLOAT_ROM" = "True" ]; then
               DEBLOAT "$FIRM_DIR/$TARGET_DEVICE"
           fi
 
@@ -175,31 +182,31 @@ jobs:
               mv -f "$WORK_DIR/ssrm.jar" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/"
           fi
 
-      - name: Add china smart manager
+      - name: Add china smart manager - $ADD_CHINA_SMART_MANAGER
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
 
-          if [ "${{ github.event.inputs.ADD_CHINA_SMART_MANAGER }}" = "True" ]; then
+          if [ "$ADD_CHINA_SMART_MANAGER" = "True" ]; then
               ADD_CHINA_SMART_MANAGER "$FIRM_DIR/$TARGET_DEVICE"
           fi
 
-      - name: Add samsung flagship apps
+      - name: Add samsung flagship apps - $ADD_SAMSUNG_FLAGSHIP_APPS
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
 
-          if [ "${{ github.event.inputs.ADD_SAMSUNG_FLAGSHIP_APPS }}" = "True" ]; then
+          if [ "$ADD_SAMSUNG_FLAGSHIP_APPS" = "True" ]; then
               ADD_SAMSUNG_FLAGSHIP_APPS "$FIRM_DIR/$TARGET_DEVICE"
           fi
 
-      - name: Add custom features
+      - name: Add custom features - $ADD_CUSTOM_FEATURES
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
 
-          if [ "${{ github.event.inputs.ADD_CUSTOM_FEATURES }}" = "True" ]; then
+          if [ "$ADD_CUSTOM_FEATURES" = "True" ]; then
               APPLY_CUSTOM_FEATURES "$FIRM_DIR/$TARGET_DEVICE"
           fi
 
-      - name: Patch flag secure and secure folder
+      - name: Patch flag secure and secure folder - $PATCH_FLAG_SECURE - $PATCH_SECURE_FOLDER
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
 
@@ -235,7 +242,7 @@ jobs:
 
       - name: Compress all .img & make zip file before upload.
         run: |
-          echo "BUILD_TIME=$(TZ='Asia/Dhaka' date '+%Y-%m-%d %I:%M:%S %p UTC+6')" >> "$GITHUB_ENV"
+          echo "BUILD_TIME=$(TZ='Asia/Dhaka' date '+%Y-%m-%d %I:%M:%S %p UTC+6')" | tee -a "$GITHUB_ENV"
           ZIP_NAME="${{ github.event.inputs.TARGET_DEVICE }}_Port_For_${{ github.event.inputs.STOCK_DEVICE }}.zip"
           ZIP_PATH="$OUT_DIR/$ZIP_NAME"
 
@@ -250,7 +257,7 @@ jobs:
 
           echo "Creating zip: $ZIP_NAME"
           7z a -tzip "$ZIP_PATH" "$OUT_DIR"/* -mx=5
-          echo "ZIP_PATH=$ZIP_PATH" >> "$GITHUB_ENV"
+          echo "ZIP_PATH=$ZIP_PATH" | tee -a "$GITHUB_ENV"
 
       - name: Upload file in GoFile & Create Release.
         env:

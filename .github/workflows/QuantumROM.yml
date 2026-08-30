@@ -94,8 +94,6 @@ jobs:
           echo "PATCH_SECURE_FOLDER=${{ github.event.inputs.PATCH_SECURE_FOLDER }}" | tee -a "$GITHUB_ENV"
           echo "OUTPUT_FILESYSTEM=${{ github.event.inputs.OUTPUT_FILESYSTEM }}" | tee -a "$GITHUB_ENV"
           echo "COMPRESS_IMG_TO_XZ=${{ github.event.inputs.COMPRESS_IMG_TO_XZ }}" | tee -a "$GITHUB_ENV"
-
-          echo 'source "$(pwd)/scripts/QuantumRom.sh"' >> "$BASH_ENV"
  
       - name: Validate STOCK_DEVICE
         run: |
@@ -132,10 +130,12 @@ jobs:
 
       - name: Download firmware ▶️ ${{ github.event.inputs.TARGET_DEVICE }} - ${{ github.event.inputs.TARGET_DEVICE_CSC }}
         run: |
+          source "$(pwd)/scripts/QuantumRom.sh"
           DOWNLOAD_FIRMWARE "$TARGET_DEVICE" "$TARGET_DEVICE_CSC" "$FIRM_DIR" "$TARGET_FW_VERSION"
 
       - name: Extract firmware
         run: |
+          source "$(pwd)/scripts/QuantumRom.sh"
           EXTRACT_FIRMWARE "$FIRM_DIR/$TARGET_DEVICE"
 
       - name: Extract super.img
@@ -156,6 +156,7 @@ jobs:
       - name: Debloat Rom
         run: |
           source "$(pwd)/scripts/debloat.sh"
+          source "$(pwd)/scripts/QuantumRom.sh"
 
           if [ "${{ github.event.inputs.DEBLOAT_ROM }}" = "True" ]; then
               DEBLOAT "$FIRM_DIR/$TARGET_DEVICE"

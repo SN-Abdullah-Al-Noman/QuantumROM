@@ -135,7 +135,7 @@ jobs:
           sudo modprobe f2fs || true
           mkdir -p FW WORK OUT
 
-      - name: Download firmware ▶️ $TARGET_DEVICE - $TARGET_DEVICE_CSC
+      - name: Download firmware ▶️ ${{ env.TARGET_DEVICE }} - ${{ env.TARGET_DEVICE_CSC }}
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
           DOWNLOAD_FIRMWARE "$TARGET_DEVICE" "$TARGET_DEVICE_CSC" "$FIRM_DIR" "$TARGET_FW_VERSION"
@@ -160,7 +160,7 @@ jobs:
           source "$(pwd)/scripts/QuantumRom.sh"
           DECODE_OMC "$FIRM_DIR/$TARGET_DEVICE" "$OUT_DIR"
 
-      - name: Debloat Rom - $DEBLOAT_ROM
+      - name: Debloat Rom - ${{ env.DEBLOAT_ROM }}
         run: |
           source "$(pwd)/scripts/debloat.sh"
           source "$(pwd)/scripts/QuantumRom.sh"
@@ -182,7 +182,7 @@ jobs:
               mv -f "$WORK_DIR/ssrm.jar" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/"
           fi
 
-      - name: Add china smart manager - $ADD_CHINA_SMART_MANAGER
+      - name: Add china smart manager - ${{ env.ADD_CHINA_SMART_MANAGER }}
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
 
@@ -190,7 +190,7 @@ jobs:
               ADD_CHINA_SMART_MANAGER "$FIRM_DIR/$TARGET_DEVICE"
           fi
 
-      - name: Add samsung flagship apps - $ADD_SAMSUNG_FLAGSHIP_APPS
+      - name: Add samsung flagship apps - ${{ env.ADD_SAMSUNG_FLAGSHIP_APPS  }}
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
 
@@ -198,7 +198,7 @@ jobs:
               ADD_SAMSUNG_FLAGSHIP_APPS "$FIRM_DIR/$TARGET_DEVICE"
           fi
 
-      - name: Add custom features - $ADD_CUSTOM_FEATURES
+      - name: Add custom features - ${{ env.ADD_CUSTOM_FEATURES }}
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
 
@@ -206,7 +206,7 @@ jobs:
               APPLY_CUSTOM_FEATURES "$FIRM_DIR/$TARGET_DEVICE"
           fi
 
-      - name: Patch flag secure and secure folder - $PATCH_FLAG_SECURE - $PATCH_SECURE_FOLDER
+      - name: Patch flag secure and secure folder - ${{ env.PATCH_FLAG_SECURE }} - ${{ env.$PATCH_SECURE_FOLDER }}
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
 
@@ -235,7 +235,7 @@ jobs:
           DISABLE_SECURITY "$FIRM_DIR/$TARGET_DEVICE"
           PATCH_BT_LIB "$FIRM_DIR/$TARGET_DEVICE" "$WORK_DIR"
 
-      - name: Build img - ${{ github.event.inputs.OUTPUT_FILESYSTEM }}
+      - name: Build img - ${{ env.OUTPUT_FILESYSTEM }}
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
           BUILD_IMG "$FIRM_DIR/$TARGET_DEVICE" "all" "$OUTPUT_FILESYSTEM" "$OUT_DIR"

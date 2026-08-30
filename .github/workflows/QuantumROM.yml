@@ -77,6 +77,9 @@ jobs:
       - name: Checkout repository.
         uses: actions/checkout@v4
 
+      - name: Set variables
+
+          
       - name: Validate STOCK_DEVICE
         run: |
           DEVICES_DIR="$(pwd)/QuantumROM/Devices"
@@ -115,47 +118,31 @@ jobs:
 
       - name: Download firmware ▶️ ${{ github.event.inputs.TARGET_DEVICE }} - ${{ github.event.inputs.TARGET_DEVICE_CSC }}
         run: |
-          FIRM_DIR="$(pwd)/FW"
-          TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
-          TARGET_DEVICE_CSC="${{ github.event.inputs.TARGET_DEVICE_CSC }}"
-          TARGET_FW_VERSION="${{ github.event.inputs.TARGET_FW_VERSION }}"
           source "$(pwd)/scripts/QuantumRom.sh"
           DOWNLOAD_FIRMWARE "$TARGET_DEVICE" "$TARGET_DEVICE_CSC" "$FIRM_DIR" "$TARGET_FW_VERSION"
 
       - name: Extract firmware
         run: |
-          FIRM_DIR="$(pwd)/FW"
-          TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
           source "$(pwd)/scripts/QuantumRom.sh"
           EXTRACT_FIRMWARE "$FIRM_DIR/$TARGET_DEVICE"
 
       - name: Extract super.img
         run: |
-          FIRM_DIR="$(pwd)/FW"
-          TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
           source "$(pwd)/scripts/QuantumRom.sh"
           EXTRACT_SUPER_IMG "$FIRM_DIR/$TARGET_DEVICE"
 
       - name: Extract firmware img
         run: |
-          FIRM_DIR="$(pwd)/FW"
-          export STOCK_DEVICE="${{ github.event.inputs.STOCK_DEVICE }}"
-          TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
           source "$(pwd)/scripts/QuantumRom.sh"
           EXTRACT_FIRMWARE_IMG "$FIRM_DIR/$TARGET_DEVICE" "all"
 
       - name: Decode omc
         run: |
-          FIRM_DIR="$(pwd)/FW"
-          OUT_DIR="$(pwd)/OUT"
-          TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
           source "$(pwd)/scripts/QuantumRom.sh"
           DECODE_OMC "$FIRM_DIR/$TARGET_DEVICE" "$OUT_DIR"
 
       - name: Debloat Rom
         run: |
-          FIRM_DIR="$(pwd)/FW"
-          TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
           source "$(pwd)/scripts/debloat.sh"
 
           if [ "${{ github.event.inputs.DEBLOAT_ROM }}" = "True" ]; then
@@ -173,6 +160,7 @@ jobs:
           DEVICES_DIR="$(pwd)/QuantumROM/Devices"
           STOCK_DEVICE="${{ github.event.inputs.STOCK_DEVICE }}"
           TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
+          
 
           if [ "$STOCK_DEVICE" != "None" ]; then
               APPLY_STOCK_CONFIG "$STOCK_DEVICE" "$FIRM_DIR/$TARGET_DEVICE"
@@ -242,9 +230,6 @@ jobs:
 
       - name: Apply others features and patch
         run: |
-          FIRM_DIR="$(pwd)/FW"
-          WORK_DIR="$(pwd)/WORK"
-          TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
           source "$(pwd)/scripts/QuantumRom.sh"
           PATCH_SELINUX "$FIRM_DIR/$TARGET_DEVICE"
           DISABLE_SECURITY "$FIRM_DIR/$TARGET_DEVICE"
@@ -252,17 +237,12 @@ jobs:
 
       - name: Build img - ${{ github.event.inputs.OUTPUT_FILESYSTEM }}
         run: |
-          FIRM_DIR="$(pwd)/FW"
-          OUT_DIR="$(pwd)/OUT"
-          TARGET_DEVICE="${{ github.event.inputs.TARGET_DEVICE }}"
-          OUTPUT_FILESYSTEM="${{ github.event.inputs.OUTPUT_FILESYSTEM }}"
           source "$(pwd)/scripts/QuantumRom.sh"
           BUILD_IMG "$FIRM_DIR/$TARGET_DEVICE" "all" "$OUTPUT_FILESYSTEM" "$OUT_DIR"
 
       - name: Compress all .img & make zip file before upload.
         run: |
           echo "BUILD_TIME=$(TZ='Asia/Dhaka' date '+%Y-%m-%d %I:%M:%S %p UTC+6')" >> "$GITHUB_ENV"
-          OUT_DIR="$(pwd)/OUT"
           ZIP_NAME="${{ github.event.inputs.TARGET_DEVICE }}_Port_For_${{ github.event.inputs.STOCK_DEVICE }}.zip"
           ZIP_PATH="$OUT_DIR/$ZIP_NAME"
 
@@ -282,11 +262,5 @@ jobs:
       - name: Upload file in GoFile & Create Release.
         env:
           GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
-          STOCK_DEVICE: ${{ github.event.inputs.STOCK_DEVICE }}
-          TARGET_DEVICE: ${{ github.event.inputs.TARGET_DEVICE }}
-          OUTPUT_FILESYSTEM: ${{ github.event.inputs.OUTPUT_FILESYSTEM }}
-          COMPRESS_IMG_TO_XZ: ${{ github.event.inputs.COMPRESS_IMG_TO_XZ }}
-          USE_UI_8_TETHERING_APEX: ${{ github.event.inputs.USE_UI_8_TETHERING_APEX }}
-
         run: |
           bash release.sh

@@ -231,9 +231,13 @@ jobs:
       - name: Apply others features and patch
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
+          trap 'echo "ERROR: line=${LINENO} file=${BASH_SOURCE[0]} command=${BASH_COMMAND}"; echo "FUNCNAME: ${FUNCNAME[*]}"' ERR
+          PS4='+ ${BASH_SOURCE}:${LINENO}: '
+          set -x
           PATCH_SELINUX "$FIRM_DIR/$TARGET_DEVICE"
-          DISABLE_SECURITY "$FIRM_DIR/$TARGET_DEVICE"
           PATCH_BT_LIB "$FIRM_DIR/$TARGET_DEVICE" "$WORK_DIR"
+          DISABLE_SECURITY "$FIRM_DIR/$TARGET_DEVICE"
+          set +x
 
       - name: Build img - ${{ inputs.OUTPUT_FILESYSTEM }}
         run: |

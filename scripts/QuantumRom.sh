@@ -538,7 +538,7 @@ DISABLE_FBE() {
         return 1
     fi
 
-    local fstab_files=$(grep -lr 'fileencryption' "${EXTRACTED_FIRM_DIR}/vendor/etc")
+    local fstab_files=$(grep -lr 'fileencryption' "${EXTRACTED_FIRM_DIR}/vendor/etc" 2>/dev/null)
 
     for i in $fstab_files; do
         if [ -f "$i" ]; then
@@ -562,7 +562,7 @@ DISABLE_FDE() {
         return 1
     fi
 
-    local fstab_files=$(grep -lr 'forceencrypt' "${EXTRACTED_FIRM_DIR}/vendor/etc")
+    local fstab_files=$(grep -lr 'forceencrypt' "${EXTRACTED_FIRM_DIR}/vendor/etc" 2>/dev/null)
 
     for i in $fstab_files; do
         if [ -f "$i" ]; then
@@ -2333,7 +2333,7 @@ DECODE_OMC() {
         return 1
     fi
 
-    echo -e "Decoding CSC - odm,optics."
+    echo -e "-Decoding CSC - odm,optics."
 
     if ! command -v java >/dev/null 2>&1; then
         echo -e "- Java is not installed."
@@ -2346,7 +2346,7 @@ DECODE_OMC() {
     if [ -d "${FW_DIR}/odm/etc/omc" ]; then
         rm -rf "${OUT_DIR}/odm_decoded"
 
-        echo "Decoding odm/etc/omc in ${OUT_DIR}"
+        echo "- Decoding odm/etc/omc in ${OUT_DIR}"
 
         java -jar "$omc_decoder" \
             -i "${FW_DIR}/odm/etc/omc" \
@@ -2361,7 +2361,7 @@ DECODE_OMC() {
     if [ -d "${FW_DIR}/optics" ]; then
         rm -rf "${OUT_DIR}/optics_decoded"
 
-        echo "Decoding optics in ${OUT_DIR}"
+        echo "- Decoding optics in ${OUT_DIR}"
 
         java -jar "$omc_decoder" \
             -i "${FW_DIR}/optics" \

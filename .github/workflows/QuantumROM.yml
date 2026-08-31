@@ -70,8 +70,8 @@ on:
 
 jobs:
   build:
-    name: Start QuantumROM Tools Sixteen.
-    runs-on: ubuntu-24.04
+    name: Start QuantumROM Tools
+    runs-on: ubuntu-22.04
 
     steps:
       - name: Checkout repository.

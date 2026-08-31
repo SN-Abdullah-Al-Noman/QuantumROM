@@ -538,7 +538,7 @@ DISABLE_FBE() {
         return 1
     fi
 
-    local fstab_files=$(grep -lr 'fileencryption' "${EXTRACTED_FIRM_DIR}/vendor/etc" 2>/dev/null)
+    local fstab_files=$(grep -lr 'fileencryption' "${EXTRACTED_FIRM_DIR}/vendor/etc")
 
     for i in $fstab_files; do
         if [ -f "$i" ]; then
@@ -562,7 +562,7 @@ DISABLE_FDE() {
         return 1
     fi
 
-    local fstab_files=$(grep -lr 'forceencrypt' "${EXTRACTED_FIRM_DIR}/vendor/etc" 2>/dev/null)
+    local fstab_files=$(grep -lr 'forceencrypt' "${EXTRACTED_FIRM_DIR}/vendor/etc")
 
     for i in $fstab_files; do
         if [ -f "$i" ]; then

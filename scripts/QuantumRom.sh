@@ -1056,7 +1056,7 @@ PATCH_BT_LIB() {
     # Get libbluetooth_jni.so
     if ! ls "$EXTRACTED_FIRM_DIR"/system/system/apex/com.android.bt*.apex >/dev/null 2>&1; then
         echo -e "- No bluetooth apex file found."
-        return 1
+        return 0
     fi
 
     7z e "${EXTRACTED_FIRM_DIR}/system/system/apex/com.android.bt"*.apex \
@@ -1132,7 +1132,7 @@ PATCH_BT_LIB() {
     if [ "$PATCHED" -eq 0 ]; then
         echo -e "- No known Bluetooth patch pattern matched."
         rm -rf "$BT_LIB_FILE"
-        return 1
+        return 0
     fi
 
     return 0
@@ -1941,7 +1941,7 @@ BUILD_PROP() {
             ;;
         *)
             echo -e "Unknown partition: $PARTITION"
-            return 1
+            return 0
             ;;
     esac
 
@@ -2079,12 +2079,12 @@ ADD_CHINA_SMART_MANAGER() {
 	
     if [ "$PRODUCT_BRAND" != "samsung" ]; then
 	     echo "- Unsupported Android product: $PRODUCT_BRAND"
-        return 1
+        return 0
     fi
 
     if [[ ! "$ANDROID_VERSION" =~ ^(14|15|16)$ ]]; then
         echo "- Unsupported Android version: $ANDROID_VERSION"
-        return 1
+        return 0
     fi
 
 	if [ -f "${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml" ]; then
@@ -2312,7 +2312,7 @@ APPLY_CUSTOM_FEATURES() {
     BUILD_PROP "$EXTRACTED_FIRM_DIR" "system" "fw.max_users" "5"
     BUILD_PROP "$EXTRACTED_FIRM_DIR" "system" "fw.show_multiuserui" "1"
     BUILD_PROP "$EXTRACTED_FIRM_DIR" "system" "wifi.interface=" "wlan0"
-    BUILD_PROP "$EXTRACTED_FIRM_DIR" "system" "wlan.wfd.hdcp" "disabled"
+    BUILD_PROP "$EXTRACTED_FIRM_DIR" "system" "wlan.wfd.hdcp" "disable"
 	BUILD_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.telephony.sim_slots.count" "2"
 	BUILD_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.surface_flinger.protected_contents" "true"
 	BUILD_PROP "$EXTRACTED_FIRM_DIR" "product" "ro.product.locale" "en-US"

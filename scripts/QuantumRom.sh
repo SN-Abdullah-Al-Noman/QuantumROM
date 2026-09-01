@@ -717,11 +717,11 @@ HEX_PATCH() {
     local FROM="$(echo -e "$2" | tr '[:upper:]' '[:lower:]')"
     local TO="$(echo -e "$3" | tr '[:upper:]' '[:lower:]')"
 
-    [ ! -f "$FILE" ] && { echo -e "File not found: $FILE"; return 1; }
+    [ ! -f "$FILE" ] && { echo -e "- File not found: $FILE"; return 0; }
 
     xxd -p -c 0 "$FILE" | grep -q "$FROM" || {
         echo -e "- Pattern not found: $FROM"
-        return 1
+        return 0
     }
 
     echo -e "- Patching: $FILE"
@@ -739,7 +739,7 @@ HEX_PATCH() {
 
     echo -e "- Patch failed, restoring backup"
     mv "$FILE.bak" "$FILE"
-    return 1
+    return 0
 }
 
 

@@ -239,7 +239,7 @@ jobs:
           source "$(pwd)/scripts/QuantumRom.sh"
 
           if [ "$PATCH_BLUETOOTH_LIBRARY" = "True" ]; then
-              PATCH_BT_LIB "$FIRM_DIR/$TARGET_DEVICE"
+              PATCH_BT_LIB "$FIRM_DIR/$TARGET_DEVICE" "$WORK_DIR"
           fi
 
       - name: Apply others features and patch

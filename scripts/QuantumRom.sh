@@ -349,7 +349,7 @@ EXTRACT_SUPER_IMG() {
         echo -e "- super.img extraction complete"
 
     else
-        echo -e "- No super.img found."
+        echo -e "No super.img found."
     fi
 }
 
@@ -1157,8 +1157,7 @@ FIX_VNDK() {
         SDK="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.build.version.sdk")"
     fi
 
-    echo "- Target Android version: $ANDROID_VERSION"
-    echo "- Target ROM SDK version: $SDK"
+    echo "- Target rom Android version: $ANDROID_VERSION - SDK version: $SDK"
 
     if [ -f "${TARGET_ROM_SYSTEM_EXT_DIR}/apex/com.android.vndk.v${STOCK_VNDK_VERSION}.apex" ]; then
         echo "- VNDK matched: ${TARGET_ROM_SYSTEM_EXT_DIR}/apex/com.android.vndk.v${STOCK_VNDK_VERSION}.apex"
@@ -1190,7 +1189,6 @@ FIX_VNDK() {
     if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
         echo "- Downloading $VNDK_ZIP"
         if wget -q --no-check-certificate -O "$VNDK_ZIP_PATH" "$VNDK_URL"; then
-        echo "- Download complete"
             if 7z x -aoa -y -bd -bso0 -bse0 -bsp1 "$VNDK_ZIP_PATH" -o"$VNDK_EXTRACT_DIR"; then
                 if [ -d "${VNDK_EXTRACT_DIR}/${STOCK_VNDK_VERSION}" ]; then
                     cp -a "${VNDK_EXTRACT_DIR}/${STOCK_VNDK_VERSION}/." \

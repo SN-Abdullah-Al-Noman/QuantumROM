@@ -130,7 +130,15 @@ jobs:
               echo "ℹ️ STOCK_DEVICE is set to None."
           fi
 
+      - name: Check disk space
+        id: disk
+        run: |
+          FREE_GB=$(df -BG "$GITHUB_WORKSPACE" | awk 'NR==2 {gsub("G","",$4); print $4}')
+          echo "Free space: ${FREE_GB} GB"
+          echo "enough=$([ "$FREE_GB" -ge 50 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
       - name: Remove unnecessary files.
+        if: steps.disk.outputs.enough == 'false'
         uses: rokibhasansagar/slimhub_actions@v25.42.5
 
       - name: Install Dependencies.

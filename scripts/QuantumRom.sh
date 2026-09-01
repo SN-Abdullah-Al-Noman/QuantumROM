@@ -2,7 +2,6 @@
 
 ###################################################################################################
 
-REAL_USER=${SUDO_USER:-$USER}
 
 # QT DIR
 QT_DIR="$(pwd)"
@@ -521,7 +520,6 @@ EXTRACT_FIRMWARE_IMG() {
         extract_img "$TARGET_IMG"
     fi
 
-    chown -R "$REAL_USER:$REAL_USER" "$EXTRACTED_FIRM_DIR"
     chmod -R u+rwX "$EXTRACTED_FIRM_DIR"
 }
 
@@ -2182,7 +2180,6 @@ ADD_CHINA_SMART_MANAGER() {
             "com.samsung.android.sm_cn"
     fi
 
-    chown -R "$REAL_USER:$REAL_USER" "$EXTRACTED_FIRM_DIR"
     chmod -R u+rwX "$EXTRACTED_FIRM_DIR"
 }
 
@@ -2334,7 +2331,6 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
         cp -rfa "$(pwd)/QuantumROM/Mods/Apps/Samsung_Important_Apps_Android_${ANDROID_VERSION}/." "${EXTRACTED_FIRM_DIR}/"
     fi
 
-    chown -R "$REAL_USER:$REAL_USER" "$EXTRACTED_FIRM_DIR"
     chmod -R u+rwX "$EXTRACTED_FIRM_DIR"
 }
 
@@ -2373,7 +2369,6 @@ APPLY_CUSTOM_FEATURES() {
     # Apply custom floating feature.
 	APPLY_CUSTOM_FLOATING_FEATURE "$EXTRACTED_FIRM_DIR"
 
-	chown -R "$REAL_USER:$REAL_USER" "$EXTRACTED_FIRM_DIR"
     chmod -R u+rwX "$EXTRACTED_FIRM_DIR"
 }
 
@@ -2725,7 +2720,6 @@ BUILD_IMG() {
         build_img "$MODE"
     fi
 
-    chown -R "$REAL_USER:$REAL_USER" "$OUT_DIR"
     chmod -R u+rwX "$OUT_DIR"
 }
 

@@ -1750,12 +1750,6 @@ REMOVE_CAMERA_FILES() {
 
     rm -rf "${EXTRACTED_FIRM_DIR}/system/system/priv-app/SamsungCamera"
     rm -rf "${EXTRACTED_FIRM_DIR}/system/system/cameradata"
-
-    local FIRST_CAM_LINE="$(
-        grep -n '^    <SEC_FLOATING_FEATURE_CAMERA' \
-        "${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml" |
-        head -n 1 | cut -d: -f1
-    )"
 }
 
 
@@ -1797,7 +1791,7 @@ FIX_CAMERA() {
 
         if [ ! -f "$(pwd)/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}.zip" ]; then
             if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
-                wget --no-check-certificate \
+                wget -q --no-check-certificate\
                     "https://github.com/SN-Abdullah-Al-Noman/Samsung_Special/releases/download/Android_${ANDROID_VERSION}/MTK_Camera_Files_Android_${ANDROID_VERSION}.zip" \
                     -O "$(pwd)/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}.zip"
             else
@@ -1815,10 +1809,9 @@ FIX_CAMERA() {
                 -d "$(pwd)/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}" \
                 >/dev/null 2>&1
 
-            sed -i \
-                "$((FIRST_CAM_LINE-1))r $(pwd)/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}/system/etc/floating_feature.xml" \
-                "${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml"
-
+            local FIRST_CAM_LINE="$(grep -n '^    <SEC_FLOATING_FEATURE_CAMERA' "${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml" | head -n 1 | cut -d: -f1)"
+            sed -i '/^    <SEC_FLOATING_FEATURE_CAMERA/d' "${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml"
+            sed -i "$((FIRST_CAM_LINE-1))r $(pwd)/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}/system/etc/floating_feature.xml" "${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml"
 			rm -rf "$(pwd)/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}/system/etc/floating_feature.xml"
 
             echo "- Copying A34 mediatek camera related files."
@@ -2086,7 +2079,7 @@ APPLY_JDM_SPECIAL() {
 
 	if [ ! -f "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}.zip" ]; then
 		if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
-            wget --no-check-certificate \
+            wget -q --no-check-certificate\
                 "https://github.com/SN-Abdullah-Al-Noman/Samsung_Special/releases/download/Android_${ANDROID_VERSION}/JDM_Camera_Files_Android_${ANDROID_VERSION}.zip" \
                 -O "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}.zip"
         else
@@ -2149,7 +2142,7 @@ ADD_CHINA_SMART_MANAGER() {
         [ ! -f "$(pwd)/QuantumROM/Mods/Apps/Samsung_SmartManagerCN_Android_${ANDROID_VERSION}.zip" ]; then
 
         if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
-            wget --no-check-certificate \
+            wget -q --no-check-certificate\
                 "https://github.com/SN-Abdullah-Al-Noman/Samsung_Special/releases/download/Android_${ANDROID_VERSION}/Samsung_SmartManagerCN_Android_${ANDROID_VERSION}.zip" \
                 -O "$(pwd)/QuantumROM/Mods/Apps/Samsung_SmartManagerCN_Android_${ANDROID_VERSION}.zip"
         else
@@ -2226,7 +2219,7 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
         [ ! -f "$(pwd)/QuantumROM/Mods/Apps/Samsung_PhotoEditor_AIFull_Android_${ANDROID_VERSION}.zip" ]; then
 
         if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
-            wget --no-check-certificate \
+            wget -q --no-check-certificate\
                 "https://github.com/SN-Abdullah-Al-Noman/Samsung_Special/releases/download/Android_${ANDROID_VERSION}/Samsung_PhotoEditor_AIFull_Android_${ANDROID_VERSION}.zip" \
                 -O "$(pwd)/QuantumROM/Mods/Apps/Samsung_PhotoEditor_AIFull_Android_${ANDROID_VERSION}.zip"
         else
@@ -2279,7 +2272,7 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
         [ ! -f "$(pwd)/QuantumROM/Mods/Apps/Samsung_OCRDataProvider_Android_${ANDROID_VERSION}.zip" ]; then
 
 		if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
-            wget --no-check-certificate \
+            wget -q --no-check-certificate\
                 "https://github.com/SN-Abdullah-Al-Noman/Samsung_Special/releases/download/Android_${ANDROID_VERSION}/Samsung_OCRDataProvider_Android_${ANDROID_VERSION}.zip" \
                 -O "$(pwd)/QuantumROM/Mods/Apps/Samsung_OCRDataProvider_Android_${ANDROID_VERSION}.zip"
         else
@@ -2311,7 +2304,7 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
 
     if [ ! -f "$(pwd)/QuantumROM/Mods/Apps/Samsung_Important_Apps_Android_${ANDROID_VERSION}.zip" ]; then
         if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
-            wget --no-check-certificate \
+            wget -q --no-check-certificate\
                 "https://github.com/SN-Abdullah-Al-Noman/Samsung_Special/releases/download/Android_${ANDROID_VERSION}/Samsung_Important_Apps_Android_${ANDROID_VERSION}.zip" \
                -O "$(pwd)/QuantumROM/Mods/Apps/Samsung_Important_Apps_Android_${ANDROID_VERSION}.zip"
         else

@@ -1,0 +1,2 @@
+on property:ro.boot.carrierid=MXO
+    setprop ssu.support 1

@@ -1,0 +1,19 @@
+STOCK_VNDK_VERSION=31
+USE_ALT_SDHMS_APP=TRUE
+STOCK_HAS_AB_SLOT=FALSE
+STOCK_HAS_SEPARATE_SYSTEM_EXT=TRUE
+STOCK_DVFS_FILENAME=dvfs_policy_sm8450_xx
+STOCK_SIOP_POLICY_FILENAME=siop_r0q_sm8450
+STOCK_DEVICE_CPU_ABILIST=arm64-v8a,armeabi-v7a,armeabi
+
+ro.odm.build.version.sdk=31
+ro.product.odm.device=r0q
+ro.product.odm.manufacturer=samsung
+ro.product.odm.model=SM-S901E
+ro.product.odm.name=r0qxxx
+ro.vendor.qti.va_odm.support=1
+
+# partitions size as bytes
+default_img_type=f2fs
+
+# Source: https://samfw.com/firmware/SM-S901E/AFG/S901EXXSEGZE3

@@ -2,7 +2,6 @@
 
 ###################################################################################################
 
-
 # QT DIR
 QT_DIR="$(pwd)"
 
@@ -1816,6 +1815,76 @@ FIX_CAMERA() {
             cp -rfa "$(pwd)/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}/system/." "${EXTRACTED_FIRM_DIR}/system/system"
         fi
     fi
+}
+
+
+DOWNLOAD_GITHUB_FOLDER() {
+    local URL="$1"
+    local OUT="${2:-}"
+
+    if [ -z "$URL" ]; then
+        echo "Usage: DOWNLOAD_GITHUB_FOLDER <GitHub_Folder_URL>"
+        return 1
+    fi
+
+    local REPO BRANCH FOLDER
+
+    read -r REPO BRANCH FOLDER <<< "$(
+        printf '%s\n' "$URL" |
+        sed -E 's#https://github\.com/([^/]+/[^/]+)/tree/([^/]+)/?(.*)#\1 \2 \3#'
+    )"
+
+    if [ -z "$REPO" ] || [ -z "$BRANCH" ]; then
+        echo "Invalid GitHub folder URL!"
+        return 1
+    fi
+
+    FOLDER="${FOLDER#/}"
+    FOLDER="${FOLDER%/}"
+
+    [ -z "$OUT" ] && OUT="${FOLDER##*/}"
+    [ -z "$OUT" ] && OUT="${REPO##*/}"
+
+    local API
+    API="https://api.github.com/repos/$REPO/contents/$FOLDER?ref=$BRANCH"
+
+    rm -rf "$OUT"
+    mkdir -p "$OUT"
+
+    curl -fsSL \
+        -H "Accept: application/vnd.github+json" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        "$API" |
+    jq -c '.[]' |
+    while read -r ITEM; do
+
+        local NAME TYPE DOWNLOAD_URL DIR_URL
+
+        NAME="$(jq -r '.name' <<< "$ITEM")"
+        TYPE="$(jq -r '.type' <<< "$ITEM")"
+
+        if [ "$TYPE" = "file" ]; then
+
+            DOWNLOAD_URL="$(jq -r '.download_url' <<< "$ITEM")"
+
+            printf "- Downloading: %-35s ... " "$NAME"
+
+            curl -fsSL \
+                "$DOWNLOAD_URL" \
+                -o "$OUT/$NAME" && echo "100%" || {
+                    echo "- FAILED"
+                    continue
+                }
+
+        elif [ "$TYPE" = "dir" ]; then
+
+            DIR_URL="$(jq -r '.html_url' <<< "$ITEM")"
+
+            DOWNLOAD_GITHUB_FOLDER \
+                "$DIR_URL" \
+                "$OUT/$NAME"
+        fi
+    done
 }
 
 

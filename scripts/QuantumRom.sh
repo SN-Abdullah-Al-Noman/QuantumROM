@@ -1189,19 +1189,16 @@ FIX_VNDK() {
 
     if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
         echo "- Downloading $VNDK_ZIP"
-        if wget --no-check-certificate \
-            "$VNDK_URL" \
-            -O "$VNDK_ZIP_PATH"; then
-
-            echo "- Download complete"
-            if 7z x -aoa "$VNDK_ZIP_PATH" -o"$VNDK_DIR"; then
-                if [ -d "${VNDK_EXTRACT_DIR}/${SDK}" ]; then
-                    cp -a "${VNDK_EXTRACT_DIR}/${SDK}/." \
+        if wget -q --no-check-certificate -O "$VNDK_ZIP_PATH" "$VNDK_URL"; then
+        echo "- Download complete"
+            if 7z x -aoa -y -bd -bso0 -bse0 -bsp1 "$VNDK_ZIP_PATH" -o"$VNDK_EXTRACT_DIR"; then
+                if [ -d "${VNDK_EXTRACT_DIR}/${STOCK_VNDK_VERSION}" ]; then
+                    cp -a "${VNDK_EXTRACT_DIR}/${STOCK_VNDK_VERSION}/." \
                         "$TARGET_ROM_SYSTEM_EXT_DIR/"
-                    echo "- VNDK SDK $SDK copied successfully"
+                    echo "- VNDK $STOCK_VNDK_VERSION copied successfully"
                 else
-                    echo "- ERROR: Extracted VNDK SDK directory not found:"
-                    echo "  ${VNDK_EXTRACT_DIR}/${SDK}"
+                    echo "- ERROR: Extracted VNDK directory not found:"
+                    echo "  ${VNDK_EXTRACT_DIR}/${STOCK_VNDK_VERSION}"
                     return 1
                 fi
             else

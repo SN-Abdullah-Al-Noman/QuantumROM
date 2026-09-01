@@ -67,6 +67,11 @@ on:
         required: true
         default: "True"
 
+      PATCH_BLUETOOTH_LIBRARY:
+        description: "Patch bluetooth library (True/False)"
+        required: true
+        default: "True"
+
 
 jobs:
   build:
@@ -98,6 +103,7 @@ jobs:
           echo "ADD_CUSTOM_FEATURES=${{ inputs.ADD_CUSTOM_FEATURES }}" | tee -a "$GITHUB_ENV"
           echo "PATCH_FLAG_SECURE=${{ inputs.PATCH_FLAG_SECURE }}" | tee -a "$GITHUB_ENV"
           echo "PATCH_SECURE_FOLDER=${{ inputs.PATCH_SECURE_FOLDER }}" | tee -a "$GITHUB_ENV"
+          echo "PATCH_BLUETOOTH_LIBRARY=${{ inputs.PATCH_BLUETOOTH_LIBRARY }}" | tee -a "$GITHUB_ENV"
 
           echo "OUTPUT_FILESYSTEM=${{ inputs.OUTPUT_FILESYSTEM }}" | tee -a "$GITHUB_ENV"
           echo "COMPRESS_IMG_TO_XZ=${{ inputs.COMPRESS_IMG_TO_XZ }}" | tee -a "$GITHUB_ENV"
@@ -228,6 +234,14 @@ jobs:
               echo "✅ services.jar moved to rom."
           fi
 
+      - name: Patch bluetooth library- ${{ inputs.PATCH_BLUETOOTH_LIBRARY }}
+        run: |
+          source "$(pwd)/scripts/QuantumRom.sh"
+
+          if [ "$PATCH_BLUETOOTH_LIBRARY" = "True" ]; then
+              PATCH_BT_LIB "$FIRM_DIR/$TARGET_DEVICE"
+          fi
+
       - name: Apply others features and patch
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
@@ -235,7 +249,6 @@ jobs:
           PS4='+ ${BASH_SOURCE}:${LINENO}: '
           set -x
           PATCH_SELINUX "$FIRM_DIR/$TARGET_DEVICE"
-          PATCH_BT_LIB "$FIRM_DIR/$TARGET_DEVICE" "$WORK_DIR"
           DISABLE_SECURITY "$FIRM_DIR/$TARGET_DEVICE"
           set +x
 

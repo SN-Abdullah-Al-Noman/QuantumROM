@@ -1142,28 +1142,81 @@ PATCH_BT_LIB() {
 FIX_VNDK() {
     echo " "
 
-	if [ "$#" -ne 1 ]; then
+    if [ "$#" -ne 1 ]; then
         echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIRECTORY>"
         return 1
     fi
 
-	local EXTRACTED_FIRM_DIR="$1"
-	local TARGET_ROM_SYSTEM_EXT_DIR="$(GET_SYSTEM_EXT_DIR "$EXTRACTED_FIRM_DIR")"
+    local EXTRACTED_FIRM_DIR="$1"
+    local TARGET_ROM_SYSTEM_EXT_DIR="$(GET_SYSTEM_EXT_DIR "$EXTRACTED_FIRM_DIR")"
 
-    echo -e "Checking $STOCK_DEVICE and $TARGET_DEVICE vndk version."
+    echo "Checking $STOCK_DEVICE and $TARGET_DEVICE VNDK version."
+
     local SDK="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.build.version.sdk_full")"
+    local ANDROID_VERSION="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")"
 
     if [[ -z "$SDK" ]]; then
-        local SDK="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" ro.build.version.sdk)"
+        SDK="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.build.version.sdk")"
     fi
 
-	echo "- Target rom SDK version: $SDK"
+    echo "- Target Android version: $ANDROID_VERSION"
+    echo "- Target ROM SDK version: $SDK"
+
     if [ -f "${TARGET_ROM_SYSTEM_EXT_DIR}/apex/com.android.vndk.v${STOCK_VNDK_VERSION}.apex" ]; then
-        echo -e "- VNDK matched. ${TARGET_ROM_SYSTEM_EXT_DIR}/apex/com.android.vndk.v${STOCK_VNDK_VERSION}.apex"
+        echo "- VNDK matched: ${TARGET_ROM_SYSTEM_EXT_DIR}/apex/com.android.vndk.v${STOCK_VNDK_VERSION}.apex"
+        return 0
+    fi
+
+    echo "- VNDK mismatch. Adding SDK $SDK com.android.vndk.v${STOCK_VNDK_VERSION}.apex"
+
+    rm -rf "${TARGET_ROM_SYSTEM_EXT_DIR}/apex/"com.android.vndk.v*.apex
+
+    local VNDK_ZIP="Android-${ANDROID_VERSION}_SDK-${SDK}.zip"
+    local VNDK_URL="https://github.com/SN-Abdullah-Al-Noman/QuantumROM/releases/download/VNDKS/${VNDK_ZIP}"
+    local VNDK_DIR="$(pwd)/QuantumROM/vndks"
+    local VNDK_ZIP_PATH="${VNDK_DIR}/${VNDK_ZIP}"
+    local VNDK_EXTRACT_DIR="${VNDK_DIR}/Android-${ANDROID_VERSION}_SDK-${SDK}"
+
+    mkdir -p "$VNDK_DIR"
+
+    if curl -fsSL \
+        "https://api.github.com/repos/SN-Abdullah-Al-Noman/QuantumROM/releases/tags/VNDKS" |
+        jq -e --arg dev "$VNDK_ZIP" '.assets[].name == $dev' |
+        grep -q true; then
+        echo "- $VNDK_ZIP found"
     else
-        echo -e "- VNDK mismatch. Adding SDK $SDK com.android.vndk.v${STOCK_VNDK_VERSION}.apex"
-        rm -rf "${TARGET_ROM_SYSTEM_EXT_DIR}/apex/"com.android.vndk.v*.apex
-        7z x -aoa "$VNDKS_COLLECTION/$SDK/${STOCK_VNDK_VERSION}.zip" -o"${TARGET_ROM_SYSTEM_EXT_DIR}/"
+        echo "- $VNDK_ZIP not found"
+        exit 1
+    fi
+
+    if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
+        echo "- Downloading $VNDK_ZIP"
+        if wget --no-check-certificate \
+            "$VNDK_URL" \
+            -O "$VNDK_ZIP_PATH"; then
+
+            echo "- Download complete"
+            if 7z x -aoa "$VNDK_ZIP_PATH" -o"$VNDK_DIR"; then
+                if [ -d "${VNDK_EXTRACT_DIR}/${SDK}" ]; then
+                    cp -a "${VNDK_EXTRACT_DIR}/${SDK}/." \
+                        "$TARGET_ROM_SYSTEM_EXT_DIR/"
+                    echo "- VNDK SDK $SDK copied successfully"
+                else
+                    echo "- ERROR: Extracted VNDK SDK directory not found:"
+                    echo "  ${VNDK_EXTRACT_DIR}/${SDK}"
+                    return 1
+                fi
+            else
+                echo "- ERROR: Failed to extract $VNDK_ZIP"
+                exit 1
+            fi
+        else
+            echo "- ERROR: Failed to download $VNDK_ZIP"
+            exit 1
+        fi
+    else
+        echo "- ERROR: Internet connection unavailable"
+        exit 1
     fi
 }
 

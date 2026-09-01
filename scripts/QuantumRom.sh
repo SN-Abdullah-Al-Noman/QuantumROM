@@ -430,7 +430,7 @@ EXTRACT_FIRMWARE_IMG() {
 
     if ! ls "$EXTRACTED_FIRM_DIR"/*.img >/dev/null 2>&1; then
         echo -e "No .img files found in: $EXTRACTED_FIRM_DIR"
-        return 1
+        return 0
     fi
 
     echo -e "Extracting images from: $EXTRACTED_FIRM_DIR"
@@ -559,7 +559,7 @@ DISABLE_FDE() {
     fi
 
     if [ ! -d "${EXTRACTED_FIRM_DIR}/vendor/etc" ]; then
-        return 1
+        return 0
     fi
 
     local fstab_files=$(grep -lr 'forceencrypt' "${EXTRACTED_FIRM_DIR}/vendor/etc" 2>/dev/null)
@@ -591,7 +591,7 @@ INSTALL_FRAMEWORK() {
 
 	if [ ! -f "$framework_apk" ]; then
         echo -e "- File not found: $framework_apk"
-        return 1
+        return 0
     fi
 
     java -jar "$APKTOOL" install-framework "$framework_apk"
@@ -655,7 +655,7 @@ RECOMPILE() {
 
 	if [ ! -d "$DECOMPILED_DIR" ]; then
         echo "- Directory not found: $DECOMPILED_DIR"
-        return 1
+        return 0
     fi
 
     local org_file_name=$(awk '/^apkFileName:/ {print $2}' "$DECOMPILED_DIR/apktool.yml")

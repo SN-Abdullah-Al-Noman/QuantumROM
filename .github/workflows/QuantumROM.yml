@@ -110,6 +110,9 @@ jobs:
  
       - name: Validate STOCK_DEVICE - ${{ inputs.STOCK_DEVICE }}
         run: |
+          REPO="SN-Abdullah-Al-Noman/QuantumROM"
+          BRANCH="Devices"
+
           source "$(pwd)/scripts/git_utils.sh"
 
           if [ "$STOCK_DEVICE" != "None" ]; then

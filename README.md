@@ -7,7 +7,7 @@ This Custom ROM is built by combining and refining features from multiple projec
 ### 🛠️ Tools features.
 - Download firmware directly from samsung server.
 - File config and file contexts generate.
-- Extract and img build ( erofs and ext4 supported).
+- Extract and img build ( erofs, f2fs, ext4 supported).
 
 ### ✨ Key Features.
 - System Optimization.
@@ -25,8 +25,6 @@ This Custom ROM is built by combining and refining features from multiple projec
 - Object, shadow and reflection remover support.
 - Multi user support.
 - Camera privacy toggle support.
-- Private share patch.
-- Google photos unlimited backup.
 - JDM device support.
 - [BluetoothLibraryPatcher](https://github.com/3arthur6/BluetoothLibraryPatcher) integrated
 

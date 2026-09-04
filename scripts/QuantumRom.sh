@@ -30,6 +30,79 @@ source "$(pwd)/scripts/debloat.sh"
 source "$(pwd)/scripts/git_utils.sh"
 
 
+WGET_DOWNLOAD() {
+    local URL="$1"
+    local OUT_DIR="$2"
+
+    if [ -z "$URL" ] || [ -z "$OUT_DIR" ]; then
+        echo "Usage: WGET_DOWNLOAD <URL> <OUTPUT_DIRECTORY>"
+        return 1
+    fi
+
+    mkdir -p "$OUT_DIR" || {
+        echo "- Failed to create output directory:"
+        echo "    $OUT_DIR"
+        exit 1
+    }
+
+    local FILE=$(basename "${URL%%\?*}")
+    local OUT="$OUT_DIR/$FILE"
+
+    if ! wget --spider -q "$URL"; then
+        echo "- File is not downloadable:"
+        echo "    $URL"
+        exit 1
+    fi
+
+    local SIZE=$(wget --spider -S "$URL" 2>&1 |
+        awk 'tolower($1) == "content-length:" {print $2}' |
+        tail -n1)
+
+    if [ -n "$SIZE" ]; then
+        echo "- File size: $(numfmt --to=iec "$SIZE" 2>/dev/null || echo "$SIZE bytes")"
+    else
+        echo "- File size: Unknown"
+        exit 1
+    fi
+
+    echo "- Downloading: $FILE"
+
+    wget --no-check-certificate -q -O "$OUT" "$URL" &
+    local PID=$!
+
+    local LAST=-1
+    local CURRENT PERCENT
+
+    while kill -0 "$PID" 2>/dev/null; do
+        if [ -f "$OUT" ]; then
+            CURRENT=$(stat -c%s "$OUT" 2>/dev/null || echo 0)
+            PERCENT=$((CURRENT * 100 / SIZE))
+
+            [ "$PERCENT" -gt 100 ] && PERCENT=100
+
+            if [ "$PERCENT" -ne "$LAST" ]; then
+                printf '\r- Downloaded: %3d%%' "$PERCENT"
+                LAST=$PERCENT
+            fi
+        fi
+
+        sleep 0.2
+    done
+
+    wait "$PID"
+    local STATUS=$?
+
+    if [ "$STATUS" -ne 0 ]; then
+        echo
+        echo "- Download failed"
+        exit 1
+    fi
+
+    printf '\r- Downloaded: 100%%\n'
+    echo "- Download completed: $OUT"
+}
+
+
 DOWNLOAD_FIRMWARE() {
     echo " "
 

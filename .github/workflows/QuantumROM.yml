@@ -18,8 +18,8 @@ on:
         required: true
         default: "SM-A346E"
 
-      TARGET_DEVICE_CSC_OR_DIRECT_DOWNLOAD_LINK:
-        description: "Input target device CSC code or direct download link"
+      TARGET_DEVICE_CSC_OR_DOWNLOAD_LINK:
+        description: "Input target device CSC code or direct download link."
         required: true
         default: "BKD"
 
@@ -149,7 +149,7 @@ jobs:
           sudo modprobe f2fs || true
           mkdir -p FW WORK OUT
 
-      - name: Download firmware ▶️ ${{ inputs.TARGET_DEVICE }} - ${{ inputs.TARGET_DEVICE_CSC_OR_DIRECT_DOWNLOAD_LINK }}
+      - name: Download firmware ▶️ ${{ inputs.TARGET_DEVICE }} - ${{ inputs.TARGET_DEVICE_CSC_OR_DOWNLOAD_LINK }}
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
           DOWNLOAD_FIRMWARE "$TARGET_DEVICE" "$TARGET_DEVICE_CSC" "$FIRM_DIR" "$TARGET_FW_VERSION"

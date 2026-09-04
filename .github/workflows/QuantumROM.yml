@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       STOCK_DEVICE:
-        description: "STOCK_DEVICE_MODEL or None"
+        description: "Your own device model or None"
         required: true
         default: "SM-A225F"
 
@@ -28,12 +28,12 @@ on:
         required: false
 
       OUTPUT_FILESYSTEM:
-        description: "OUTPUT_FILESYSTEM. e.g erofs / ext4 / f2fs"
+        description: "Output filesystem. e.g erofs / ext4 / f2fs"
         required: true
         default: "erofs"
 
       COMPRESS_IMG_TO_XZ:
-        description: "Compress IMG to XZ (True/False)"
+        description: "Compress img to xz (True/False)"
         required: true
         default: "False"
 

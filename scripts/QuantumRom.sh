@@ -119,6 +119,13 @@ DOWNLOAD_FIRMWARE() {
     rm -rf "$DOWN_DIR"
     mkdir -p "$DOWN_DIR"
 
+    if [ "${#CSC}" -ne 3 ]; then
+        echo "- CSC is not 3 characters"
+        echo "- Treating CSC as download URL"
+        WGET_DOWNLOAD "$CSC" "$DOWN_DIR"
+		return 0
+	fi
+
     echo -e "======================================"
     echo -e "  Samsung FW Downloader   "
     echo -e "======================================"

@@ -302,6 +302,17 @@ EXTRACT_FIRMWARE() {
         exit
     fi
 
+# For extension less file
+for file in "$FIRM_DIR"/*; do
+    [ -f "$file" ] || continue
+
+    case "$(basename "$file")" in
+        *.*) continue ;;
+    esac
+
+    7z x -y -bd -bsp1 -o"$FIRM_DIR" "$file"
+done
+
     # ---- ZIP ----
     for file in "$FIRM_DIR"/*.zip; do
         [ -e "$file" ] || continue

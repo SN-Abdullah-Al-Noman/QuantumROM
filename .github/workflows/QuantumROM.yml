@@ -150,9 +150,7 @@ jobs:
           git clone https://github.com/Lysagxra/GoFileDownloader.git
           cd GoFileDownloader
           pip install -r requirements.txt
-          mkdir -p FW WORK OUT
-          pwd
-          ls
+          cd && mkdir -p FW WORK OUT
 
       - name: Download firmware ▶️ ${{ inputs.TARGET_DEVICE }} - ${{ inputs.TARGET_DEVICE_CSC_OR_DOWNLOAD_LINK }}
         run: |

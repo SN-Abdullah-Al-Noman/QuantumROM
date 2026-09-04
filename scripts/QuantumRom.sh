@@ -101,11 +101,8 @@ DOWNLOAD_FIRMWARE() {
         echo "- CSC is not 3 characters"
         echo "- Treating CSC as download URL"
 		if [[ "$CSC" =~ gofile\.io/d/([^/?]+) ]]; then
-            echo "GoFile link detected"
-            echo "Directory: ${BASH_REMATCH[1]}"
-            python3 "$(pwd)/GoFileDownloader/main.py" "$CSC"
-            mv "$(pwd)/GoFileDownloader/${BASH_REMATCH[1]}"/* "$(pwd)/$DOWN_DIR"/
-			return 0
+            echo "GoFile link is not supported"
+			exit 1
         else
             WGET_DOWNLOAD "$CSC" "$DOWN_DIR"
 		    return 0

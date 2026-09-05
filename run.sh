@@ -21,45 +21,27 @@ export APKTOOL="$(pwd)/bin/java/apktool.jar"
 export DEVICES_DIR="$(pwd)/QuantumROM/Devices"
 export VNDKS_COLLECTION="$(pwd)/QuantumROM/vndks"
 
-if [ "$STOCK_DEVICE" != "None" ]; then
-    if curl -fsSL \
-        "https://api.github.com/repos/SN-Abdullah-Al-Noman/QuantumROM/releases/tags/QuantumROM_Devices" |
-        jq -e --arg dev "${STOCK_DEVICE}.zip" '.assets[].name == $dev' |
-        grep -q true; then
-        echo "$STOCK_DEVICE is supported"
-    else
-        echo "❌ $STOCK_DEVICE is not supported by this tool."
-        exit 1
-    fi
-fi
-
-
-if [ "$STOCK_DEVICE" != "None" ]; then
-    if [ ! -f "$(pwd)/QuantumROM/Devices/${STOCK_DEVICE}.zip" ]; then
-        if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
-            wget --no-check-certificate \
-            "https://github.com/SN-Abdullah-Al-Noman/QuantumROM/releases/download/QuantumROM_Devices/${STOCK_DEVICE}.zip" \
-            -O "$(pwd)/QuantumROM/Devices/${STOCK_DEVICE}.zip"
-        else
-	        rm -rf "$(pwd)/QuantumROM/Devices/${STOCK_DEVICE}.zip"
-            echo "- No internet connection available. Unable to download: ${STOCK_DEVICE}.zip"
-            return 1
-        fi
-    fi
-fi
-
-
-if [ "$STOCK_DEVICE" != "None" ]; then
-    if [ -f "${DEVICES_DIR}/${STOCK_DEVICE}.zip" ]; then
-        rm -rf "${DEVICES_DIR}/${STOCK_DEVICE}"
-	    mkdir "${DEVICES_DIR}/${STOCK_DEVICE}"
-        unzip -oq "${DEVICES_DIR}/${STOCK_DEVICE}.zip" -d "${DEVICES_DIR}/${STOCK_DEVICE}"
-    fi
-fi
-
 # Source
 source "$(pwd)/scripts/debloat.sh"
+source "$(pwd)/scripts/git_utils.sh"
 source "$(pwd)/scripts/QuantumRom.sh"
+
+REPO="SN-Abdullah-Al-Noman/QuantumROM"
+BRANCH="Devices"
+
+if [ "$STOCK_DEVICE" != "None" ]; then
+    if ! curl -fsSL -H "Accept: application/vnd.github+json" \
+        "https://api.github.com/repos/$REPO/contents/$STOCK_DEVICE?ref=$BRANCH" >/dev/null; then
+        echo "❌ Unsupported: Device '$STOCK_DEVICE' not found in $REPO/$BRANCH"
+        exit 1
+    fi
+
+	echo "✅ Device supported: $STOCK_DEVICE"
+    GIT_SPARSE_DOWNLOAD "SN-Abdullah-Al-Noman/QuantumROM" "Devices" "$STOCK_DEVICE" \
+        "$(pwd)/QuantumROM/Devices/$STOCK_DEVICE"
+else
+    echo "ℹ️ STOCK_DEVICE is set to None."
+fi
 
 EXTRACT_FIRMWARE "$FIRM_DIR/$TARGET_DEVICE"
 EXTRACT_SUPER_IMG "$FIRM_DIR/$TARGET_DEVICE"

@@ -26,13 +26,12 @@ GIT_SPARSE_DOWNLOAD() {
 
     local TMP_DIR
     TMP_DIR="$(mktemp -d)" || {
-        echo "Error: Failed to create temporary directory!"
+        echo "- Error: Failed to create temporary directory!"
         return 1
     }
 
-    echo "Temporary directory:"
-    echo "$TMP_DIR"
-    echo
+    echo "- Temporary directory: $TMP_DIR"
+    echo " "
 
     git clone \
         --depth 1 \
@@ -47,27 +46,27 @@ GIT_SPARSE_DOWNLOAD() {
         }
 
     cd "$TMP_DIR" || {
-        echo "Error: Failed to enter temporary directory!"
+        echo "- Error: Failed to enter temporary directory!"
         rm -rf "$TMP_DIR"
         return 1
     }
 
     git sparse-checkout set "$FOLDER" || {
-        echo "Error: Folder not found: $FOLDER"
+        echo "- Error: Folder not found: $FOLDER"
         cd /
         rm -rf "$TMP_DIR"
         return 1
     }
 
     if [ ! -d "$TMP_DIR/$FOLDER" ]; then
-        echo "Error: Folder not found: $FOLDER"
+        echo "- Error: Folder not found: $FOLDER"
         cd /
         rm -rf "$TMP_DIR"
         return 1
     fi
 
     mkdir -p "$OUT_DIR" || {
-        echo "Error: Failed to create output directory!"
+        echo "- Error: Failed to create output directory!"
         cd /
         rm -rf "$TMP_DIR"
         return 1
@@ -78,7 +77,7 @@ GIT_SPARSE_DOWNLOAD() {
     echo
 
     cp -a "$TMP_DIR/$FOLDER/." "$OUT_DIR/" || {
-        echo "Error: Failed to copy folder!"
+        echo "- Error: Failed to copy folder!"
         cd /
         rm -rf "$TMP_DIR"
         return 1
@@ -88,6 +87,6 @@ GIT_SPARSE_DOWNLOAD() {
 
     rm -rf "$TMP_DIR"
 
-    echo "✓ Download completed"
-    echo "✓ Location: $OUT_DIR"
+    echo "- Download completed"
+    echo "- Location: $OUT_DIR"
 }

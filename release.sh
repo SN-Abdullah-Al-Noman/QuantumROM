@@ -32,6 +32,7 @@ $GOFILE_LINK
 • Build Version: $BUILD_VERSION
 • Android Version: $ANDROID_VERSION
 • One UI Version: $ONEUI_VERSION
+• SDK Version: $SDK_VERSION
 • CPU ABILIST: $CPU_ABILIST
 
 #### ⚙️ Build Options:

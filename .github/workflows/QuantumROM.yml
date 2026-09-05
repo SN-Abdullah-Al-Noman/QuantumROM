@@ -294,5 +294,8 @@ jobs:
           source "$(pwd)/scripts/QuantumRom.sh"
           export ANDROID_VERSION=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.system.build.version.release")
           export ONEUI_VERSION=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.build.version.oneui")
+          export BUILD_VERSION=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.build.version.incremental")
+          export SDK_VERSION=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.system.build.version.sdk")
+          export SECURITY_PATCH=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.build.version.security_patch")
           export CPU_ABILIST=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.system.product.cpu.abilist")
           bash release.sh

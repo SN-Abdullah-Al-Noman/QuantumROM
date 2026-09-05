@@ -1438,7 +1438,7 @@ ADJUST_SYSTEM_EXT() {
         fi
     fi
 
-    echo "- TARGET_ROM_SYSTEM_EXT_DIR set to: $TARGET_ROM_SYSTEM_EXT_DIR"
+    echo "- TARGET_ROM_SYSTEM_EXT_DIR set to: $(GET_SYSTEM_EXT_DIR "$EXTRACTED_FIRM_DIR")"
 }
 
 

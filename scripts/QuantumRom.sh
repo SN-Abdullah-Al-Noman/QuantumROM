@@ -104,6 +104,7 @@ DOWNLOAD_FIRMWARE() {
             echo "GoFile link detected"
             echo "Directory: ${BASH_REMATCH[1]}"
             python3 "$(pwd)/GoFileDownloader/downloader.py" "$CSC"
+			cd "$(pwd)/GoFileDownloader/Downloads"
 			ls
 			pwd
             mv "$(pwd)/GoFileDownloader/Downloads/${BASH_REMATCH[1]}"/* "$(pwd)/$DOWN_DIR"/

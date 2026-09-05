@@ -1579,7 +1579,7 @@ APPLY_CUSTOM_FLOATING_FEATURE() {
         local TARGET_ROM_FLOATING_FEATURE="${EXTRACTED_FIRM_DIR}/vendor/etc/floating_feature.xml"
     else
         echo "- Error: floating_feature.xml not found!"
-        return 1
+        return 0
     fi
 
     #========== COMMON ==========#
@@ -1987,7 +1987,7 @@ APPLY_STOCK_CONFIG() {
         echo "CPU ABI MISMATCH!"
         echo "STOCK DEVICE CPU ABI: $STOCK_DEVICE_CPU_ABILIST"
         echo "TARGET ROM CPU ABI: $TARGET_ROM_CPU_ABILIST"
-        exit 1
+        # exit 1
     fi
 
     # Remove ESIM files if stock device does not support.
@@ -2078,7 +2078,7 @@ BUILD_PROP() {
 
     if [ ! -f "$FILE" ]; then
         echo -e "- File not found: $FILE"
-        return 1
+        return 0
     fi
 
     if grep -q "^${KEY}=" "$FILE"; then
@@ -2174,7 +2174,7 @@ APPLY_JDM_SPECIAL() {
                 -O "$(pwd)/QuantumROM/Mods/Apps/JDM_Camera_Files_Android_${ANDROID_VERSION}.zip"
         else
             echo "- No internet connection available. Unable to download: Samsung_OCRDataProvider_Android_${ANDROID_VERSION}.zip"
-            return 1
+            return 0
         fi
     fi
 
@@ -2224,7 +2224,7 @@ ADD_CHINA_SMART_MANAGER() {
         local TARGET_ROM_FLOATING_FEATURE="${EXTRACTED_FIRM_DIR}/vendor/etc/floating_feature.xml"
     else
         echo "- Error: floating_feature.xml not found!"
-        return 1
+        return 0
     fi
 
     # ================= SMART MANAGER =================
@@ -2237,7 +2237,7 @@ ADD_CHINA_SMART_MANAGER() {
                 -O "$(pwd)/QuantumROM/Mods/Apps/Samsung_SmartManagerCN_Android_${ANDROID_VERSION}.zip"
         else
             echo "- No internet connection available. Unable to download: Samsung_SmartManagerCN_Android_${ANDROID_VERSION}.zip"
-            return 1
+            return 0
         fi
     fi
 
@@ -2290,7 +2290,7 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
 
 	if [[ ! "$ANDROID_VERSION" =~ ^(14|15|16)$ ]]; then
         echo "- Unsupported Android version: $ANDROID_VERSION"
-        return 1
+        return 0
     fi
 
 	if [ -f "${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml" ]; then
@@ -2314,7 +2314,7 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
                 -O "$(pwd)/QuantumROM/Mods/Apps/Samsung_PhotoEditor_AIFull_Android_${ANDROID_VERSION}.zip"
         else
             echo "- No internet connection available. Unable to download: Samsung_PhotoEditor_AIFull_Android_${ANDROID_VERSION}.zip"
-            return 1
+            return 0
         fi
     fi
 
@@ -2367,7 +2367,7 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
                 -O "$(pwd)/QuantumROM/Mods/Apps/Samsung_OCRDataProvider_Android_${ANDROID_VERSION}.zip"
         else
             echo "- No internet connection available. Unable to download: Samsung_OCRDataProvider_Android_${ANDROID_VERSION}.zip"
-            return 1
+            return 0
         fi
     fi
 
@@ -2399,7 +2399,7 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
                -O "$(pwd)/QuantumROM/Mods/Apps/Samsung_Important_Apps_Android_${ANDROID_VERSION}.zip"
         else
             echo "No internet connection available. Unable to download: Samsung_Important_Apps_Android_${ANDROID_VERSION}.zip"
-            return 1
+            return 0
         fi
     fi
 

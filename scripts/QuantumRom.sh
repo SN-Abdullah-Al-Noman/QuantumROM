@@ -1056,8 +1056,15 @@ UPDATE_SDHMS() {
     local EXTRACTED_FIRM_DIR="$1"
 
     echo "- Adding alternative SDHMS app."
-	rm -rf "${EXTRACTED_FIRM_DIR}/system/priv-app/SamsungDeviceHealthManagerService"
-	cp -a "$(pwd)/QuantumROM/Mods/Apps/SDHMS/." "${EXTRACTED_FIRM_DIR}/"
+	local SDK="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.build.version.sdk_full")"
+    local ANDROID_VERSION="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")"
+	
+	if [ -d "$(pwd)/QuantumROM/Mods/Apps/SDHMS/${ANDROID_VERSION}/priv-app/SamsungDeviceHealthManagerService" ]; then
+	    rm -rf "${EXTRACTED_FIRM_DIR}/system/system/priv-app/SamsungDeviceHealthManagerService"
+        cp -a "$(pwd)/QuantumROM/Mods/Apps/SDHMS/${ANDROID_VERSION}/." "${EXTRACTED_FIRM_DIR}/system/system/"
+    else
+        echo "- Alternative SDHMS app for $ANDROID_VERSION not found."
+    fi
 }
 
 

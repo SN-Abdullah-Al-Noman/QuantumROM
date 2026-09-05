@@ -1457,7 +1457,7 @@ GET_SYSTEM_EXT_DIR() {
     elif [ ! -L "${EXTRACTED_FIRM_DIR}/system/system/system_ext" ] && [ -d "${EXTRACTED_FIRM_DIR}/system/system/system_ext/etc" ]; then
         local TARGET_ROM_SYSTEM_EXT_DIR="${EXTRACTED_FIRM_DIR}/system/system/system_ext"
     else
-        return 1
+        return 0
     fi
 
     echo "$TARGET_ROM_SYSTEM_EXT_DIR"
@@ -1854,8 +1854,11 @@ FIX_BLUETOOTH() {
 
     if [ "$STOCK_DEVICE_CHIPSET" = "MediaTek" ] && [ "$BUILD_BRAND" != "MTK" ]; then
         echo "- Adding mediatek bluetooth apex."
-        rm -f "${EXTRACTED_FIRM_DIR}"/system/system/apex/com.android.bt*.apex
-        cp -rfa "$(pwd)/QuantumROM/MTK_SPECIAL/${SDK}/BT_APEX/system/." "${EXTRACTED_FIRM_DIR}/system/system"
+		if [ -d "$(pwd)/QuantumROM/MTK_SPECIAL/${SDK}/BT_APEX/system/apex" ]; then
+            rm -rf "${EXTRACTED_FIRM_DIR}"/system/system/apex/com.android.bt*.apex
+            cp -rfa "$(pwd)/QuantumROM/MTK_SPECIAL/${SDK}/BT_APEX/system/." \
+                "${EXTRACTED_FIRM_DIR}/system/system"
+		fi
     fi
 }
 
@@ -1880,7 +1883,7 @@ FIX_CAMERA() {
                     -O "$(pwd)/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}.zip"
             else
                 echo "No internet connection available. Unable to download MTK_Camera_Files_Android_${ANDROID_VERSION}.zip."
-                return 1
+                return 0
             fi
         fi
 
@@ -1943,7 +1946,7 @@ APPLY_STOCK_CONFIG() {
 
 	if [ -z "$STOCK_DEVICE" ] || [ "$STOCK_DEVICE" = "None" ]; then
         echo -e "- No target device is set. Just modifying ROM without any device config."
-        return 1
+        return 0
     fi
 
     if [ ! -f "${DEVICES_DIR}/$STOCK_DEVICE/config" ]; then

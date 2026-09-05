@@ -291,4 +291,8 @@ jobs:
         env:
           GIT_TOKEN: ${{ secrets.GIT_TOKEN }}
         run: |
+          source "$(pwd)/scripts/QuantumRom.sh"
+          export ANDROID_VERSION=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.system.build.version.release")
+          export ONEUI_VERSION=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.build.version.oneui")
+          export CPU_ABILIST=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.system.product.cpu.abilist")
           bash release.sh

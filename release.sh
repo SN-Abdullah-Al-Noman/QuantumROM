@@ -29,9 +29,9 @@ $GOFILE_LINK
 #### 📱 Rom Info:
 • Ported For: $STOCK_DEVICE
 • Ported From: $TARGET_DEVICE
-• Build Version: $VERSION
+• Build Version: $BUILD_VERSION
 • Android Version: $ANDROID_VERSION
-• One UI Version: $ONE_UI_VERSION
+• One UI Version: $ONEUI_VERSION
 • CPU ABILIST: $CPU_ABILIST
 
 #### ⚙️ Build Options:

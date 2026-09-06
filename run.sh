@@ -37,8 +37,7 @@ if [ "$STOCK_DEVICE" != "None" ]; then
     fi
 
 	echo "✅ Device supported: $STOCK_DEVICE"
-    GIT_SPARSE_DOWNLOAD "SN-Abdullah-Al-Noman/QuantumROM" "Devices" "$STOCK_DEVICE" \
-        "$(pwd)/QuantumROM/Devices/$STOCK_DEVICE"
+    GIT_SPARSE_DOWNLOAD "SN-Abdullah-Al-Noman/QuantumROM" "Devices" "$STOCK_DEVICE" "$(pwd)/QuantumROM/Devices/$STOCK_DEVICE"
 else
     echo "ℹ️ STOCK_DEVICE is set to None."
 fi

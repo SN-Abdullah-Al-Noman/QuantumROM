@@ -1257,11 +1257,9 @@ FIX_VNDK() {
 
         local VNDK_ZIP="Android-${ANDROID_VERSION}_SDK-${SDK}.zip"
         local VNDK_URL="https://github.com/SN-Abdullah-Al-Noman/QuantumROM/releases/download/VNDKS/${VNDK_ZIP}"
-        local VNDK_DIR="$(pwd)/QuantumROM/vndks"
-        local VNDK_ZIP_PATH="${VNDK_DIR}/${VNDK_ZIP}"
-        local VNDK_EXTRACT_DIR="${VNDK_DIR}/Android-${ANDROID_VERSION}_SDK-${SDK}"
+        local VNDK_EXTRACT_DIR="$(pwd)/QuantumROM/vndks/Android-${ANDROID_VERSION}_SDK-${SDK}"
 
-        mkdir -p "$VNDK_DIR"
+        mkdir -p "$(pwd)/QuantumROM/vndks"
 
         if curl -fsSL \
             "https://api.github.com/repos/SN-Abdullah-Al-Noman/QuantumROM/releases/tags/VNDKS" |
@@ -1275,8 +1273,8 @@ FIX_VNDK() {
 
         if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
             echo "- Downloading $VNDK_ZIP"
-            if wget -q --no-check-certificate -O "$VNDK_ZIP_PATH" "$VNDK_URL"; then
-                if 7z x -aoa -y -bd -bso0 -bse0 -bsp1 "$VNDK_ZIP_PATH" -o"$VNDK_EXTRACT_DIR"; then
+            if wget -q --no-check-certificate -O "$(pwd)/QuantumROM/vndks/${VNDK_ZIP}" "$VNDK_URL"; then
+                if 7z x -aoa -y -bd -bso0 -bse0 -bsp1 "$(pwd)/QuantumROM/vndks/${VNDK_ZIP}" -o"$VNDK_EXTRACT_DIR"; then
                     if [ -d "${VNDK_EXTRACT_DIR}/${STOCK_VNDK_VERSION}" ]; then
                         cp -a "${VNDK_EXTRACT_DIR}/${STOCK_VNDK_VERSION}/." "$TARGET_ROM_SYSTEM_EXT_DIR/"
                         echo "- VNDK $STOCK_VNDK_VERSION copied successfully"

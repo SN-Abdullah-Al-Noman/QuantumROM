@@ -1245,58 +1245,66 @@ FIX_VNDK() {
 
     echo "- Target rom Android version: $ANDROID_VERSION - SDK version: $SDK"
 
-    if [ -f "${TARGET_ROM_SYSTEM_EXT_DIR}/apex/com.android.vndk.v${STOCK_VNDK_VERSION}.apex" ]; then
+    if [[ "$STOCK_DUAL_VNDKS" != "30_31" && -f "${TARGET_ROM_SYSTEM_EXT_DIR}/apex/com.android.vndk.v${STOCK_VNDK_VERSION}.apex" ]]; then
         echo "- VNDK matched: ${TARGET_ROM_SYSTEM_EXT_DIR}/apex/com.android.vndk.v${STOCK_VNDK_VERSION}.apex"
         return 0
     fi
 
     echo "- VNDK mismatch. Adding SDK $SDK com.android.vndk.v${STOCK_VNDK_VERSION}.apex"
 
-    rm -rf "${TARGET_ROM_SYSTEM_EXT_DIR}/apex/"com.android.vndk.v*.apex
+    if [[ "$STOCK_DUAL_VNDKS" == "30_31" || ! -f "${TARGET_ROM_SYSTEM_EXT_DIR}/apex/com.android.vndk.v${STOCK_VNDK_VERSION}.apex" ]]; then
+        rm -rf "${TARGET_ROM_SYSTEM_EXT_DIR}/apex/"com.android.vndk.v*.apex
 
-    local VNDK_ZIP="Android-${ANDROID_VERSION}_SDK-${SDK}.zip"
-    local VNDK_URL="https://github.com/SN-Abdullah-Al-Noman/QuantumROM/releases/download/VNDKS/${VNDK_ZIP}"
-    local VNDK_DIR="$(pwd)/QuantumROM/vndks"
-    local VNDK_ZIP_PATH="${VNDK_DIR}/${VNDK_ZIP}"
-    local VNDK_EXTRACT_DIR="${VNDK_DIR}/Android-${ANDROID_VERSION}_SDK-${SDK}"
+        local VNDK_ZIP="Android-${ANDROID_VERSION}_SDK-${SDK}.zip"
+        local VNDK_URL="https://github.com/SN-Abdullah-Al-Noman/QuantumROM/releases/download/VNDKS/${VNDK_ZIP}"
+        local VNDK_DIR="$(pwd)/QuantumROM/vndks"
+        local VNDK_ZIP_PATH="${VNDK_DIR}/${VNDK_ZIP}"
+        local VNDK_EXTRACT_DIR="${VNDK_DIR}/Android-${ANDROID_VERSION}_SDK-${SDK}"
 
-    mkdir -p "$VNDK_DIR"
+        mkdir -p "$VNDK_DIR"
 
-    if curl -fsSL \
-        "https://api.github.com/repos/SN-Abdullah-Al-Noman/QuantumROM/releases/tags/VNDKS" |
-        jq -e --arg dev "$VNDK_ZIP" '.assets[].name == $dev' |
-        grep -q true; then
-        echo "- $VNDK_ZIP found"
-    else
-        echo "- $VNDK_ZIP not found"
-        exit 1
-    fi
+        if curl -fsSL \
+            "https://api.github.com/repos/SN-Abdullah-Al-Noman/QuantumROM/releases/tags/VNDKS" |
+            jq -e --arg dev "$VNDK_ZIP" '.assets[].name == $dev' |
+            grep -q true; then
+            echo "- $VNDK_ZIP found"
+        else
+            echo "- $VNDK_ZIP not found"
+            exit 1
+        fi
 
-    if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
-        echo "- Downloading $VNDK_ZIP"
-        if wget -q --no-check-certificate -O "$VNDK_ZIP_PATH" "$VNDK_URL"; then
-            if 7z x -aoa -y -bd -bso0 -bse0 -bsp1 "$VNDK_ZIP_PATH" -o"$VNDK_EXTRACT_DIR"; then
-                if [ -d "${VNDK_EXTRACT_DIR}/${STOCK_VNDK_VERSION}" ]; then
-                    cp -a "${VNDK_EXTRACT_DIR}/${STOCK_VNDK_VERSION}/." \
-                        "$TARGET_ROM_SYSTEM_EXT_DIR/"
-                    echo "- VNDK $STOCK_VNDK_VERSION copied successfully"
+        if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
+            echo "- Downloading $VNDK_ZIP"
+            if wget -q --no-check-certificate -O "$VNDK_ZIP_PATH" "$VNDK_URL"; then
+                if 7z x -aoa -y -bd -bso0 -bse0 -bsp1 "$VNDK_ZIP_PATH" -o"$VNDK_EXTRACT_DIR"; then
+                    if [ -d "${VNDK_EXTRACT_DIR}/${STOCK_VNDK_VERSION}" ]; then
+                        cp -a "${VNDK_EXTRACT_DIR}/${STOCK_VNDK_VERSION}/." "$TARGET_ROM_SYSTEM_EXT_DIR/"
+                        echo "- VNDK $STOCK_VNDK_VERSION copied successfully"
+					    if [[ "$STOCK_DUAL_VNDKS" == "30_31" ]]; then
+					        cp -a "${VNDK_EXTRACT_DIR}/30/." "$TARGET_ROM_SYSTEM_EXT_DIR/"
+						    cp -a "${VNDK_EXTRACT_DIR}/31/." "$TARGET_ROM_SYSTEM_EXT_DIR/"
+						    cp -a "${VNDK_EXTRACT_DIR}/30/." "$TARGET_ROM_SYSTEM_EXT_DIR/"
+					    	cp -a "${VNDK_EXTRACT_DIR}/dual_vndks/30_31/." "$TARGET_ROM_SYSTEM_EXT_DIR/etc/vintf/"
+					    	echo "- Dual vndk 30 and 31 copied successfully"
+				        fi
+                    else
+                        echo "- ERROR: Extracted VNDK directory not found:"
+                        echo "  ${VNDK_EXTRACT_DIR}/${STOCK_VNDK_VERSION}"
+                        return 1
+                    fi
                 else
-                    echo "- ERROR: Extracted VNDK directory not found:"
-                    echo "  ${VNDK_EXTRACT_DIR}/${STOCK_VNDK_VERSION}"
-                    return 1
+                    echo "- ERROR: Failed to extract $VNDK_ZIP"
+                    exit 1
                 fi
             else
-                echo "- ERROR: Failed to extract $VNDK_ZIP"
+                echo "- ERROR: Failed to download $VNDK_ZIP"
                 exit 1
             fi
         else
-            echo "- ERROR: Failed to download $VNDK_ZIP"
+            echo "- ERROR: Internet connection unavailable"
             exit 1
         fi
-    else
-        echo "- ERROR: Internet connection unavailable"
-        exit 1
-    fi
+	fi
 }
 
 

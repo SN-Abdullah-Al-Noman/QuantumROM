@@ -3,19 +3,15 @@
 
 # GENERAL / SYSTEM / BLOAT
 DEBLOAT_APPS=(
-"HMT" "PaymentFramework" "DigitalWellbeing" "FactoryCameraFB"
-"WlanTest" "AirGlance" "AirReadingGlass" "AndroidGlassesCore"
-"SOAgent77" "ARCore" "ARDrawing" "ARZone" "BGMProvider"
-"SingleTakeService" "BixbyWakeup" "BlockchainBasicKit"
-"Cameralyzer" "DictDiotekForSec" "EasymodeContactsWidget81"
+"AirGlance" "AirReadingGlass" "AndroidGlassesCore"
+"ARCore" "ARDrawing" "ARZone" 
+"BixbyWakeup" "BlockchainBasicKit"
+"DictDiotekForSec" "EasymodeContactsWidget81"
 "Fast" "FunModeSDK" "GearManagerStub" "KidsHome_Installer"
-"LinkSharing_v11" "LiveDrawing" "MAPSAgent" "MdecService"
-"MinusOnePage" "MoccaMobile" "Netflix_stub" "Notes40"
-"ParentalCare" "PhotoTable" "SmartReminder" "SmartSwitchStub"
-"UnifiedWFC" "UniversalMDMClient" "VideoEditorLite_Dream_N"
-"VisionIntelligence3.7" "VoiceAccess" "VTCameraSetting"
-"WebManual" "WifiGuider" "AutomationTest_FB" "FactoryTestProvider"
-"StickerCenter" "CIDManager" "FacAtFunction" "serviceModeApp_FB"
+"LinkSharing_v11" "MAPSAgent" 
+"MinusOnePage" "MoccaMobile" "Netflix_stub"
+"PhotoTable" "SmartSwitchStub"
+"StickerCenter"
 )
 
 
@@ -38,9 +34,9 @@ CARRIER_APPS=(
 SAMSUNG_APPS=(
 "SamsungCalendar" "SamsungTTS" "SamsungBilling"
 "OneDrive_Samsung_v3" "SamsungCarKeyFw"
-"SamsungPass" "SamsungSmartSuggestions"
+"SamsungPass"
 "SamsungPassAutofill_v1"
-"AirCommand" "AppUpdateCenter" "AREmoji"
+"AirCommand" "AREmoji"
 "AREmojiEditor" "AutoDoodle" "AvatarEmojiSticker"
 "AvatarEmojiSticker_S" "AvatarPicker"
 "GalleryWidget" "LiveStickers" "StoryService"
@@ -60,12 +56,11 @@ SAMSUNG_AI=(
 
 # GOOGLE APPS
 GOOGLE_APPS=(
-"SpeechServicesByGoogle" "Maps" "Duo" "Photos"
-"AssistantShell" "BardShell" "DuoStub"
-"GoogleCalendarSyncAdapter" "AndroidDeveloperVerifier"
-"YourPhone_Stub" "AndroidAutoStub" "FamilyLinkParentalControls"
-"AndroidSystemIntelligence" "GoogleRestore"
-"SamsungMessages" "SearchSelector" "PlayAutoInstallConfig" "FamilyLinkParentalControls"
+"Maps" "Duo" "Photos"
+"DuoStub" "Messages"
+"GoogleCalendarSyncAdapter"
+"YourPhone_Stub" "Messages"
+"GoogleRestore" "YouTube"
 )
 
 
@@ -85,29 +80,14 @@ HARDWARE_DRIVERS=(
 # MISC / SERVICES
 MISC_SERVICES=(
 "AuthFramework" "Discover" "DiscoverSEP"
-"EarphoneTypeC" "EasySetup" "FotaAgent"
-"HashTagService" "LedCoverService"
-"LinkToWindowsService" "MemorySaver_O_Refresh"
-"MultiControl" "MultiControlVP6"
-"OMCAgent5" "OneStoreService" "FactoryAirCommandManager"
-"SOAgent7" "SOAgent75" "SOAgent76"
-"SolarAudio-service" "SPPPushClient"
-"SumeNNService" "SVoiceIME"
-"SwiftkeyIme" "SwiftkeySetting"
-"SystemUpdate" "TADownloader"
-"TalkbackSE" "TalkBack" "TaPackAuthFw"
-"UltraDataSaving_O" "Upday"
-"YourPhone_P1_5" "DsmsAPK"
-"vexfwk_service" "VexScanner"
-"LiveEffectService" "MyGalaxyService"
 )
 
 
 # Knox
-KNOX_APPS=("Rampart" "KnoxFrameBufferProvider")
+#KNOX_APPS=("Rampart" "KnoxFrameBufferProvider")
 
 
-REMOVE_ESIM_FILES() {
+#REMOVE_ESIM_FILES() {
     if [ "$#" -ne 1 ]; then
         echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR>"
         return 1
@@ -130,7 +110,7 @@ REMOVE_ESIM_FILES() {
 }
 
 
-REMOVE_FABRIC_CRYPTO() {
+#REMOVE_FABRIC_CRYPTO() {
     if [ "$#" -ne 1 ]; then
         echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR>"
         return 1
@@ -224,7 +204,5 @@ DEBLOAT() {
 	rm -rf "$EXTRACTED_FIRM_DIR/system/system/tts"
 	rm -rf "$EXTRACTED_FIRM_DIR/product/app/Gmail2/oat"
     rm -rf "$EXTRACTED_FIRM_DIR/product/app/Maps/oat"
-	rm -rf "$EXTRACTED_FIRM_DIR/product/app/SpeechServicesByGoogle/oat"
 	rm -rf "$EXTRACTED_FIRM_DIR/product/app/YouTube/oat"
-	rm -rf "$EXTRACTED_FIRM_DIR/product/priv-app"/HotwordEnrollment*
 }

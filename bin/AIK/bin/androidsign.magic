@@ -1,0 +1,52 @@
+#------------------------------------------------------------------------------
+# Various Android OEM non-standard boot image related magic entries
+# osm0sis @ xda-developers
+#------------------------------------------------------------------------------
+
+# ASUS Blob Signature
+0		string		-SIGNED-BY-SIGNBLOB-	BLOB signing
+
+# Barnes & Noble Nook Signature
+64		string		Red\x20Loader						NOOK signing (red loader)
+64		string		Green\x20Loader						NOOK signing (green loader)
+64		string		Green\x20Recovery					NOOK signing (green recovery)
+64		string		eMMC\x20boot.img+secondloader		NOOK signing (emmc boot)
+64		string		eMMC\x20recovery.img+secondloader	NOOK signing (emmc recovery)
+48		string		BauwksBoot							NOOKTAB signing (bauwks)
+
+# Google ChromeOS Signature
+0		string		CHROMEOS			CHROMEOS signing
+
+# Samsung/Spreadtrum DHTB Signature
+0		string		DHTB\x01\x00\x00	DHTB signing
+
+# Sony SIN Packaging/Signature
+0		string		\x01\x00\x00\x00	SINv1 signing
+0		string		\x02\x00\x00\x00	SINv2 signing
+0		string		\x03SIN				SINv3 signing
+
+# Google Android Verified Boot 1.0 Signature
+# [for detection with the tail of the boot image]
+0		search		\x02\x01\x01\x30\x82	AVBv1 signing footer
+>0		search		/boot					\b, boot type
+>0		search		/recovery				\b, recovery type
+!:strength / 20
+
+# Google Android Verified Boot 2.0 Signature
+# [for detection with the tail of the boot image]
+# [test "x" as workaround to odd file/magic behavior not allowing search here]
+0		string		x
+>0		search		AVBf					AVBv2 signing footer
+!:strength / 20
+
+# LG Bump
+# [for detection with the tail of the boot image]
+0		search		\x41\xA9\xE4\x67\x74\x4D\x1D\x1B\xA4\x29\xF2\xEC\xEA\x65\x52\x79	Bump footer
+!:strength / 20
+
+# Samsung SEAndroid
+# [for detection with the tail of the boot image]
+# [test "x" as workaround to odd file/magic behavior not allowing search here]
+0		string		x
+>0		search		SEANDROIDENFORCE	SEAndroid footer
+!:strength / 20

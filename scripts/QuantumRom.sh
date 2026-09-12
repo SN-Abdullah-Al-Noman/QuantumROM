@@ -285,16 +285,16 @@ EXTRACT_FIRMWARE() {
         exit
     fi
 
-# For extension less file
-for file in "$FIRM_DIR"/*; do
-    [ -f "$file" ] || continue
+    # For extension less file
+    for file in "$FIRM_DIR"/*; do
+        [ -f "$file" ] || continue
 
-    case "$(basename "$file")" in
-        *.*) continue ;;
-    esac
+        case "$(basename "$file")" in
+            *.*) continue ;;
+        esac
 
-    7z x -y -bd -bsp1 -o"$FIRM_DIR" "$file"
-done
+        7z x -y -bd -bsp1 -o"$FIRM_DIR" "$file"
+    done
 
     # ---- ZIP ----
     for file in "$FIRM_DIR"/*.zip; do
@@ -691,7 +691,7 @@ DECOMPILE() {
     local BASENAME="$(basename "${FILE%.*}")"
     local OUT="$DECOMPILE_DIR/$BASENAME"
 
-    echo -e "Decompiling: $FILE"
+    echo -e "Decompiling: $FILE in: $DECOMPILE_DIR"
 
 	if [ ! -f "$FILE" ]; then
         echo -e "- File not found: $FILE"

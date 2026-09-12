@@ -26,9 +26,6 @@ chmod +x "$mkfs_erofs"
 chmod +x "$make_ext4fs"
 chmod +x "$extract_erofs"
 
-source "${QT_DIR}/scripts/debloat.sh"
-source "${QT_DIR}/scripts/git_utils.sh"
-
 
 WGET_DOWNLOAD() {
     local URL="$1"

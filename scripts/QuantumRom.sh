@@ -451,10 +451,6 @@ PREPARE_PARTITIONS() {
 	    local BUILD_PARTITIONS="product,system_ext,system"
     fi
 
-    if [ -n "$STOCK_DEVICE" ] && [ -f "${DEVICES_DIR}/$STOCK_DEVICE/config" ]; then
-        local STOCK_HAS_AB_SLOT="$(grep -m1 '^STOCK_HAS_AB_SLOT=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
-    fi
-
 	# Delete empty b slot images
     find "$EXTRACTED_FIRM_DIR" -type f -name '*_b.img' -size 0c -exec rm -rf {} +
 

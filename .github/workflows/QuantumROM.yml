@@ -107,8 +107,6 @@ jobs:
 
           echo "OUTPUT_FILESYSTEM=${{ inputs.OUTPUT_FILESYSTEM }}" | tee -a "$GITHUB_ENV"
           echo "COMPRESS_IMG_TO_XZ=${{ inputs.COMPRESS_IMG_TO_XZ }}" | tee -a "$GITHUB_ENV"
-
-          mkdir -p "$FIRM_DIR" "$OUT_DIR" "$WORK_DIR"
  
       - name: Validate STOCK_DEVICE - ${{ inputs.STOCK_DEVICE }}
         run: |
@@ -152,6 +150,7 @@ jobs:
           git clone https://github.com/SN-Abdullah-Al-Noman/GoFileDownloader.git
           cd GoFileDownloader
           pip install -r requirements.txt
+          mkdir -p "$FIRM_DIR" "$OUT_DIR" "$WORK_DIR"
 
       - name: Download firmware ▶️ ${{ inputs.TARGET_DEVICE }} - ${{ inputs.TARGET_DEVICE_CSC_OR_DOWNLOAD_LINK }}
         run: |

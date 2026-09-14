@@ -1700,11 +1700,147 @@ APPLY_CUSTOM_FLOATING_FEATURE() {
     UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_SUPPORT_NOTE_ASSIST" "TRUE"
     UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_FRAMEWORK_SUPPORT_SMART_CAPTURE" "TRUE"
     UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SYSTEMUI_SUPPORT_SCREENSHOT_NOTIFICATION" "TRUE"
-    #UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_CONFIG_AWESOME_INTELLIGENCE" "202501"
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_CONFIG_AWESOME_INTELLIGENCE" "202501"
     UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_CONFIG_AI_VERSION" "20263"
     UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_SUPPORT_AI_AGENT" "TRUE"
     UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_CONFIG_SMART_SUGGESTION" "TRUE"
     UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_FRAMEWORK_SUPPORT_PERSONALIZED_DATA_CORE" "TRUE"
+
+
+    #===================================================================#
+    #                   ONE UI 7 NOW BAR & LIVE NOTIFS                  #
+    #===================================================================#
+    # Enables One UI 7's pill-shaped live notification hub (media, timer, voice recorder)
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SYSTEMUI_SUPPORT_NOW_BAR" "TRUE"
+    # Enables live activity notifications on the lock screen and status bar
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SYSTEMUI_SUPPORT_LIVE_NOTIFICATIONS" "TRUE"
+    # Enables Now Brief summary widgets on lock screen and status bar
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SYSTEMUI_CONFIG_NOW_BRIEF" "TRUE"
+
+
+    #===================================================================#
+    #                 ADVANCED GALAXY AI & STUDIO EDITING               #
+    #===================================================================#
+    # Enables Sketch-to-Image / Sketch-to-Art drawing conversion in Edge Panel and Gallery
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GENAI_SUPPORT_DRAWING_ASSIST" "TRUE"
+    # Enables AI Audio Eraser to isolate/remove background noise and voices from videos
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GALLERY_SUPPORT_AUDIO_ERASER" "TRUE"
+    # Enables AI Portrait Studio to turn photos into 3D, anime, or watercolor avatars
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GALLERY_SUPPORT_PORTRAIT_STUDIO" "TRUE"
+    # Enables Galaxy AI writing assist (tone adjustment and grammar rewrite) in Samsung Keyboard
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SIP_SUPPORT_WRITING_ASSIST" "TRUE"
+    # Enables auto-formatting, summarization, and translation inside Samsung Notes
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SAMSUNGNOTES_SUPPORT_AI_FORMAT" "TRUE"
+    # Enables real-time phone call translation in Samsung Phone
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SIP_SUPPORT_LIVE_TRANSLATE" "TRUE"
+    # Enables Circle to Search gesture integration
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_SUPPORT_CIRCLE_TO_SEARCH" "TRUE"
+    # Enables AI summarization in Voice Recorder
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_VOICERECORDER_SUPPORT_SUMMARY" "TRUE"
+    # Enables speaker identification/labeling in Voice Recorder transcripts
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_VOICERECORDER_SUPPORT_SPEAKER_DETERMINATION" "TRUE"
+    # Enables real-time dual-screen and audio interpretation
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_SUPPORT_INTERPRETER" "TRUE"
+
+
+    #===================================================================#
+    #                  LOCK SCREEN DEPTH & REAL-TIME BLUR               #
+    #===================================================================#
+    # Places lock screen clock digits behind subject layer on portrait wallpapers
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_LOCKSCREEN_SUPPORT_WALLPAPER_DEPTH_EFFECT" "TRUE"
+    # Enables lock screen wallpaper framing and cutout effects
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_LOCKSCREEN_CONFIG_WALLPAPER_FRAME_EFFECT" "TRUE"
+    # Forces real-time GPU-rendered shaders for UI blurs instead of static images
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_REALTIME_BLUR" "TRUE"
+    # Unlocks full-screen dimmed wallpaper AOD (S24/S25 style AOD)
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GRAPHICS_SUPPORT_AOD_FULL_SCREEN" "TRUE"
+
+
+    #===================================================================#
+    #                OUTDOOR MODE & DISPLAY ENHANCEMENTS                #
+    #===================================================================#
+    # Enables Outdoor Boost to push display panel brightness past manual max in sunlight
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_LCD_SUPPORT_OUTDOOR_MODE" "TRUE"
+    # Unlocks manual Extra Brightness slider toggle in Settings > Display
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_LCD_SUPPORT_EXTRA_BRIGHTNESS" "TRUE"
+    # Unlocks full Natural display mode tuning profile
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_LCD_CONFIG_NATURAL_SCREEN_MODE" "TRUE"
+    # Enables Wide Color Gamut (DCI-P3) color profile calibration
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_LCD_SUPPORT_WIDE_COLOR_GAMUT" "TRUE"
+    # Exposes advanced RGB color calibration toggles in Display settings
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_SCREEN_MODE_ADVANCED" "TRUE"
+    # Unlocks Super HDR photo viewing in Samsung Gallery
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GALLERY_SUPPORT_SUPER_HDR" "TRUE"
+    # Enables Extra Dim toggle in Quick Settings for low-light reading
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SETTINGS_CONFIG_EXTRA_DIM" "TRUE"
+
+
+    #===================================================================#
+    #                      APP LOCK & SECURITY                          #
+    #===================================================================#
+    # Unlocks native Samsung App Lock entry in Settings > Advanced Features
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_APP_LOCK" "TRUE"
+
+
+    #===================================================================#
+    #                   DEX, ECOSYSTEM & CONNECTIVITY                   #
+    #===================================================================#
+    # Enables standalone and wired Samsung DeX mode
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_SUPPORT_DEX" "TRUE"
+    # Enables Wireless Samsung DeX streaming to TVs/Monitors
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_SUPPORT_WIRELESS_DEX" "TRUE"
+    # Enables Samsung Continuity (app handoff, shared clipboard across Tab/PC)
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_SUPPORT_CONTINUITY" "TRUE"
+    # Enables Ultra-Wideband (UWB) precision orientation for Quick Share
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_QUICKSHARE_SUPPORT_UWB" "TRUE"
+    # Displays real-time download/upload network speed in status bar / quick settings
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SYSTEM_SUPPORT_REALTIME_NETWORK_SPEED" "TRUE"
+    # Unlocks Wi-Fi 7 framework capabilities
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_WLAN_SUPPORT_WIFI_7" "TRUE"
+
+
+    #===================================================================#
+    #                     AUDIO & CALL ENHANCEMENTS                     #
+    #===================================================================#
+    # Enables Voice Focus background noise suppression on calls
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_AUDIO_SUPPORT_VOICE_FOCUS" "TRUE"
+    # Enables system-wide Dolby Atmos audio processing
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_AUDIO_SUPPORT_DOLBY_ATMOS" "TRUE"
+    # Enables Dolby Atmos for Gaming optimization
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_AUDIO_SUPPORT_DOLBY_GAME" "TRUE"
+    # Unlocks Volume Monitor hearing protection analytics
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_AUDIO_SUPPORT_VOLUME_MONITOR" "TRUE"
+
+
+    #===================================================================#
+    #                 BATTERY, CHARGING & HARDWARE                      #
+    #===================================================================#
+    # Enables Pause USB Power Delivery (Bypass Charging) in Game Booster
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_GAMING_SUPPORT_PAUSE_USB_POWER_DELIVERY" "TRUE"
+    # Unlocks Super Fast Charging (25W/45W) toggle UI in Settings
+    #UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_SUPER_FAST_CHARGING" "TRUE"
+    # Unlocks Protect Battery limits (Basic, Adaptive, Maximum)
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_BATTERY_SUPPORT_PROTECT_BATTERY" "TRUE"
+    # Unlocks advanced battery protection modes in Settings
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_SETTINGS_SUPPORT_BATTERY_PROTECTION_MODES" "TRUE"
+    # Enables AI-based automatic power saving algorithm
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_COMMON_SUPPORT_AUTONOMIC_POWER_SAVING" "TRUE"
+
+
+    #===================================================================#
+    #                       CAMERA FLAGSHIP MODES                       #
+    #===================================================================#
+    # Unlocks Pro Video mode (manual ISO, shutter, mic directional control)
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_CAMERA_SUPPORT_PRO_VIDEO" "TRUE"
+    # Enables Single Take camera mode with AI photo/video extraction
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_CAMERA_SUPPORT_SINGLE_TAKE" "TRUE"
+    # Enables AI Scene Optimizer for auto scene detection
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_CAMERA_SUPPORT_SCENE_OPTIMIZER" "TRUE"
+    # Enables Director's View / Dual Recording support
+    UPDATE_FLOATING_FEATURE "$TARGET_ROM_FLOATING_FEATURE" "SEC_FLOATING_FEATURE_CAMERA_SUPPORT_DIRECTOR_VIEW" "TRUE"
+
+	
+	
 }
 
 

@@ -26,9 +26,6 @@ chmod +x "$mkfs_erofs"
 chmod +x "$make_ext4fs"
 chmod +x "$extract_erofs"
 
-source "${QT_DIR}/scripts/debloat.sh"
-source "${QT_DIR}/scripts/git_utils.sh"
-
 
 WGET_DOWNLOAD() {
     local URL="$1"
@@ -288,16 +285,16 @@ EXTRACT_FIRMWARE() {
         exit
     fi
 
-# For extension less file
-for file in "$FIRM_DIR"/*; do
-    [ -f "$file" ] || continue
+    # For extension less file
+    for file in "$FIRM_DIR"/*; do
+        [ -f "$file" ] || continue
 
-    case "$(basename "$file")" in
-        *.*) continue ;;
-    esac
+        case "$(basename "$file")" in
+            *.*) continue ;;
+        esac
 
-    7z x -y -bd -bsp1 -o"$FIRM_DIR" "$file"
-done
+        7z x -y -bd -bsp1 -o"$FIRM_DIR" "$file"
+    done
 
     # ---- ZIP ----
     for file in "$FIRM_DIR"/*.zip; do
@@ -452,10 +449,6 @@ PREPARE_PARTITIONS() {
         local BUILD_PARTITIONS="odm,odm_dlkm,product,system,system_ext,system_dlkm,vendor,vendor_dlkm,odm_a,odm_dlkm_a,product_a,system_a,system_ext_a,system_dlkm_a,vendor_a,vendor_dlkm_a,optics,optics_a"
 	else
 	    local BUILD_PARTITIONS="product,system_ext,system"
-    fi
-
-    if [ -n "$STOCK_DEVICE" ] && [ -f "${DEVICES_DIR}/$STOCK_DEVICE/config" ]; then
-        local STOCK_HAS_AB_SLOT="$(grep -m1 '^STOCK_HAS_AB_SLOT=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
     fi
 
 	# Delete empty b slot images
@@ -698,7 +691,7 @@ DECOMPILE() {
     local BASENAME="$(basename "${FILE%.*}")"
     local OUT="$DECOMPILE_DIR/$BASENAME"
 
-    echo -e "Decompiling: $FILE"
+    echo -e "Decompiling: $FILE in: $DECOMPILE_DIR"
 
 	if [ ! -f "$FILE" ]; then
         echo -e "- File not found: $FILE"

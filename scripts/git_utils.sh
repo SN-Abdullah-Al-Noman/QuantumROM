@@ -7,7 +7,7 @@ GIT_SPARSE_DOWNLOAD() {
     local OUT_DIR="$4"
 
     if [ -z "$REPO" ] || [ -z "$BRANCH" ] || [ -z "$FOLDER" ] || [ -z "$OUT_DIR" ]; then
-        echo "Usage: GIT_DOWNLOAD <REPO> <BRANCH> <FOLDER> <OUT_DIR>"
+        echo "Usage: GIT_SPARSE_DOWNLOAD <REPO> <BRANCH> <FOLDER> <OUT_DIR>"
         return 1
     fi
 

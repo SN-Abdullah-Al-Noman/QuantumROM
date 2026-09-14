@@ -150,7 +150,7 @@ jobs:
           git clone https://github.com/SN-Abdullah-Al-Noman/GoFileDownloader.git
           cd GoFileDownloader
           pip install -r requirements.txt
-          mkdir -p FW WORK OUT
+          mkdir -p "$FIRM_DIR" "$OUT_DIR" "$WORK_DIR"
 
       - name: Download firmware ▶️ ${{ inputs.TARGET_DEVICE }} - ${{ inputs.TARGET_DEVICE_CSC_OR_DOWNLOAD_LINK }}
         run: |
@@ -290,7 +290,7 @@ jobs:
           source "$(pwd)/scripts/QuantumRom.sh"
           export ANDROID_VERSION=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.system.build.version.release")
           ONEUI_VERSION=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.build.version.oneui")
-          export ONEUI_VERSION=$(echo "$ONEUI_VERSION" | sed -E 's/^([0-9])0+$/\1.0/; s/^([0-9])([0-9]*)0+$/\1.\2/')
+          export ONEUI_VERSION="$((ONEUI_VERSION / 10000)).$(((ONEUI_VERSION / 100) % 100))"
           export BUILD_VERSION=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.build.version.incremental")
           export SDK_VERSION=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.system.build.version.sdk")
           export SECURITY_PATCH=$(GET_PROP "$FIRM_DIR/$TARGET_DEVICE" "system" "ro.build.version.security_patch")

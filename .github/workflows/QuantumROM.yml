@@ -42,6 +42,16 @@ on:
         required: true
         default: "True"
 
+      DEBLOAT_SAMSUNG_BIXBY:
+        description: "Debloat Samsung Bixby apps (True/False)"
+        required: true
+        default: "True"
+
+      DEBLOAT_SAMSUNG_DEX:
+        description: "Debloat Samsung Dex apps (True/False)"
+        required: true
+        default: "True"
+
       ADD_CHINA_SMART_MANAGER:
         description: "Add china smart manager (True/False)"
         required: true
@@ -97,6 +107,8 @@ jobs:
           echo "TARGET_FW_VERSION=${{ inputs.TARGET_FW_VERSION }}" | tee -a "$GITHUB_ENV"
 
           echo "DEBLOAT_ROM=${{ inputs.DEBLOAT_ROM }}" | tee -a "$GITHUB_ENV"
+          echo "DEBLOAT_SAMSUNG_BIXBY=${{ inputs.DEBLOAT_SAMSUNG_BIXBY }}" | tee -a "$GITHUB_ENV"
+          echo "DEBLOAT_SAMSUNG_DEX=${{ inputs.DEBLOAT_SAMSUNG_DEX }}" | tee -a "$GITHUB_ENV"
           echo "USE_UI_8_TETHERING_APEX=${{ inputs.USE_UI_8_TETHERING_APEX }}" | tee -a "$GITHUB_ENV"
           echo "ADD_CHINA_SMART_MANAGER=${{ inputs.ADD_CHINA_SMART_MANAGER }}" | tee -a "$GITHUB_ENV"
           echo "ADD_SAMSUNG_FLAGSHIP_APPS=${{ inputs.ADD_SAMSUNG_FLAGSHIP_APPS }}" | tee -a "$GITHUB_ENV"
@@ -180,10 +192,17 @@ jobs:
       - name: Debloat Rom - ${{ inputs.DEBLOAT_ROM }}
         run: |
           source "$(pwd)/scripts/debloat.sh"
-          source "$(pwd)/scripts/QuantumRom.sh"
 
           if [ "$DEBLOAT_ROM" = "True" ]; then
               DEBLOAT "$FIRM_DIR/$TARGET_DEVICE"
+          fi
+
+          if [ "$DEBLOAT_SAMSUNG_BIXBY" = "True" ]; then
+              KICK "$FIRM_DIR/$TARGET_DEVICE"" "${SAMSUNG_BIXBY_APPS[@]}"
+          fi
+
+          if [ "$DEBLOAT_SAMSUNG_DEX" = "True" ]; then
+              KICK "$FIRM_DIR/$TARGET_DEVICE"" "${SAMSUNG_DEX_APPS[@]}"
           fi
 
       - name: Apply stock device configuration

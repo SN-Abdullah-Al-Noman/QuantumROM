@@ -48,6 +48,18 @@ SAMSUNG_APPS=(
 )
 
 
+# SAMSUNG DEX APPS
+SAMSUNG_DEX_APPS=(
+"DeXonPC" "DesktopModeUiService" "KnoxDesktopLauncher" "SystemUIDesktop"
+)
+
+# SAMSUNG BIXBY APPS
+SAMSUNG_BIXBY_APPS=(
+"BixbyWakeup" "VisionIntelligence3.7" "Bixby" "BixbyService"
+"BixbyVisionFramework3.5" "SystemUIBixby2"
+)
+
+
 # SAMSUNG AI / SMART
 SAMSUNG_AI=(
 "LiveTranscribe" "Bixby" "BixbyInterpreter"
@@ -64,8 +76,8 @@ GOOGLE_APPS=(
 "AssistantShell" "BardShell" "DuoStub"
 "GoogleCalendarSyncAdapter" "AndroidDeveloperVerifier"
 "YourPhone_Stub" "AndroidAutoStub" "FamilyLinkParentalControls"
-"AndroidSystemIntelligence" "GoogleRestore"
-"SamsungMessages" "SearchSelector" "PlayAutoInstallConfig" "FamilyLinkParentalControls"
+"AndroidSystemIntelligence" "GoogleRestore" "SamsungMessages"
+"SearchSelector" "PlayAutoInstallConfig" "FamilyLinkParentalControls"
 )
 
 

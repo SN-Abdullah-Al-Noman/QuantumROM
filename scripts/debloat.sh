@@ -53,6 +53,7 @@ SAMSUNG_DEX_APPS=(
 "DeXonPC" "DesktopModeUiService" "KnoxDesktopLauncher" "SystemUIDesktop"
 )
 
+
 # SAMSUNG BIXBY APPS
 SAMSUNG_BIXBY_APPS=(
 "BixbyWakeup" "VisionIntelligence3.7" "Bixby" "BixbyService"

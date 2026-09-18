@@ -49,8 +49,8 @@ SAMSUNG_APPS=(
 
 
 # SAMSUNG DEX APPS
-SAMSUNG_DEX_APPS=(
-"DeXonPC" "DesktopModeUiService" "KnoxDesktopLauncher" "SystemUIDesktop"
+SAMSUNG_DEX_APPS=("DeXonPC" "DesktopModeUiService" "KnoxDesktopLauncher"
+"SystemUIDesktop" "DexCommunity" "KnoxContainerDesktop"
 )
 
 

@@ -1,0 +1,21 @@
+# rscmgr rc file
+
+on property:sys.readahead.resource=1
+    readahead /system/priv-app/SamSungCamera/SamSungCamera.apk --fully
+    readahead /system/fonts/OneUISans-VF.ttf --fully
+    readahead /vendor/lib64/libSamsungHyper.so --fully
+    readahead /apex/com.android.runtime/lib64/bionic/libm.so --fully
+    readahead /system/fonts/SECNum-VF.ttf --fully
+    readahead /system/lib64/libc++.so --fully
+    readahead /system/lib64/libft2.so --fully
+    readahead /system/lib64/libinputflinger_base.so --fully
+
+on property:sys.readahead.resource=2
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.odex --fully
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.vdex --fully
+    readahead /system/app/HoneyBoard/HoneyBoard.apk --fully
+    setprop sys.readahead.resource 0
+
+on property:sys.readahead.settings=1
+    readahead /system/priv-app/SecSettings/SecSettings.apk --fully
+    setprop sys.readahead.settings 0

@@ -25,7 +25,7 @@ CARRIER_APPS=(
 "LGUMiniCustomerCenter" "LGUplusTsmProxy"
 "SKTMemberShip_new" "SktUsimService" "TWorld"
 "KT114Provider2" "KTHiddenMenu" "KTOneStore"
-"KTServiceAgent" "KTServiceMenu"
+"KTServiceAgent" "KTServiceMenu" "LGUIxio_Stub"
 "LGUGPSnWPS" "LGUHiddenMenu" "LGUOZStore"
 "SKTFindLostPhone" "SKTHiddenMenu" "SKTMemberShip"
 "SKTOneStore" "SKTFindLostPhoneApp"
@@ -39,7 +39,7 @@ SAMSUNG_APPS=(
 "SamsungCalendar" "SamsungTTS" "SamsungBilling"
 "OneDrive_Samsung_v3" "SamsungCarKeyFw"
 "SamsungPass" "SamsungSmartSuggestions"
-"SamsungPassAutofill_v1"
+"SamsungPassAutofill_v1" "WarrantyCare"
 "AirCommand" "AppUpdateCenter" "AREmoji"
 "AREmojiEditor" "AutoDoodle" "AvatarEmojiSticker"
 "AvatarEmojiSticker_S" "AvatarPicker"
@@ -57,7 +57,7 @@ SAMSUNG_DEX_APPS=("DeXonPC" "DesktopModeUiService" "KnoxDesktopLauncher"
 # SAMSUNG BIXBY APPS
 SAMSUNG_BIXBY_APPS=(
 "BixbyWakeup" "VisionIntelligence3.7" "Bixby" "BixbyService"
-"BixbyVisionFramework3.5" "SystemUIBixby2"
+"BixbyVisionFramework3.5" "SystemUIBixby2" "VisionModel-Stub"
 )
 
 

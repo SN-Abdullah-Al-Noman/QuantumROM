@@ -3,11 +3,10 @@
 
 # GENERAL / SYSTEM / BLOAT
 DEBLOAT_APPS=(
-"HMT" "DigitalWellbeing" "FactoryCameraFB"
-"WlanTest" "AirGlance" "AirReadingGlass" "AndroidGlassesCore"
-"SOAgent77" "ARCore" "ARDrawing" "ARZone"
-"SingleTakeService" "BlockchainBasicKit"
-"Cameralyzer" "DictDiotekForSec" "EasymodeContactsWidget81"
+"HMT" "FactoryCameraFB" "WlanTest" "AirGlance" "AirReadingGlass" 
+"AndroidGlassesCore" "SOAgent77" "ARCore" "ARDrawing" "ARZone"
+"SingleTakeService" "BlockchainBasicKit" "Cameralyzer" 
+"DictDiotekForSec" "EasymodeContactsWidget81"
 "Fast" "FunModeSDK" "GearManagerStub" "KidsHome_Installer"
 "LinkSharing_v11" "LiveDrawing" "MAPSAgent" "MdecService"
 "MinusOnePage" "MoccaMobile" "Netflix_stub" "Notes40"
@@ -55,18 +54,15 @@ SAMSUNG_DEX_APPS=("DeXonPC" "DesktopModeUiService" "KnoxDesktopLauncher"
 
 # SAMSUNG BIXBY APPS
 SAMSUNG_BIXBY_APPS=(
-"BixbyWakeup" "VisionIntelligence3.7" "Bixby" "BixbyService"
-"BixbyVisionFramework3.5" "SystemUIBixby2" "VisionModel-Stub"
+"BixbyWakeup" "BixbyInterpreter" "VisionIntelligence3.7" "Bixby" "BixbyService"
+"BixbyVisionFramework3.5" "SystemUIBixby2" "VisionModel-Stub" "SettingsBixby"
 )
 
 
 # SAMSUNG AI / SMART
 SAMSUNG_AI=(
-"LiveTranscribe" "Bixby" "BixbyInterpreter"
-"BixbyVisionFramework3.5" "SettingsBixby"
-"SmartEye" "SmartPush" "SmartPush_64"
-"SmartThingsKit" "SmartTouchCall"
-"VisionIntelligence3.7"
+"LiveTranscribe" "SmartEye" "SmartPush"
+"SmartPush_64" "SmartThingsKit" "SmartTouchCall"
 )
 
 
@@ -89,8 +85,7 @@ FACEBOOK_APPS=(
 
 # DRIVERS
 HARDWARE_DRIVERS=(
-"DevGPUDriver-EX2200"
-"GameDriver-EX2100" "GameDriver-EX2200" "GameDriver-SM8150"
+"DevGPUDriver-EX2200" "GameDriver-EX2100" "GameDriver-EX2200" "GameDriver-SM8150"
 )
 
 

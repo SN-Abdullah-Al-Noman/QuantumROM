@@ -11,7 +11,7 @@ This Custom ROM is built by combining and refining features from multiple projec
 
 ### ✨ Key Features.
 - System Optimization.
-- Heavy debloated system (removed unnecessary apps & services).
+- Heavy debloated system (removed unnecessary apps & services). Custom debloat like samsung dex, samsung bixby.
 - Improved performance and smoother UI experience.
 - Optimized background processes.
 - Better battery efficiency.
@@ -63,8 +63,7 @@ Update your device model in the STOCK_DEVICE_MODEL option.
 - If your model is not present, set STOCK_DEVICE_MODEL to None.
 
 #### 4. Kernel BPF Version Option.
-Set this o
-ption to True if your kernel BPF version is 5.4 (lower than 5.10).
+Set this option to True if your kernel BPF version is 5.4 (lower than 5.10).
 - Otherwise, set it to False.
 
 #### 5. Set Target Device Information.

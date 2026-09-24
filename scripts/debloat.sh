@@ -189,6 +189,50 @@ KICK() {
 }
 
 
+DEBLOAT_SAMSUNG_BIXBY_APPS() {
+    echo -e ""
+    if [ "$#" -ne 1 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR>"
+        return 1
+    fi
+
+	local EXTRACTED_FIRM_DIR="$1"
+
+	if [ ! -d "$EXTRACTED_FIRM_DIR/system" ]; then
+	    echo -e "No extracted firmware found."
+        return 1
+    fi
+
+    echo -e "Debloating samssung bixby apps."
+
+	# Debloat samsung bixby apps
+	echo "- Debloating apps."
+    KICK "$EXTRACTED_FIRM_DIR" "${SAMSUNG_BIXBY_APPS[@]}"
+}
+
+
+DEBLOAT_SAMSUNG_DEX_APPS() {
+    echo -e ""
+    if [ "$#" -ne 1 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIR>"
+        return 1
+    fi
+
+	local EXTRACTED_FIRM_DIR="$1"
+
+	if [ ! -d "$EXTRACTED_FIRM_DIR/system" ]; then
+	    echo -e "No extracted firmware found."
+        return 1
+    fi
+
+    echo -e "Debloating samssung dex apps."
+
+	# Debloat samsung dex apps
+	echo "- Debloating apps."
+    KICK "$EXTRACTED_FIRM_DIR" "${SAMSUNG_DEX_APPS[@]}"
+}
+
+
 DEBLOAT() {
     echo -e ""
     if [ "$#" -ne 1 ]; then

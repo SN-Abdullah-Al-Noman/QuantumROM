@@ -88,7 +88,7 @@ DOWNLOAD_FIRMWARE() {
 
     local MODEL="$1"
     local CSC="$2"
-    local DOWN_DIR="${3}/$MODEL"
+    local DOWN_DIR="$3"
 	local VERSION="${4:-}"
 
     rm -rf "$DOWN_DIR"

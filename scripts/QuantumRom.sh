@@ -113,6 +113,7 @@ DOWNLOAD_FIRMWARE() {
     echo -e "  Samsung FW Downloader   "
     echo -e "======================================"
     echo -e "MODEL: $MODEL | CSC: $CSC"
+	echo -e "DOWNLOAD DIR: $DOWN_DIR"
 
     # Check version
 	if [ -z "$VERSION" ]; then

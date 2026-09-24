@@ -212,10 +212,10 @@ jobs:
 
           if [ "$STOCK_DEVICE" != "None" ]; then
               APPLY_STOCK_CONFIG "$STOCK_DEVICE" "$FIRM_DIR"
-              DECOMPILE "$APKTOOL" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/ssrm.jar" "$WORK_DIR"
+              DECOMPILE "$APKTOOL" "$FIRM_DIR/system/system/framework" "$FIRM_DIR/system/system/framework/ssrm.jar" "$WORK_DIR"
               PATCH_SSRM "$WORK_DIR/ssrm"
-              RECOMPILE "$APKTOOL" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework" "$WORK_DIR/ssrm" "$WORK_DIR"
-              mv -f "$WORK_DIR/ssrm.jar" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/"
+              RECOMPILE "$APKTOOL" "$FIRM_DIR/system/system/framework" "$WORK_DIR/ssrm" "$WORK_DIR"
+              mv -f "$WORK_DIR/ssrm.jar" "$FIRM_DIR/system/system/framework/"
           fi
 
       - name: Add china smart manager - ${{ inputs.ADD_CHINA_SMART_MANAGER }}
@@ -247,8 +247,8 @@ jobs:
           source "$(pwd)/scripts/QuantumRom.sh"
 
           if [ "$PATCH_FLAG_SECURE" = "True" ] || [ "$PATCH_SECURE_FOLDER" = "True" ]; then
-              INSTALL_FRAMEWORK "$APKTOOL" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/framework-res.apk"
-              DECOMPILE "$APKTOOL" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/services.jar" "$WORK_DIR"
+              INSTALL_FRAMEWORK "$APKTOOL" "$FIRM_DIR/system/system/framework/framework-res.apk"
+              DECOMPILE "$APKTOOL" "$FIRM_DIR/system/system/framework" "$FIRM_DIR/system/system/framework/services.jar" "$WORK_DIR"
           fi
 
           if [ "$PATCH_FLAG_SECURE" = "True" ]; then
@@ -260,7 +260,7 @@ jobs:
           fi
 
           if [ -f "$WORK_DIR/services.jar" ]; then
-              mv -f "$WORK_DIR/services.jar" "$FIRM_DIR/$TARGET_DEVICE/system/system/framework/"
+              mv -f "$WORK_DIR/services.jar" "$FIRM_DIR/system/system/framework/"
               echo "✅ services.jar moved to rom."
           fi
 

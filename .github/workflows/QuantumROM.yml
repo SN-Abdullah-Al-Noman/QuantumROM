@@ -181,8 +181,9 @@ jobs:
 
       - name: Extract firmware img
         run: |
-          source "$(pwd)/scripts/QuantumRom.sh"
-          EXTRACT_FIRMWARE_IMG "$FIRM_DIR" "all"
+          # source "$(pwd)/scripts/QuantumRom.sh"
+          # EXTRACT_FIRMWARE_IMG "$FIRM_DIR" "all"
+          sudo bash -c 'source "'"$(pwd)"'/scripts/QuantumRom.sh"; EXTRACT_FIRMWARE_IMG "'"$FIRM_DIR"'" "all"'
 
       - name: Decode odm, omc
         run: |

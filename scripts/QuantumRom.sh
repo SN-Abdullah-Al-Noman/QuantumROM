@@ -592,8 +592,6 @@ EXTRACT_FIRMWARE_IMG() {
 
         extract_img "$TARGET_IMG"
     fi
-
-    chmod -R u+rwX "$EXTRACTED_FIRM_DIR"
 }
 
 

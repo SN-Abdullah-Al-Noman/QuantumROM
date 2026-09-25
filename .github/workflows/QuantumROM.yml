@@ -184,6 +184,7 @@ jobs:
           # sudo required for f2fs img extract
           sudo bash -c 'source "'"$(pwd)"'/scripts/QuantumRom.sh"; EXTRACT_FIRMWARE_IMG "'"$FIRM_DIR"'" "all"'
           sudo chown -R "$(id -u):$(id -g)" "$FIRM_DIR" && chmod -R u+rwX "$FIRM_DIR"
+          rm -rf "$FIRM_DIR"/*.img
 
       - name: Decode odm, omc
         run: |

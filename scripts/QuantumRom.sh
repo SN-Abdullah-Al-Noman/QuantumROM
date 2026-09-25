@@ -577,11 +577,6 @@ EXTRACT_FIRMWARE_IMG() {
             [ -e "$imgfile" ] || continue
             extract_img "$imgfile"
         done
-
-	    if [ "${GITHUB_ACTIONS}" = "true" ]; then
-            rm -f "$EXTRACTED_FIRM_DIR"/*.img
-        fi
-
     else
         local TARGET_IMG="${EXTRACTED_FIRM_DIR}/$MODE"
 

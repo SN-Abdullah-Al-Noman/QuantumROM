@@ -3,21 +3,26 @@
 
 # GENERAL / SYSTEM / BLOAT
 DEBLOAT_APPS=(
-"HMT" "FactoryCameraFB" "WlanTest" "AirGlance" "AirReadingGlass" 
-"AndroidGlassesCore" "SOAgent77" "ARCore" "ARDrawing" "ARZone"
-"SingleTakeService" "BlockchainBasicKit" "Cameralyzer" 
-"DictDiotekForSec" "EasymodeContactsWidget81"
-"Fast" "FunModeSDK" "GearManagerStub" "KidsHome_Installer"
-"LinkSharing_v11" "LiveDrawing" "MAPSAgent" "MdecService"
-"MinusOnePage" "MoccaMobile" "Netflix_stub" "Notes40"
-"ParentalCare" "PhotoTable" "SmartReminder" "SmartSwitchStub"
-"UnifiedWFC" "UniversalMDMClient" "VoiceAccess" "VTCameraSetting"
+"HMT" "PaymentFramework" "FactoryCameraFB"
+"WlanTest" "AirGlance" "AirReadingGlass" "AndroidGlassesCore"
+"SOAgent77" "ARCore" "ARDrawing" "ARZone" "BGMProvider"
+"SingleTakeService" "BixbyWakeup" "BlockchainBasicKit"
+"Cameralyzer" "DictDiotekForSec" "EasymodeContactsWidget81"
+# Aura / AppCloud bloat
+"com.aura.oobe.samsung.gl"
+"com.aura.oobe.samsung"
+"com.ironsource.appcloud.oobe"
+
+"Fast" "FunModeSDK" "GearManagerStub" "KidsHome_Installer" "LiveDrawing"
+"MinusOnePage" "MoccaMobile" "Netflix_stub"
+"ParentalCare" "PhotoTable" "SmartReminder" "VideoEditorLite_Dream_N"
+"VoiceAccess" "VTCameraSetting"
 "WebManual" "WifiGuider" "AutomationTest_FB" "FactoryTestProvider"
-"CIDManager" "FacAtFunction" "serviceModeApp_FB"
 )
 
-
-# KOREAN / CARRIER APPS
+# =========================
+# CARRIER / REGION APPS
+# =========================
 CARRIER_APPS=(
 "KTAuth" "KTCustomerService" "KTUsimManager"
 "LGUMiniCustomerCenter" "LGUplusTsmProxy"
@@ -31,87 +36,110 @@ CARRIER_APPS=(
 "UsimRegistrationKOR" "HpsAgreement_new" "KTAuth_Stub"
 )
 
-
-# SAMSUNG FEATURES / APPS
+# =========================
+# SAMSUNG APPS / FEATURES
+# =========================
 SAMSUNG_APPS=(
-"SamsungCalendar" "SamsungTTS" "SamsungBilling"
-"OneDrive_Samsung_v3" "SamsungCarKeyFw"
-"SamsungPass" "SamsungSmartSuggestions"
-"SamsungPassAutofill_v1" "WarrantyCare"
-"AirCommand" "AppUpdateCenter" "AREmoji"
-"AREmojiEditor" "AutoDoodle" "AvatarEmojiSticker"
-"AvatarEmojiSticker_S" "AvatarPicker"
-"GalleryWidget" "LiveStickers" "StoryService"
-"StickerFaceARAvatar" "sticker" "PaymentFramework"
+"SamsungBilling"
+"OneDrive_Samsung_v3"
+"SamsungCarKeyFw"
+"SamsungPass"
+"SamsungPassAutofill_v1"
+"AirCommand"
+"AppUpdateCenter"
+"AREmoji"
+"AREmojiEditor"
+"AutoDoodle"
+"AvatarEmojiSticker"
+"AvatarEmojiSticker_S"
+"AvatarPicker"
+"GalleryWidget"
+"StickerFaceARAvatar"
+"sticker"
+"MyGalaxy"
+"SamsungShop"
+"ShopSamsung"
 )
 
-
-# SAMSUNG DEX APPS
-SAMSUNG_DEX_APPS=("DeXonPC" "DesktopModeUiService" "KnoxDesktopLauncher"
-"SystemUIDesktop" "DexCommunity" "KnoxContainerDesktop"
-)
-
-
-# SAMSUNG BIXBY APPS
-SAMSUNG_BIXBY_APPS=(
-"BixbyWakeup" "BixbyInterpreter" "VisionIntelligence3.7" "Bixby" "BixbyService"
-"BixbyVisionFramework3.5" "SystemUIBixby2" "VisionModel-Stub" "SettingsBixby"
-)
-
-
+# =========================
 # SAMSUNG AI / SMART
+# =========================
 SAMSUNG_AI=(
-"LiveTranscribe" "SmartEye" "SmartPush"
-"SmartPush_64" "SmartThingsKit" "SmartTouchCall"
+"SmartEye"
 )
 
-
+# =========================
 # GOOGLE APPS
+# =========================
 GOOGLE_APPS=(
-"SpeechServicesByGoogle" "Maps" "Duo" "Photos"
-"AssistantShell" "BardShell" "DuoStub"
-"GoogleCalendarSyncAdapter" "AndroidDeveloperVerifier"
-"YourPhone_Stub" "AndroidAutoStub" "FamilyLinkParentalControls"
-"AndroidSystemIntelligence" "GoogleRestore" "SamsungMessages"
-"SearchSelector" "PlayAutoInstallConfig" "FamilyLinkParentalControls"
+
+# Removed Google Apps
+"Duo"
+"DuoStub"
+"AndroidDeveloperVerifier"
+"SamsungMessages"
+"SearchSelector"
+"YouTube"
+"YouTubeStub"
+"Chrome"
+"GlanceOnSamsung"
 )
 
-
+# =========================
 # FACEBOOK
+# =========================
 FACEBOOK_APPS=(
-"FBAppManager_NS" "FBInstaller_NS" "FBServices"
+"FBAppManager_NS"
+"FBInstaller_NS"
+"FBServices"
 )
 
-
+# =========================
 # DRIVERS
+# =========================
 HARDWARE_DRIVERS=(
 "DevGPUDriver-EX2200" "GameDriver-EX2100" "GameDriver-EX2200" "GameDriver-SM8150"
 )
 
-
-# MISC / SERVICES
+# =========================
+# MISC SERVICES
+# =========================
 MISC_SERVICES=(
-"AuthFramework" "Discover" "DiscoverSEP"
-"EarphoneTypeC" "EasySetup" "FotaAgent"
-"HashTagService" "LedCoverService"
-"LinkToWindowsService" "MemorySaver_O_Refresh"
-"MultiControl" "MultiControlVP6"
-"OMCAgent5" "OneStoreService" "FactoryAirCommandManager"
-"SOAgent7" "SOAgent75" "SOAgent76"
-"SolarAudio-service" "SPPPushClient"
-"SumeNNService" "SVoiceIME"
-"SwiftkeyIme" "SwiftkeySetting"
-"SystemUpdate" "TADownloader"
-"TalkbackSE" "TalkBack" "TaPackAuthFw"
-"UltraDataSaving_O" "Upday"
-"YourPhone_P1_5" "DsmsAPK"
-"vexfwk_service" "VexScanner"
-"LiveEffectService" "MyGalaxyService"
+"HashTagService"
+"FotaAgent"
+"LedCoverService"
+"MemorySaver_O_Refresh"
+"OneStoreService"
+"FactoryAirCommandManager"
+"SOAgent7"
+"SOAgent75"
+"SOAgent76"
+"SolarAudio-service"
+"SumeNNService"
+"SystemUpdate"
+"TADownloader"
+"TalkbackSE"
+"TaPackAuthFw"
+"Upday"
+"DsmsAPK"
+"vexfwk_service"
+"VexScanner"
+"MyGalaxyService"
+
+# Ultra Data Saving / Max VPN
+"UltraDataSaving_O"
+"UDS"
+"MaxVPN"
+"SamsungMax"
 )
 
-
-# Knox
-KNOX_APPS=("Rampart" "KnoxFrameBufferProvider")
+# =========================
+# KNOX
+# =========================
+KNOX_APPS=(
+"Rampart"
+"KnoxFrameBufferProvider"
+)
 
 
 REMOVE_ESIM_FILES() {
@@ -268,14 +296,7 @@ DEBLOAT() {
     rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/init/boot-image.prof"
     rm -rf "$EXTRACTED_FIRM_DIR/system/system/hidden"
     rm -rf "$EXTRACTED_FIRM_DIR/system/system/preload"
-	rm -rf "$EXTRACTED_FIRM_DIR/system/system/etc/mediasearch"
-	rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app/MediaSearch"
-	rm -rf "$EXTRACTED_FIRM_DIR/system/system/priv-app"/GameDriver-*
 	rm -rf "$EXTRACTED_FIRM_DIR/system/system/skt"
 	rm -rf "$EXTRACTED_FIRM_DIR/system/system/tts"
-	rm -rf "$EXTRACTED_FIRM_DIR/product/app/Gmail2/oat"
-    rm -rf "$EXTRACTED_FIRM_DIR/product/app/Maps/oat"
-	rm -rf "$EXTRACTED_FIRM_DIR/product/app/SpeechServicesByGoogle/oat"
 	rm -rf "$EXTRACTED_FIRM_DIR/product/app/YouTube/oat"
-	rm -rf "$EXTRACTED_FIRM_DIR/product/priv-app"/HotwordEnrollment*
 }

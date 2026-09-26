@@ -1077,14 +1077,12 @@ PATCH_SSRM() {
 		return
 	fi
 
-    if FOUND=$(grep -E 'const-string [vp][0-9]+, "dvfs_policy_.*_xx"' "$FILE"); then
+    if FOUND=$(grep -E 'const-string [vp][2-9]+, "dvfs_policy_.*"' "$FILE"); then
         echo "- Found DVFS policy: $FOUND"
 
         if [ -n "$STOCK_DVFS_FILENAME" ]; then
             sed -i -E \
-            's|(const-string [vp][0-9]+, ")dvfs_policy_[^"]*_[^"]*(")|\1'"$STOCK_DVFS_FILENAME"'\2|' \
-            "$FILE"
-
+                's|(const-string [vp][2-9]+, ")dvfs_policy_[^"]*(")|\1'"$STOCK_DVFS_FILENAME"'\2|' "$FILE"
             echo "- DVFS policy file name replaced to: ${STOCK_DVFS_FILENAME}"
         else
             echo "- STOCK_DVFS_FILENAME is empty. Skipping replacement."

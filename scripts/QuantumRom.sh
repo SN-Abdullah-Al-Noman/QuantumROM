@@ -1077,12 +1077,12 @@ PATCH_SSRM() {
 		return
 	fi
 
-    if FOUND=$(grep -E 'const-string [vp][2-9]+, "dvfs_policy_.*"' "$FILE"); then
+    if FOUND=$(grep -E 'const-string [vp][0-9]+, "dvfs_policy_[^"]*"' "$FILE" | sed -n '2p'); then
         echo "- Found DVFS policy: $FOUND"
 
         if [ -n "$STOCK_DVFS_FILENAME" ]; then
-            sed -i -E \
-                's|(const-string [vp][2-9]+, ")dvfs_policy_[^"]*(")|\1'"$STOCK_DVFS_FILENAME"'\2|' "$FILE"
+            sed -i -E '0,/dvfs_policy_[^"]*/!{
+            s|(const-string [vp][0-9]+, ")dvfs_policy_[^"]*(")|\1'"$STOCK_DVFS_FILENAME"'\2|}' "$FILE"
             echo "- DVFS policy file name replaced to: ${STOCK_DVFS_FILENAME}"
         else
             echo "- STOCK_DVFS_FILENAME is empty. Skipping replacement."
@@ -1096,9 +1096,7 @@ PATCH_SSRM() {
 
         if [ -n "$STOCK_SIOP_POLICY_FILENAME" ]; then
             sed -i -E \
-            's|(const-string [vp][0-9]+, ")siop_[^"]*_[^"]*(")|\1'"$STOCK_SIOP_POLICY_FILENAME"'\2|' \
-            "$FILE"
-
+            's|(const-string [vp][0-9]+, ")siop_[^"]*_[^"]*(")|\1'"$STOCK_SIOP_POLICY_FILENAME"'\2|' \"$FILE"
             echo "- SIOP policy file name replaced to: ${STOCK_SIOP_POLICY_FILENAME}"
         else
             echo "- STOCK_SIOP_POLICY_FILENAME is empty. Skipping replacement."

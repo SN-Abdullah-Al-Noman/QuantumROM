@@ -88,7 +88,7 @@ DOWNLOAD_FIRMWARE() {
 
     local MODEL="$1"
     local CSC="$2"
-    local DOWN_DIR="${3}/$MODEL"
+    local DOWN_DIR="$3"
 	local VERSION="${4:-}"
 
     rm -rf "$DOWN_DIR"
@@ -113,6 +113,7 @@ DOWNLOAD_FIRMWARE() {
     echo -e "  Samsung FW Downloader   "
     echo -e "======================================"
     echo -e "MODEL: $MODEL | CSC: $CSC"
+	echo -e "DOWNLOAD DIR: $DOWN_DIR"
 
     # Check version
 	if [ -z "$VERSION" ]; then
@@ -446,9 +447,9 @@ PREPARE_PARTITIONS() {
     fi
 
     if [ -z "$STOCK_DEVICE" ] || [ "$STOCK_DEVICE" = "None" ]; then
-        local BUILD_PARTITIONS="odm,odm_dlkm,product,system,system_ext,system_dlkm,vendor,vendor_dlkm,odm_a,odm_dlkm_a,product_a,system_a,system_ext_a,system_dlkm_a,vendor_a,vendor_dlkm_a,optics,optics_a"
+        local BUILD_PARTITIONS="boot,odm,odm_dlkm,product,system,system_ext,system_dlkm,vendor,vendor_dlkm,odm_a,odm_dlkm_a,product_a,system_a,system_ext_a,system_dlkm_a,vendor_a,vendor_dlkm_a,optics,optics_a"
 	else
-	    local BUILD_PARTITIONS="product,system_ext,system"
+	    local BUILD_PARTITIONS="boot,product,system_ext,system"
     fi
 
 	# Delete empty b slot images
@@ -576,11 +577,6 @@ EXTRACT_FIRMWARE_IMG() {
             [ -e "$imgfile" ] || continue
             extract_img "$imgfile"
         done
-
-	    if [ "${GITHUB_ACTIONS}" = "true" ]; then
-            rm -f "$EXTRACTED_FIRM_DIR"/*.img
-        fi
-
     else
         local TARGET_IMG="${EXTRACTED_FIRM_DIR}/$MODE"
 
@@ -591,8 +587,6 @@ EXTRACT_FIRMWARE_IMG() {
 
         extract_img "$TARGET_IMG"
     fi
-
-    chmod -R u+rwX "$EXTRACTED_FIRM_DIR"
 }
 
 
@@ -1083,14 +1077,12 @@ PATCH_SSRM() {
 		return
 	fi
 
-    if FOUND=$(grep -E 'const-string [vp][0-9]+, "dvfs_policy_.*_xx"' "$FILE"); then
+    if FOUND=$(grep -E 'const-string [vp][0-9]+, "dvfs_policy_[^"]*"' "$FILE" | sed -n '2p'); then
         echo "- Found DVFS policy: $FOUND"
 
         if [ -n "$STOCK_DVFS_FILENAME" ]; then
-            sed -i -E \
-            's|(const-string [vp][0-9]+, ")dvfs_policy_[^"]*_[^"]*(")|\1'"$STOCK_DVFS_FILENAME"'\2|' \
-            "$FILE"
-
+            sed -i -E '0,/dvfs_policy_[^"]*/!{
+            s|(const-string [vp][0-9]+, ")dvfs_policy_[^"]*(")|\1'"$STOCK_DVFS_FILENAME"'\2|}' "$FILE"
             echo "- DVFS policy file name replaced to: ${STOCK_DVFS_FILENAME}"
         else
             echo "- STOCK_DVFS_FILENAME is empty. Skipping replacement."
@@ -1104,9 +1096,7 @@ PATCH_SSRM() {
 
         if [ -n "$STOCK_SIOP_POLICY_FILENAME" ]; then
             sed -i -E \
-            's|(const-string [vp][0-9]+, ")siop_[^"]*_[^"]*(")|\1'"$STOCK_SIOP_POLICY_FILENAME"'\2|' \
-            "$FILE"
-
+            's|(const-string [vp][0-9]+, ")siop_[^"]*_[^"]*(")|\1'"$STOCK_SIOP_POLICY_FILENAME"'\2|' \"$FILE"
             echo "- SIOP policy file name replaced to: ${STOCK_SIOP_POLICY_FILENAME}"
         else
             echo "- STOCK_SIOP_POLICY_FILENAME is empty. Skipping replacement."

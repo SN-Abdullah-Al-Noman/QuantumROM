@@ -1072,34 +1072,48 @@ PATCH_SSRM() {
     echo -e "Patching SSRM."
     echo -e "- Patching: $FILE"
 
-	if [ ! -f "$FILE" ]; then
-	    echo "- File name not found: $FILE"
-		return
-	fi
+    if [ ! -f "$FILE" ]; then
+        echo "- File name not found: $FILE"
+        return 1
+    fi
 
     if FOUND=$(grep -E 'const-string [vp][0-9]+, "dvfs_policy_[^"]*"' "$FILE" | sed -n '2p'); then
-        echo "- Found DVFS policy: $FOUND"
+        if [ -n "$FOUND" ]; then
+            echo "- Found DVFS policy: $FOUND"
 
-        if [ -n "$STOCK_DVFS_FILENAME" ]; then
-            sed -i -E '0,/dvfs_policy_[^"]*/!{
-            s|(const-string [vp][0-9]+, ")dvfs_policy_[^"]*(")|\1'"$STOCK_DVFS_FILENAME"'\2|}' "$FILE"
-            echo "- DVFS policy file name replaced to: ${STOCK_DVFS_FILENAME}"
+            if [ -n "$STOCK_DVFS_FILENAME" ]; then
+                sed -i -E \
+                    '0,/dvfs_policy_[^"]*/!{
+                        s|(const-string [vp][0-9]+, ")dvfs_policy_[^"]*(")|\1'"$STOCK_DVFS_FILENAME"'\2|
+                    }' \
+                    "$FILE"
+
+                echo "- DVFS policy file name replaced to: ${STOCK_DVFS_FILENAME}"
+            else
+                echo "- STOCK_DVFS_FILENAME is empty. Skipping replacement."
+            fi
         else
-            echo "- STOCK_DVFS_FILENAME is empty. Skipping replacement."
+            echo "- DVFS policy file name not found."
         fi
     else
         echo "- DVFS policy file name not found."
     fi
 
     if FOUND=$(grep -E 'const-string [vp][0-9]+, "siop_[^"]*_[^"]*"' "$FILE"); then
-        echo "- Found SIOP policy: $FOUND"
+        if [ -n "$FOUND" ]; then
+            echo "- Found SIOP policy: $FOUND"
 
-        if [ -n "$STOCK_SIOP_POLICY_FILENAME" ]; then
-            sed -i -E \
-            's|(const-string [vp][0-9]+, ")siop_[^"]*_[^"]*(")|\1'"$STOCK_SIOP_POLICY_FILENAME"'\2|' \"$FILE"
-            echo "- SIOP policy file name replaced to: ${STOCK_SIOP_POLICY_FILENAME}"
+            if [ -n "$STOCK_SIOP_POLICY_FILENAME" ]; then
+                sed -i -E \
+                    's|(const-string [vp][0-9]+, ")siop_[^"]*_[^"]*(")|\1'"$STOCK_SIOP_POLICY_FILENAME"'\2|' \
+                    "$FILE"
+
+                echo "- SIOP policy file name replaced to: ${STOCK_SIOP_POLICY_FILENAME}"
+            else
+                echo "- STOCK_SIOP_POLICY_FILENAME is empty. Skipping replacement."
+            fi
         else
-            echo "- STOCK_SIOP_POLICY_FILENAME is empty. Skipping replacement."
+            echo "- SIOP policy file name not found."
         fi
     else
         echo "- SIOP policy file name not found."

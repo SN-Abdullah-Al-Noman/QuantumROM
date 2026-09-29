@@ -1,4 +1,4 @@
-name: QuantumROM Tools.
+name: QuantumROM Tools
 
 on:
   workflow_dispatch:
@@ -32,11 +32,6 @@ on:
         required: true
         default: "erofs"
 
-      COMPRESS_IMG_TO_XZ:
-        description: "Compress img to xz (True/False)"
-        required: true
-        default: "False"
-
       DEBLOAT_ROM:
         description: "Debloat downloaded rom (True/False)"
         required: true
@@ -53,7 +48,7 @@ on:
         default: "True"
 
       ADD_CHINA_SMART_MANAGER:
-        description: "Add china smart manager (True/False)"
+        description: "Add chismart manager (True/False)"
         required: true
         default: "True"
 
@@ -81,6 +76,11 @@ on:
         description: "Patch bluetooth library (True/False)"
         required: true
         default: "True"
+
+      COMPRESS_IMG:
+        description: "Compress img to xz or brotli (xz or bortli)"
+        required: false
+        default: ""
 
 
 jobs:
@@ -153,21 +153,21 @@ jobs:
         if: steps.disk.outputs.enough == 'false'
         uses: rokibhasansagar/slimhub_actions@v25.42.5
 
+      - name: Download firmware ▶️ ${{ inputs.TARGET_DEVICE }} - ${{ inputs.TARGET_DEVICE_CSC_OR_DOWNLOAD_LINK }}
+        run: |
+          source "$(pwd)/scripts/QuantumRom.sh"
+          DOWNLOAD_FIRMWARE "$TARGET_DEVICE" "$TARGET_DEVICE_CSC_OR_DOWNLOAD_LINK" "$FIRM_DIR" "$TARGET_FW_VERSION"
+
       - name: Install Dependencies.
         run: |
           sudo apt update
           sudo apt install -y p7zip-full lz4 liblz4-1 liblz4-dev libzstd1 libzstd-dev build-essential android-sdk-libsparse-utils linux-modules-extra-$(uname -r) \
-              f2fs-tools fuse2fs fuse e2fsprogs python3 python3-pip zipalign unzip openjdk-21-jdk jq perl xxd kmod erofs-utils curl wget
+              f2fs-tools fuse2fs fuse e2fsprogs python3 python3-pip zipalign unzip openjdk-21-jdk jq perl xxd kmod erofs-utils curl wget curl wget
           sudo modprobe f2fs || true
           git clone https://github.com/SN-Abdullah-Al-Noman/GoFileDownloader.git
           cd GoFileDownloader
           pip install -r requirements.txt
           mkdir -p "$FIRM_DIR" "$OUT_DIR" "$WORK_DIR"
-
-      - name: Download firmware ▶️ ${{ inputs.TARGET_DEVICE }} - ${{ inputs.TARGET_DEVICE_CSC_OR_DOWNLOAD_LINK }}
-        run: |
-          source "$(pwd)/scripts/QuantumRom.sh"
-          DOWNLOAD_FIRMWARE "$TARGET_DEVICE" "$TARGET_DEVICE_CSC_OR_DOWNLOAD_LINK" "$FIRM_DIR" "$TARGET_FW_VERSION"
 
       - name: Extract firmware
         run: |
@@ -291,7 +291,7 @@ jobs:
           ZIP_NAME="${{ inputs.TARGET_DEVICE }}_Port_For_${{ inputs.STOCK_DEVICE }}.zip"
           ZIP_PATH="$OUT_DIR/$ZIP_NAME"
 
-          if [ "$COMPRESS_IMG_TO_XZ" = "True" ]; then
+          if [ "$COMPRESS_IMG" = "xz" ]; then
               echo "Compressing all .img files to .xz (level 9)..."
               for img in "$OUT_DIR"/*.img; do
                   [ -f "$img" ] || continue

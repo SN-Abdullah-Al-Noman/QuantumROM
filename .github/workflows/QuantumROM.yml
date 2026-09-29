@@ -78,7 +78,7 @@ on:
         default: "True"
 
       COMPRESS_IMG:
-        description: "Compress img to xz or brotli (xz or bortli)"
+        description: "Compress img to xz or br (bortli)"
         required: false
         default: ""
 
@@ -298,7 +298,18 @@ jobs:
                   echo "Compressing $img"
                   xz -9 -T0 "$img"
               done
-          fi
+
+          elif [ "$COMPRESS_IMG" = "br" ]; then
+              echo "Compressing all .img files to .br (Brotli level 11)..."
+
+              for img in "$OUT_DIR"/*.img; do
+                  [ -f "$img" ] || continue
+
+                  echo "Compressing $img"
+                  pv -pterab "$img" | brotli -q 11 > "${img}.br"
+                  rm -f "$img"
+              done
+              fi
 
           echo "Creating zip: $ZIP_NAME"
           7z a -tzip "$ZIP_PATH" "$OUT_DIR"/* -mx=5

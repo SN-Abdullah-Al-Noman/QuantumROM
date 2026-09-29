@@ -296,7 +296,7 @@ jobs:
               for img in "$OUT_DIR"/*.img; do
                   [ -f "$img" ] || continue
                   echo "Compressing $img"
-                  xz -9 -T0 "$img"
+                  xz -5 -T0 "$img"
               done
 
           elif [ "$COMPRESS_IMG" = "br" ]; then
@@ -306,7 +306,7 @@ jobs:
                   [ -f "$img" ] || continue
 
                   echo "Compressing $img"
-                  pv -pterab "$img" | brotli -q 11 > "${img}.br"
+                  pv -pterab "$img" | brotli -q 5 > "${img}.br"
                   rm -f "$img"
               done
               fi

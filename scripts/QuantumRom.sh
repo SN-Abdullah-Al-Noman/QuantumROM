@@ -2457,7 +2457,7 @@ APPLY_CUSTOM_FEATURES() {
 }
 
 
-DECODE_OMC() {
+DECODE_CSC() {
     echo " "
 
     if [ "$#" -ne 2 ]; then

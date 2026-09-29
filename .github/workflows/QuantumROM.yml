@@ -118,7 +118,7 @@ jobs:
           echo "PATCH_BLUETOOTH_LIBRARY=${{ inputs.PATCH_BLUETOOTH_LIBRARY }}" | tee -a "$GITHUB_ENV"
 
           echo "OUTPUT_FILESYSTEM=${{ inputs.OUTPUT_FILESYSTEM }}" | tee -a "$GITHUB_ENV"
-          echo "COMPRESS_IMG_TO_XZ=${{ inputs.COMPRESS_IMG_TO_XZ }}" | tee -a "$GITHUB_ENV"
+          echo "COMPRESS_IMG=${{ inputs.COMPRESS_IMG }}" | tee -a "$GITHUB_ENV"
 
       - name: Validate STOCK_DEVICE - ${{ inputs.STOCK_DEVICE }}
         run: |
@@ -186,10 +186,10 @@ jobs:
           sudo chown -R "$(id -u):$(id -g)" "$FIRM_DIR" && chmod -R u+rwX "$FIRM_DIR"
           rm -rf "$FIRM_DIR"/*.img
 
-      - name: Decode odm, omc
+      - name: Decode csc, odm, omc, optics
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
-          DECODE_OMC "$FIRM_DIR" "$OUT_DIR"
+          DECODE_CSC "$FIRM_DIR" "$OUT_DIR"
 
       - name: Debloat Rom - ${{ inputs.DEBLOAT_ROM }}
         run: |
@@ -285,7 +285,7 @@ jobs:
           source "$(pwd)/scripts/QuantumRom.sh"
           BUILD_IMG "$FIRM_DIR" "all" "$OUTPUT_FILESYSTEM" "$OUT_DIR"
 
-      - name: Compress all .img & make zip file before upload - - ${{ inputs.COMPRESS_IMG_TO_XZ }}
+      - name: Compress all .img & make zip file before upload - - ${{ inputs.COMPRESS_IMG }}
         run: |
           echo "BUILD_TIME=$(TZ='Asia/Dhaka' date '+%Y-%m-%d %I:%M:%S %p UTC+6')" | tee -a "$GITHUB_ENV"
           ZIP_NAME="${{ inputs.TARGET_DEVICE }}_Port_For_${{ inputs.STOCK_DEVICE }}.zip"

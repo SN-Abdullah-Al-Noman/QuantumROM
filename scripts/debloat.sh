@@ -182,6 +182,7 @@ KICK() {
             target="$dir/$app"
 
             if [[ -d "$target" ]]; then
+			    echo "- Debloating $target"
                 rm -rf "$target" || echo -e "[WARN] Failed to delete $target"
             fi
         done

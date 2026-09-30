@@ -572,7 +572,7 @@ EXTRACT_FIRMWARE_IMG() {
     }
 
     if [ "$MODE" = "all" ]; then
-	    PREPARE_PARTITIONS "$EXTRACTED_FIRM_DIR"
+	    # PREPARE_PARTITIONS "$EXTRACTED_FIRM_DIR"
         for imgfile in "$EXTRACTED_FIRM_DIR"/*.img; do
             [ -e "$imgfile" ] || continue
             extract_img "$imgfile"

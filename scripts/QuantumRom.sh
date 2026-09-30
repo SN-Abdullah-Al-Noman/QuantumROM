@@ -439,21 +439,15 @@ PREPARE_PARTITIONS() {
 
     local EXTRACTED_FIRM_DIR="$1"
 
-    echo -e "Preparing partitions. $STOCK_DEVICE"
+    echo -e "Preparing partitions."
 	
 	if [ ! -d "$EXTRACTED_FIRM_DIR" ]; then
         echo -e "- Directory not found: $EXTRACTED_FIRM_DIR"
         return 1
     fi
 
-    if [ -z "$STOCK_DEVICE" ] || [ "$STOCK_DEVICE" = "None" ]; then
-        local BUILD_PARTITIONS="boot,odm,odm_dlkm,product,system,system_ext,system_dlkm,vendor,vendor_dlkm,odm_a,odm_dlkm_a,product_a,system_a,system_ext_a,system_dlkm_a,vendor_a,vendor_dlkm_a,optics,optics_a"
-	else
-	    local BUILD_PARTITIONS="boot,product,system_ext,system"
-    fi
-
 	# Delete empty b slot images
-    find "$EXTRACTED_FIRM_DIR" -type f -name '*_b.img' -size 0c -exec rm -rf {} +
+	rm -rf "$EXTRACTED_FIRM_DIR"/*_b.img
 
     for img in "$EXTRACTED_FIRM_DIR"/*_a.img; do
         [ -f "$img" ] || continue
@@ -461,31 +455,6 @@ PREPARE_PARTITIONS() {
         new="${img%_a.img}.img"
         mv -f "$img" "$new"
     done
-
-    IFS=',' read -r -a KEEP <<< "$BUILD_PARTITIONS"
-
-    for i in "${!KEEP[@]}"; do
-        KEEP[$i]=$(echo -e "${KEEP[$i]}" | xargs)
-    done
-
-    shopt -s nullglob dotglob
-
-    for item in "$EXTRACTED_FIRM_DIR"/*; do
-        base=$(basename "$item")
-
-        [[ "$base" == *.img ]] && base="${base%.img}"
-
-        keep_this=0
-        for k in "${KEEP[@]}"; do
-            [[ "$k" == "$base" ]] && keep_this=1 && break
-        done
-
-        if [[ $keep_this -eq 0 ]]; then
-            rm -rf -- "$item"
-        fi
-    done
-
-    shopt -u nullglob dotglob
 }
 
 
@@ -572,7 +541,7 @@ EXTRACT_FIRMWARE_IMG() {
     }
 
     if [ "$MODE" = "all" ]; then
-	    # PREPARE_PARTITIONS "$EXTRACTED_FIRM_DIR"
+	    PREPARE_PARTITIONS "$EXTRACTED_FIRM_DIR"
         for imgfile in "$EXTRACTED_FIRM_DIR"/*.img; do
             [ -e "$imgfile" ] || continue
             extract_img "$imgfile"

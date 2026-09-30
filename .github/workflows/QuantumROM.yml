@@ -291,6 +291,16 @@ jobs:
           ZIP_NAME="${{ inputs.TARGET_DEVICE }}_Port_For_${{ inputs.STOCK_DEVICE }}.zip"
           ZIP_PATH="$OUT_DIR/$ZIP_NAME"
 
+          FILE_LIST=$(find "$OUT_DIR" -type f -printf '%P\n' | sort)
+          FILE_COUNT=$(printf '%s\n' "$FILE_LIST" | grep -c . || true)
+
+          {
+              echo "ZIP_FILE_COUNT=$FILE_COUNT"
+              echo "ZIP_FILE_LIST<<EOF"
+              echo "$FILE_LIST"
+              echo "EOF"
+          } >> "$GITHUB_ENV"
+
           if [ "$COMPRESS_IMG" = "xz" ]; then
               echo "Compressing all .img files to .xz (level 9)..."
               for img in "$OUT_DIR"/*.img; do

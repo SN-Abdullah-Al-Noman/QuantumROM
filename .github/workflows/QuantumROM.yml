@@ -181,6 +181,21 @@ jobs:
 
       - name: Extract firmware img
         run: |
+          rm -rf "$FIRM_DIR"/*_b.img
+
+          for img in "$FIRM_DIR"/*_a.img; do
+              [ -f "$img" ] || continue
+              mv -f "$img" "${img%_a.img}.img"
+          done
+
+          if [ -n "$STOCK_DEVICE" ] && [ "$STOCK_DEVICE" != "None" ]; then
+              find "$FIRM_DIR" -mindepth 1 -maxdepth 1 \
+              ! -name 'product.img' \
+              ! -name 'system.img' \
+              ! -name 'system_ext.img' \
+              -exec rm -rf {} +
+          fi
+
           # sudo required for f2fs img extract
           sudo bash -c 'source "'"$(pwd)"'/scripts/QuantumRom.sh"; EXTRACT_FIRMWARE_IMG "'"$FIRM_DIR"'" "all"'
           sudo chown -R "$(id -u):$(id -g)" "$FIRM_DIR" && chmod -R u+rwX "$FIRM_DIR"

@@ -186,11 +186,6 @@ jobs:
           sudo chown -R "$(id -u):$(id -g)" "$FIRM_DIR" && chmod -R u+rwX "$FIRM_DIR"
           rm -rf "$FIRM_DIR"/*.img
 
-      - name: Decode csc, odm, omc, optics
-        run: |
-          source "$(pwd)/scripts/QuantumRom.sh"
-          DECODE_CSC "$FIRM_DIR" "$OUT_DIR"
-
       - name: Debloat Rom - ${{ inputs.DEBLOAT_ROM }}
         run: |
           source "$(pwd)/scripts/debloat.sh"

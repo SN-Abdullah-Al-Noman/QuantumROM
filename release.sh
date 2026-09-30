@@ -26,7 +26,7 @@ $GOFILE_LINK
 • Build Time: $BUILD_TIME
 • MD5: $MD5_SUM
 
-### 📦 Files in the ZIP:
+#### 📦 Files in the ZIP:
 This ZIP contains **${ZIP_FILE_COUNT} files**:
 ${ZIP_FILE_LIST}
 

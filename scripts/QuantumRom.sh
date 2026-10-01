@@ -439,21 +439,15 @@ PREPARE_PARTITIONS() {
 
     local EXTRACTED_FIRM_DIR="$1"
 
-    echo -e "Preparing partitions. $STOCK_DEVICE"
+    echo -e "Preparing partitions."
 	
 	if [ ! -d "$EXTRACTED_FIRM_DIR" ]; then
         echo -e "- Directory not found: $EXTRACTED_FIRM_DIR"
         return 1
     fi
 
-    if [ -z "$STOCK_DEVICE" ] || [ "$STOCK_DEVICE" = "None" ]; then
-        local BUILD_PARTITIONS="boot,odm,odm_dlkm,product,system,system_ext,system_dlkm,vendor,vendor_dlkm,odm_a,odm_dlkm_a,product_a,system_a,system_ext_a,system_dlkm_a,vendor_a,vendor_dlkm_a,optics,optics_a"
-	else
-	    local BUILD_PARTITIONS="boot,product,system_ext,system"
-    fi
-
 	# Delete empty b slot images
-    find "$EXTRACTED_FIRM_DIR" -type f -name '*_b.img' -size 0c -exec rm -rf {} +
+	rm -rf "$EXTRACTED_FIRM_DIR"/*_b.img
 
     for img in "$EXTRACTED_FIRM_DIR"/*_a.img; do
         [ -f "$img" ] || continue
@@ -461,31 +455,6 @@ PREPARE_PARTITIONS() {
         new="${img%_a.img}.img"
         mv -f "$img" "$new"
     done
-
-    IFS=',' read -r -a KEEP <<< "$BUILD_PARTITIONS"
-
-    for i in "${!KEEP[@]}"; do
-        KEEP[$i]=$(echo -e "${KEEP[$i]}" | xargs)
-    done
-
-    shopt -s nullglob dotglob
-
-    for item in "$EXTRACTED_FIRM_DIR"/*; do
-        base=$(basename "$item")
-
-        [[ "$base" == *.img ]] && base="${base%.img}"
-
-        keep_this=0
-        for k in "${KEEP[@]}"; do
-            [[ "$k" == "$base" ]] && keep_this=1 && break
-        done
-
-        if [[ $keep_this -eq 0 ]]; then
-            rm -rf -- "$item"
-        fi
-    done
-
-    shopt -u nullglob dotglob
 }
 
 
@@ -1072,34 +1041,48 @@ PATCH_SSRM() {
     echo -e "Patching SSRM."
     echo -e "- Patching: $FILE"
 
-	if [ ! -f "$FILE" ]; then
-	    echo "- File name not found: $FILE"
-		return
-	fi
+    if [ ! -f "$FILE" ]; then
+        echo "- File name not found: $FILE"
+        return 1
+    fi
 
     if FOUND=$(grep -E 'const-string [vp][0-9]+, "dvfs_policy_[^"]*"' "$FILE" | sed -n '2p'); then
-        echo "- Found DVFS policy: $FOUND"
+        if [ -n "$FOUND" ]; then
+            echo "- Found DVFS policy: $FOUND"
 
-        if [ -n "$STOCK_DVFS_FILENAME" ]; then
-            sed -i -E '0,/dvfs_policy_[^"]*/!{
-            s|(const-string [vp][0-9]+, ")dvfs_policy_[^"]*(")|\1'"$STOCK_DVFS_FILENAME"'\2|}' "$FILE"
-            echo "- DVFS policy file name replaced to: ${STOCK_DVFS_FILENAME}"
+            if [ -n "$STOCK_DVFS_FILENAME" ]; then
+                sed -i -E \
+                    '0,/dvfs_policy_[^"]*/!{
+                        s|(const-string [vp][0-9]+, ")dvfs_policy_[^"]*(")|\1'"$STOCK_DVFS_FILENAME"'\2|
+                    }' \
+                    "$FILE"
+
+                echo "- DVFS policy file name replaced to: ${STOCK_DVFS_FILENAME}"
+            else
+                echo "- STOCK_DVFS_FILENAME is empty. Skipping replacement."
+            fi
         else
-            echo "- STOCK_DVFS_FILENAME is empty. Skipping replacement."
+            echo "- DVFS policy file name not found."
         fi
     else
         echo "- DVFS policy file name not found."
     fi
 
     if FOUND=$(grep -E 'const-string [vp][0-9]+, "siop_[^"]*_[^"]*"' "$FILE"); then
-        echo "- Found SIOP policy: $FOUND"
+        if [ -n "$FOUND" ]; then
+            echo "- Found SIOP policy: $FOUND"
 
-        if [ -n "$STOCK_SIOP_POLICY_FILENAME" ]; then
-            sed -i -E \
-            's|(const-string [vp][0-9]+, ")siop_[^"]*_[^"]*(")|\1'"$STOCK_SIOP_POLICY_FILENAME"'\2|' \"$FILE"
-            echo "- SIOP policy file name replaced to: ${STOCK_SIOP_POLICY_FILENAME}"
+            if [ -n "$STOCK_SIOP_POLICY_FILENAME" ]; then
+                sed -i -E \
+                    's|(const-string [vp][0-9]+, ")siop_[^"]*_[^"]*(")|\1'"$STOCK_SIOP_POLICY_FILENAME"'\2|' \
+                    "$FILE"
+
+                echo "- SIOP policy file name replaced to: ${STOCK_SIOP_POLICY_FILENAME}"
+            else
+                echo "- STOCK_SIOP_POLICY_FILENAME is empty. Skipping replacement."
+            fi
         else
-            echo "- STOCK_SIOP_POLICY_FILENAME is empty. Skipping replacement."
+            echo "- SIOP policy file name not found."
         fi
     else
         echo "- SIOP policy file name not found."
@@ -2710,7 +2693,7 @@ APPLY_CUSTOM_FEATURES() {
 }
 
 
-DECODE_OMC() {
+DECODE_CSC() {
     echo " "
 
     if [ "$#" -ne 2 ]; then

@@ -1,4 +1,4 @@
-name: QuantumROM Tools.
+name: QuantumROM Tools
 
 on:
   workflow_dispatch:
@@ -32,11 +32,6 @@ on:
         required: true
         default: "erofs"
 
-      COMPRESS_IMG_TO_XZ:
-        description: "Compress img to xz (True/False)"
-        required: true
-        default: "False"
-
       DEBLOAT_ROM:
         description: "Debloat downloaded rom (True/False)"
         required: true
@@ -53,7 +48,7 @@ on:
         default: "True"
 
       ADD_CHINA_SMART_MANAGER:
-        description: "Add china smart manager (True/False)"
+        description: "Add chismart manager (True/False)"
         required: true
         default: "True"
 
@@ -81,6 +76,11 @@ on:
         description: "Patch bluetooth library (True/False)"
         required: true
         default: "True"
+
+      COMPRESS_IMG:
+        description: "Compress img to xz or br (bortli)"
+        required: false
+        default: ""
 
 
 jobs:
@@ -118,7 +118,7 @@ jobs:
           echo "PATCH_BLUETOOTH_LIBRARY=${{ inputs.PATCH_BLUETOOTH_LIBRARY }}" | tee -a "$GITHUB_ENV"
 
           echo "OUTPUT_FILESYSTEM=${{ inputs.OUTPUT_FILESYSTEM }}" | tee -a "$GITHUB_ENV"
-          echo "COMPRESS_IMG_TO_XZ=${{ inputs.COMPRESS_IMG_TO_XZ }}" | tee -a "$GITHUB_ENV"
+          echo "COMPRESS_IMG=${{ inputs.COMPRESS_IMG }}" | tee -a "$GITHUB_ENV"
 
       - name: Validate STOCK_DEVICE - ${{ inputs.STOCK_DEVICE }}
         run: |
@@ -153,21 +153,21 @@ jobs:
         if: steps.disk.outputs.enough == 'false'
         uses: rokibhasansagar/slimhub_actions@v25.42.5
 
+      - name: Download firmware ▶️ ${{ inputs.TARGET_DEVICE }} - ${{ inputs.TARGET_DEVICE_CSC_OR_DOWNLOAD_LINK }}
+        run: |
+          source "$(pwd)/scripts/QuantumRom.sh"
+          DOWNLOAD_FIRMWARE "$TARGET_DEVICE" "$TARGET_DEVICE_CSC_OR_DOWNLOAD_LINK" "$FIRM_DIR" "$TARGET_FW_VERSION"
+
       - name: Install Dependencies.
         run: |
           sudo apt update
           sudo apt install -y p7zip-full lz4 liblz4-1 liblz4-dev libzstd1 libzstd-dev build-essential android-sdk-libsparse-utils linux-modules-extra-$(uname -r) \
-              f2fs-tools fuse2fs fuse e2fsprogs python3 python3-pip zipalign unzip openjdk-21-jdk jq perl xxd kmod erofs-utils curl wget
+              f2fs-tools fuse2fs fuse e2fsprogs python3 python3-pip zipalign unzip openjdk-21-jdk jq perl xxd kmod erofs-utils curl wget curl wget brotli pv
           sudo modprobe f2fs || true
           git clone https://github.com/SN-Abdullah-Al-Noman/GoFileDownloader.git
           cd GoFileDownloader
           pip install -r requirements.txt
           mkdir -p "$FIRM_DIR" "$OUT_DIR" "$WORK_DIR"
-
-      - name: Download firmware ▶️ ${{ inputs.TARGET_DEVICE }} - ${{ inputs.TARGET_DEVICE_CSC_OR_DOWNLOAD_LINK }}
-        run: |
-          source "$(pwd)/scripts/QuantumRom.sh"
-          DOWNLOAD_FIRMWARE "$TARGET_DEVICE" "$TARGET_DEVICE_CSC_OR_DOWNLOAD_LINK" "$FIRM_DIR" "$TARGET_FW_VERSION"
 
       - name: Extract firmware
         run: |
@@ -181,15 +181,25 @@ jobs:
 
       - name: Extract firmware img
         run: |
+          rm -rf "$FIRM_DIR"/*_b.img
+
+          for img in "$FIRM_DIR"/*_a.img; do
+              [ -f "$img" ] || continue
+              mv -f "$img" "${img%_a.img}.img"
+          done
+
+          if [ -n "$STOCK_DEVICE" ] && [ "$STOCK_DEVICE" != "None" ]; then
+              find "$FIRM_DIR" -mindepth 1 -maxdepth 1 \
+              ! -name 'product.img' \
+              ! -name 'system.img' \
+              ! -name 'system_ext.img' \
+              -exec rm -rf {} +
+          fi
+
           # sudo required for f2fs img extract
           sudo bash -c 'source "'"$(pwd)"'/scripts/QuantumRom.sh"; EXTRACT_FIRMWARE_IMG "'"$FIRM_DIR"'" "all"'
           sudo chown -R "$(id -u):$(id -g)" "$FIRM_DIR" && chmod -R u+rwX "$FIRM_DIR"
           rm -rf "$FIRM_DIR"/*.img
-
-      - name: Decode odm, omc
-        run: |
-          source "$(pwd)/scripts/QuantumRom.sh"
-          DECODE_OMC "$FIRM_DIR" "$OUT_DIR"
 
       - name: Debloat Rom - ${{ inputs.DEBLOAT_ROM }}
         run: |
@@ -285,20 +295,41 @@ jobs:
           source "$(pwd)/scripts/QuantumRom.sh"
           BUILD_IMG "$FIRM_DIR" "all" "$OUTPUT_FILESYSTEM" "$OUT_DIR"
 
-      - name: Compress all .img & make zip file before upload - - ${{ inputs.COMPRESS_IMG_TO_XZ }}
+      - name: Compress all .img & make zip file before upload - - ${{ inputs.COMPRESS_IMG }}
         run: |
           echo "BUILD_TIME=$(TZ='Asia/Dhaka' date '+%Y-%m-%d %I:%M:%S %p UTC+6')" | tee -a "$GITHUB_ENV"
           ZIP_NAME="${{ inputs.TARGET_DEVICE }}_Port_For_${{ inputs.STOCK_DEVICE }}.zip"
           ZIP_PATH="$OUT_DIR/$ZIP_NAME"
 
-          if [ "$COMPRESS_IMG_TO_XZ" = "True" ]; then
+          FILE_LIST=$(find "$OUT_DIR" -type f -printf '%P\n' | sort)
+          FILE_COUNT=$(printf '%s\n' "$FILE_LIST" | grep -c . || true)
+
+          {
+              echo "ZIP_FILE_COUNT=$FILE_COUNT"
+              echo "ZIP_FILE_LIST<<EOF"
+              echo "$FILE_LIST"
+              echo "EOF"
+          } >> "$GITHUB_ENV"
+
+          if [ "$COMPRESS_IMG" = "xz" ]; then
               echo "Compressing all .img files to .xz (level 9)..."
               for img in "$OUT_DIR"/*.img; do
                   [ -f "$img" ] || continue
                   echo "Compressing $img"
-                  xz -9 -T0 "$img"
+                  xz -5 -T0 "$img"
               done
-          fi
+
+          elif [ "$COMPRESS_IMG" = "br" ]; then
+              echo "Compressing all .img files to .br (Brotli level 11)..."
+
+              for img in "$OUT_DIR"/*.img; do
+                  [ -f "$img" ] || continue
+
+                  echo "Compressing $img"
+                  pv -pterab "$img" | brotli -q 5 > "${img}.br"
+                  rm -f "$img"
+              done
+              fi
 
           echo "Creating zip: $ZIP_NAME"
           7z a -tzip "$ZIP_PATH" "$OUT_DIR"/* -mx=5

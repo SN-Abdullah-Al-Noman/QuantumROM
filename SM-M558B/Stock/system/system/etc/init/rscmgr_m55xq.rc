@@ -1,0 +1,30 @@
+# rscmgr rc file
+
+on property:sys.readahead.resource=1
+    readahead /system/app/HoneyBoard/HoneyBoard.apk --fully
+    readahead /data/dalvik-cache/arm64/system@app@HoneyBoard@HoneyBoard.apk@classes.dex --fully
+    readahead /data/dalvik-cache/arm64/system@app@HoneyBoard@HoneyBoard.apk@classes.vdex --fully
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.odex --fully
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.vdex --fully
+    readahead /data/dalvik-cache/arm/system@app@HoneyBoard@HoneyBoard.apk@classes.dex --fully
+    readahead /data/dalvik-cache/arm/system@app@HoneyBoard@HoneyBoard.apk@classes.vdex --fully
+    readahead /system/app/HoneyBoard/oat/arm/HoneyBoard.odex --fully
+    readahead /system/app/HoneyBoard/oat/arm/HoneyBoard.vdex --fully
+    readahead /system/app/IceCone/IceCone.apk --fully
+    readahead /data/dalvik-cache/arm64/system@app@IceCone@IceCone.apk@classes.dex --fully
+    readahead /data/dalvik-cache/arm64/system@app@IceCone@IceCone.apk@classes.vdex --fully
+    readahead /data/app/ClockPackage/ClockPackage.apk --fully
+    readahead /data/app/VoiceNote_5.0/VoiceNote_5.0.apk --fully
+	readahead /system/priv-app/SamsungMessages/SamsungMessages.apk --fully
+    readahead /system/priv-app/SamSungCamera/SamSungCamera.apk --fully
+    setprop sys.readahead.resource 0
+
+on property:sys.readahead.resource=2
+    readahead /system/priv-app/SamsungMessages/SamsungMessages.apk --fully
+    readahead /system/priv-app/SecSettings/SecSettings.apk --fully
+    setprop sys.readahead.resource 0
+
+on property:sys.readahead.resource=3
+    readahead /data/app/ClockPackage/ClockPackage.apk --fully
+    readahead /data/app/VoiceNote_5.0/VoiceNote_5.0.apk --fully
+    setprop sys.readahead.resource 0

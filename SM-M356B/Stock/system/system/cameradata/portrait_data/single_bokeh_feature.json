@@ -1,0 +1,67 @@
+{
+    "deviceName": "exynos8835_common",
+
+    "HumanAwareEngine": {
+        "Perf_mode_preview": "PERFMODE_LOW",
+        "Perf_mode_capture": "PERFMODE_LOW",
+        "Perf_mode_SDK": "PERFMODE_LOW",
+        "bloom_ev_tuning": "true"
+    },
+
+    "BeautyEngine": {
+        "mode_preview": "BEAUTY_SINGLEBLUR_PREVIEW",
+        "mode_capture": "BEAUTY_SINGLEBLUR_CAPTURE"
+    },
+
+    "RelightingEngine": {
+        "mode_preview": null,
+        "mode_capture": null
+    },
+
+    "LD_FD_engine": {
+        "mode_preview": "default",
+        "mode_capture": "default"
+    },
+    
+    "capture_segmentation": {
+        "Weightfile": "/system/cameradata/portrait_data/SRIB_Banet_FP16_V400.snf",
+        "Version": "400",
+        "ComputeUnit": "COMPUTE_GPU",
+        "ExecutionDataType": "FLOAT16",
+        "ModelType": "MODEL_TYPE_INSTANCE_CAPTURE",
+        "ModelFormat": "SNF",
+        "Encryption": "false",
+        "input_size": [[768, 768], [768, 768], [768, 768], [768, 768]]
+    },
+    "capture_depth": {
+        "Weightfile": null,
+        "Version": null,
+        "ComputeUnit": null,
+        "ExecutionDataType": null,
+        "ModelType": null,
+        "ModelFormat": null,
+        "Encryption": null,
+        "input_size": null
+    },
+    "capture_matting": {
+        "Weightfile": null,
+        "Version": null,
+        "ComputeUnit": null,
+        "ExecutionDataType": null,
+        "ModelType": null,
+        "ModelFormat": null,
+        "Encryption": null,
+        "input_size": null
+    },
+    "preview_1st_segmentation": {
+        "Weightfile": "/system/cameradata/portrait_data/SRIB_HumanSegVideoLite_INT8_V101_ex8835_enn422.nnc",
+        "Version": "101",
+        "ComputeUnit": "COMPUTE_NPU",
+        "ExecutionDataType": "QASYMM8",
+        "ModelType": "MODEL_TYPE_SEM_SEG_VIDEO",
+        "ModelFormat": "EDEN",
+        "Encryption": "false",
+        "input_size": [[288, 288], [288, 288], [288, 288], [288, 288]],
+        "effects_supported": [0, 6, 10, 11, 12, 13, 14, 15]
+    }
+}

@@ -1,0 +1,45 @@
+# rscmgr rc file
+on property:sys.readahead.resource=1
+    readahead /vendor/lib64/lib_supernight_interface.so --fully
+    readahead /vendor/lib64/libExtIRTA.so --fully
+    readahead /vendor/lib64/libformatConverter.unifunc.so --fully
+    readahead /vendor/lib64/hw/android.hardware.graphics.mapper@4.0-impl.so --fully
+    readahead /vendor/lib64/libIRTA.so --fully
+    readahead /vendor/lib64/hw/camera.s5e8535.so --fully
+    readahead /vendor/lib64/unihal_main.so --fully
+    readahead /vendor/bin/hw/vendor.samsung.hardware.camera.provider-service_64 --fully
+    readahead /system/lib64/libui.so --fully
+    readahead /system/lib64/libft2.so --fully
+    readahead /system/lib64/libharfbuzz_ng.so --fully
+    readahead /system/lib64/android.hardware.graphics.allocator@4.0.so --fully
+    readahead /system/lib64/android.hardware.graphics.composer@2.1.so --fully
+    readahead /system/fonts/OneUISans-VF.ttf --fully
+    readahead /system/fonts/Roboto-Regular.ttf --fully
+    readahead /vendor/lib64/libion_exynos.so --fully
+    readahead /vendor/lib64/hw/android.hardware.graphics.allocator@4.0-impl.so --fully
+    readahead /vendor/lib64/android.hardware.graphics.composer@2.1.so --fully
+    readahead /apex/com.android.vndk.v33/lib64/libhidlbase.so --fully
+    readahead /system/system_ext/priv-app/SystemUI/SystemUI.apk --fully
+    readahead /apex/com.android.vndk.v33/lib64/android.hardware.graphics.mapper@4.0.so --fully
+    readahead /system/lib64/libcamera_client.so --fully
+    readahead /system/lib64/vendor.samsung.hardware.camera.device-V1-ndk.so --fully
+    readahead /system/lib64/libedmnativehelper.so --fully
+    readahead /vendor/lib64/hw/camera.s5e8535.so --fully
+    readahead /apex/com.android.vndk.v33/lib64/android.hardware.camera.device-V1-ndk.so --fully
+    readahead /vendor/lib64/vendor.samsung.hardware.camera.device-V1-ndk.so --fully
+    readahead /vendor/lib64/libsamsungcamerahwl_impl.so --fully
+    readahead /vendor/lib64/libsamsungcamerahalutils.so --fully
+    readahead /vendor/lib64/libsamsungcamerahal.so --fully
+    readahead /vendor/lib64/unihal_android.so --fully
+    readahead /apex/com.android.vndk.v33/lib64/libcamera_metadata.so --fully
+    readahead /vendor/lib64/libhwjpeg.so --fully
+    readahead /system/priv-app/SamsungCamera/SamsungCamera.apk --fully
+
+on property:sys.readahead.resource=2
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.vdex --fully
+    readahead /system/app/HoneyBoard/HoneyBoard.apk --fully
+
+on property:sys.readahead.resource=3
+    readahead /apex/com.android.btservices/javalib/framework-bluetooth.jar --fully
+    readahead /apex/com.android.mediaprovider/javalib/framework-mediaprovider.jar --fully
+    setprop sys.readahead.resource 0

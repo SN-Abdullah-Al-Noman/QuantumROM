@@ -1,0 +1,24 @@
+# rscmgr rc file
+
+on property:sys.readahead.resource=1
+    readahead /system/priv-app/SamsungGallery2018/SamsungGallery2018.apk --fully
+    readahead /vendor/lib/libexynoscamera3.so --fully
+    readahead /apex/com.android.vndk.v34/lib/libexpat.so --fully
+    readahead /system/lib/libharfbuzz_ng.so --fully
+    readahead /system/lib/libft2.so --fully
+    readahead /system/framework/oat/arm/ssrm.odex --fully
+    readahead /system/lib/libgui.so --fully
+    readahead /system/lib/libnativecfms.so --fully
+    readahead /system/lib/libui.so --fully
+    readahead /system/lib/libbinder.so --fully
+    readahead /system/lib/android.hardware.power-V4-ndk.so --fully
+    readahead /system/lib/libmediandk.so --fully
+    readahead /system/lib/android.hardware.graphics.composer3-V2-ndk.so --fully
+    readahead /apex/com.android.adservices/javalib/service-sdksandbox.jar --fully
+    readahead /system/lib/libimagecodec.quram.so --fully
+
+on property:sys.readahead.resource=2
+    readahead /system/app/HoneyBoard/HoneyBoard.apk --fully
+    readahead /system/app/HoneyBoard/oat/arm/HoneyBoard.odex --fully
+    readahead /system/app/HoneyBoard/oat/arm/HoneyBoard.vdex --fully
+    setprop sys.readahead.resource 0

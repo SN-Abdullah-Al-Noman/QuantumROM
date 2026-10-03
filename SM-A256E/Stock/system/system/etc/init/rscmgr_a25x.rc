@@ -1,0 +1,24 @@
+# rscmgr rc file
+on property:sys.readahead.resource=1
+    readahead /system/lib64/libOpenCv.camera.samsung.so --fully
+    readahead /system/lib64/libsimba.media.samsung.so --fully
+    readahead /system/lib64/libphotohdr.so --fully
+    readahead /system/lib64/libimagecodec.quram.so --fully
+    readahead /system/lib64/libheifcapture.so --fully
+    readahead /system/lib64/libjpeg.so --fully
+    readahead /system/lib64/libsavsvc.so --fully
+    readahead /system/lib64/libexifa.camera.samsung.so --fully
+    readahead /system/lib64/libdng_sdk.so --fully
+    readahead /system/lib64/libsembitmapfactory_jni.so --fully
+    readahead /system/lib64/libsembitmapcolorspace.so --fully
+    readahead /system/lib64/libpadm.so --fully
+    readahead /system/lib64/libmedia.so --fully
+    readahead /system/lib64/libjpegencoder.so --fully
+    readahead /system/lib64/libpiex.so --fully
+    setprop sys.readahead.resource 0
+
+on property:sys.readahead.resource=2
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.vdex --fully
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.odex --fully
+    readahead /system/app/HoneyBoard/HoneyBoard.apk --fully
+    setprop sys.readahead.resource 0

@@ -6,6 +6,7 @@ This Custom ROM is built by combining and refining features from multiple projec
 
 ### 🛠️ Tools features.
 - Download firmware directly from samsung server.
+- Custom firmwqre release version download support.
 - File config and file contexts generate.
 - Extract and img build ( erofs, f2fs, ext4 supported).
 

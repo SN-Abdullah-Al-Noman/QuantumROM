@@ -1037,6 +1037,7 @@ PATCH_SSRM() {
 
     local SSRM_DIR="$1"
     local FILE="$SSRM_DIR/smali/com/android/server/ssrm/Feature.smali"
+    local FOUND
 
     echo -e "Patching SSRM."
     echo -e "- Patching: $FILE"
@@ -1046,11 +1047,11 @@ PATCH_SSRM() {
         return 1
     fi
 
-    if FOUND=$(grep -E 'const-string [vp][0-9]+, "dvfs_policy_[^"]*"' "$FILE" | sed -n '2p'); then
-        if [ -n "$FOUND" ]; then
-            echo "- Found DVFS policy: $FOUND"
+    if [ -n "$STOCK_DVFS_FILENAME" ]; then
+        if FOUND=$(grep -E 'const-string [vp][0-9]+, "dvfs_policy_[^"]*"' "$FILE" | sed -n '2p'); then
+            if [ -n "$FOUND" ]; then
+                echo "- Found DVFS policy: $FOUND"
 
-            if [ -n "$STOCK_DVFS_FILENAME" ]; then
                 sed -i -E \
                     '0,/dvfs_policy_[^"]*/!{
                         s|(const-string [vp][0-9]+, ")dvfs_policy_[^"]*(")|\1'"$STOCK_DVFS_FILENAME"'\2|
@@ -1059,33 +1060,50 @@ PATCH_SSRM() {
 
                 echo "- DVFS policy file name replaced to: ${STOCK_DVFS_FILENAME}"
             else
-                echo "- STOCK_DVFS_FILENAME is empty. Skipping replacement."
+                echo "- DVFS policy file name not found."
             fi
-        else
-            echo "- DVFS policy file name not found."
         fi
     else
-        echo "- DVFS policy file name not found."
+        echo "- Stock DVFS policy file name not found."
     fi
 
-    if FOUND=$(grep -E 'const-string [vp][0-9]+, "siop_[^"]*_[^"]*"' "$FILE"); then
-        if [ -n "$FOUND" ]; then
+    if [ -n "$STOCK_SIOP_POLICY_FILENAME" ]; then
+        local SIOP_FULL='siop_[^"_]+_[^"]+'
+        local SSRM_DEF='ssrm_default'
+        local SIOP_DEF='siop_default'
+
+        if FOUND=$(grep -E "const-string [vp][0-9]+, \"${SIOP_FULL}\"" "$FILE"); then
             echo "- Found SIOP policy: $FOUND"
 
-            if [ -n "$STOCK_SIOP_POLICY_FILENAME" ]; then
-                sed -i -E \
-                    's|(const-string [vp][0-9]+, ")siop_[^"]*_[^"]*(")|\1'"$STOCK_SIOP_POLICY_FILENAME"'\2|' \
-                    "$FILE"
+            sed -i -E \
+                "s#(const-string [vp][0-9]+, \")${SIOP_FULL}(\")#\1${STOCK_SIOP_POLICY_FILENAME}\2#" \
+                "$FILE"
 
-                echo "- SIOP policy file name replaced to: ${STOCK_SIOP_POLICY_FILENAME}"
-            else
-                echo "- STOCK_SIOP_POLICY_FILENAME is empty. Skipping replacement."
-            fi
+            echo "- SIOP policy file name replaced to: ${STOCK_SIOP_POLICY_FILENAME}"
+
+        elif FOUND=$(grep -E "const-string [vp][0-9]+, \"${SSRM_DEF}\"" "$FILE"); then
+            echo "- Found SSRM default policy: $FOUND"
+
+            sed -i -E \
+                "s#(const-string [vp][0-9]+, \")${SSRM_DEF}(\")#\1${STOCK_SIOP_POLICY_FILENAME}\2#" \
+                "$FILE"
+
+            echo "- SSRM default policy file name replaced to: ${STOCK_SIOP_POLICY_FILENAME}"
+
+        elif FOUND=$(grep -E "const-string [vp][0-9]+, \"${SIOP_DEF}\"" "$FILE"); then
+            echo "- Found SIOP default policy: $FOUND"
+
+            sed -i -E \
+                "s#(const-string [vp][0-9]+, \")${SIOP_DEF}(\")#\1${STOCK_SIOP_POLICY_FILENAME}\2#" \
+                "$FILE"
+
+            echo "- SIOP default policy file name replaced to: ${STOCK_SIOP_POLICY_FILENAME}"
+
         else
             echo "- SIOP policy file name not found."
         fi
     else
-        echo "- SIOP policy file name not found."
+        echo "- Stock SIOP policy file name not found."
     fi
 }
 

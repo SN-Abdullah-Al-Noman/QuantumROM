@@ -1,0 +1,11 @@
+<?xml version= "1.0" encoding= "UTF-8"?>
+<resources>
+    <!-- Performance features -->
+    <local name="CONFIG_DVFS_CPU_MIN_CLOCK_DURING_BODY_TRACKING" value="1144000" />
+
+    <!-- Full preview size -->
+    <local name="MAIN_FULL_PREVIEW_SIZE" value="1920x888" />
+
+    <!-- Hardware dependent features -->
+    <local name="DISPLAY_CUTOUT_ANIMATION_INFO" num-of-display-cutout="1" display-cutout-0-type="2" display-cutout-0-left="155" display-cutout-0-top="0" display-cutout-0-right="205" display-cutout-0-bottom="35"/>
+</resources>

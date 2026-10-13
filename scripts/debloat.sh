@@ -38,9 +38,9 @@ SAMSUNG_APPS=(
 "OneDrive_Samsung_v3" "SamsungCarKeyFw"
 "SamsungPass" "SamsungSmartSuggestions"
 "SamsungPassAutofill_v1" "WarrantyCare"
-"AirCommand" "AppUpdateCenter" "AREmoji"
+"AirCommand" "AppUpdateCenter" "AREmoji" "SketchBook"
 "AREmojiEditor" "AutoDoodle" "AvatarEmojiSticker"
-"AvatarEmojiSticker_S" "AvatarPicker"
+"AvatarEmojiSticker_S" "AvatarPicker" "GalaxyBetaService"
 "GalleryWidget" "LiveStickers" "StoryService"
 "StickerFaceARAvatar" "sticker" "PaymentFramework"
 )

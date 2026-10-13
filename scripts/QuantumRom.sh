@@ -2007,7 +2007,8 @@ APPLY_STOCK_CONFIG() {
 
     # Fix unsupported BPF error for kernels lower than 5.10.
     if [ "$USE_UI_8_TETHERING_APEX" = "True" ]; then
-        cp -rfa "${QT_DIR}/QuantumROM/Mods/Tethering_Apex/UI-8/." "${EXTRACTED_FIRM_DIR}/"
+	    rm -rf "${EXTRACTED_FIRM_DIR}"/system/system/apex/com.google.android.tethering*.apex
+        cp -rfa "${QT_DIR}/QuantumROM/Mods/Tethering_Apex/OneUI-8/." "${EXTRACTED_FIRM_DIR}/"
     fi
 
     if [ "$STOCK_DEVICE_TYPE" = "jdm" ]; then

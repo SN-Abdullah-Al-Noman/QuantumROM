@@ -48,7 +48,7 @@ on:
         default: "True"
 
       ADD_CHINA_SMART_MANAGER:
-        description: "Add chismart manager (True/False)"
+        description: "Add china smart manager (True/False)"
         required: true
         default: "True"
 

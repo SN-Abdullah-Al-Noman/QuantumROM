@@ -1,0 +1,12 @@
+# rscmgr rc file
+on property:sys.readahead.resource=1
+    readahead /system/lib64/libimagecodec.quram.so
+    readahead /system/lib64/libskandroidcodec.so
+    readahead /system/lib64/libskcodec.so
+
+on property:sys.readahead.resource=2
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.vdex --fully
+    readahead /system/app/HoneyBoard/HoneyBoard.apk --fully
+
+on property:sys.readahead.resource=3
+    setprop sys.readahead.resource 0

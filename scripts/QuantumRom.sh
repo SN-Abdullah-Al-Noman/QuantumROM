@@ -806,6 +806,20 @@ PATCH_FLAG_SECURE() {
     return-object v0
     '
 
+	local REPLACE_BODY_3='
+    .locals 4
+
+    const/4 p2, 0x0
+
+    invoke-virtual {p1}, Landroid/util/ArraySet;->clear()V
+
+    iget-object v0, p0, Lcom/android/server/wm/ScreenRecordingCallbackController;->mLastInvokedStateByUid:Landroid/util/ArrayMap;
+
+    invoke-virtual {v0}, Landroid/util/ArrayMap;->clear()V
+
+    return-void
+    '
+
 	echo -e "Patching flag secure."
 
     local EXTRACTED_FIRM_DIR="$1"
@@ -846,10 +860,15 @@ PATCH_FLAG_SECURE() {
         15|16|17)
             FILE_1="${WORK_DIR}/smali_classes2/com/android/server/wm/WindowState.smali"
             METHOD_NAME_1=".method public final isSecureLocked()Z"
+
 			FILE_2="${WORK_DIR}/smali_classes2/com/android/server/wm/WindowManagerService.smali"
             METHOD_NAME_2=".method public final notifyScreenshotListeners(I)Ljava/util/List;"
+
 			FILE_3="${WORK_DIR}/smali/com/android/server/devicepolicy/DevicePolicyManagerService.smali"
 			METHOD_NAME_3=".method public final getScreenCaptureDisabled(Landroid/content/ComponentName;IZ)Z"
+
+			FILE_4="${WORK_DIR}/smali_classes2/com/android/server/wm/ScreenRecordingCallbackController.smali"
+			METHOD_NAME_4=".method public final dispatchCallbacks(Landroid/util/ArraySet;Z)V"
             ;;
         *)
             echo "- Unsupported Android version: $ANDROID_VERSION"
@@ -867,6 +886,10 @@ PATCH_FLAG_SECURE() {
 
 	if [[ -v FILE_3 ]]; then
         REPLACE_SMALI_METHOD "$FILE_3" "$METHOD_NAME_3" "$REPLACE_BODY_1"
+    fi
+
+	if [[ -v FILE_4 ]]; then
+        REPLACE_SMALI_METHOD "$FILE_4" "$METHOD_NAME_4" "$REPLACE_BODY_3"
     fi
 }
 

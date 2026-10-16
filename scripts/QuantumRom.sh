@@ -854,6 +854,7 @@ PATCH_FLAG_SECURE() {
         14)
             FILE_1="${WORK_DIR}/smali_classes3/com/android/server/wm/WindowState.smali"
             METHOD_NAME_1=".method public isSecureLocked()Z"
+
 			FILE_2="${WORK_DIR}/smali_classes3/com/android/server/wm/WindowManagerService.smali"
             METHOD_NAME_2=".method public notifyScreenshotListeners(I)Ljava/util/List;"
             ;;
@@ -922,15 +923,19 @@ PATCH_SECURE_FOLDER() {
 	case "$ANDROID_VERSION" in
         12|13|14)
             FILE_1="${WORK_DIR}/smali_classes2/com/android/server/knox/dar/DarManagerService.smali"
+
 			METHOD_NAME_1=".method public isDeviceRootKeyInstalled()Z"
 	        METHOD_NAME_2=".method public isKnoxKeyInstallable()Z"
+
 			REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_1" "$REPLACE_BODY_1"
             REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_2" "$REPLACE_BODY_1"
             ;;
         15|16|17)
             FILE_1="${WORK_DIR}/smali/com/android/server/knox/dar/DarManagerService.smali"
+
 			METHOD_NAME_1=".method public final isDeviceRootKeyInstalled()Z"
 	        METHOD_NAME_2=".method public final isKnoxKeyInstallable()Z"
+
 			REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_1" "$REPLACE_BODY_1"
             REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_2" "$REPLACE_BODY_1"
             ;;
@@ -980,16 +985,19 @@ DISABLE_SIGNATURE_VERIFICATION() {
     # https://forum.xda-developers.com/t/mods-samsung-not-android-mods-collection-exynos.3772017/post-87773529
     # https://forum.xda-developers.com/t/mods-samsung-not-android-mods-collection-exynos.3772017/post-87773543
 
-    local FILE="${1}/smali_classes4/android/util/apk/ApkSignatureVerifier.smali"
     # patch .method public static blacklist getMinimumSignatureSchemeVersionForTargetSdk(I)I
-    local METHOD_NAME=".method public static blacklist getMinimumSignatureSchemeVersionForTargetSdk(I)I"
-    local REPLACE_BODY='
+
+    local FILE="${1}/smali_classes4/android/util/apk/ApkSignatureVerifier.smali"
+	local METHOD_NAME=".method public static blacklist getMinimumSignatureSchemeVersionForTargetSdk(I)I"
+
+	local REPLACE_BODY='
     .locals 1
 
     const/4 v0, 0x1
  
     return v0
     '
+
 	REPLACE_SMALI_METHOD "$FILE" "$METHOD_NAME" "$REPLACE_BODY"
 }
 
@@ -1003,10 +1011,12 @@ PATCH_KNOX_GUARD() {
     fi
 
     echo -e "Patching knox guard."
+	# patch .method public constructor <init>(Landroid/content/Context;)V
+
     local FILE="${1}/smali_classes2/com/samsung/android/knoxguard/service/KnoxGuardSeService.smali"
-    # patch .method public constructor <init>(Landroid/content/Context;)V
-    local METHOD_NAME_1=".method public constructor <init>(Landroid/content/Context;)V"
-    local REPLACE_BODY_1='
+	local METHOD_NAME_1=".method public constructor <init>(Landroid/content/Context;)V"
+
+	local REPLACE_BODY_1='
     .locals 0
  
 	invoke-direct {p0}, Lcom/samsung/android/knoxguard/IKnoxGuardManager$Stub;-><init>()V
@@ -1024,6 +1034,7 @@ PATCH_KNOX_GUARD() {
 
     throw p0
     '
+
     REPLACE_SMALI_METHOD "$FILE" "$METHOD_NAME_1" "$REPLACE_BODY_1"
 	rm -rf "$FIRM_DIR/$TARGET_DEVICE/system/system/priv-app/KnoxGuard"
 }

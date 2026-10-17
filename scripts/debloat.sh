@@ -204,7 +204,7 @@ DEBLOAT_SAMSUNG_BIXBY_APPS() {
         return 1
     fi
 
-    echo -e "Debloating samssung bixby apps."
+    echo -e "Debloating samsung bixby apps."
     KICK "$EXTRACTED_FIRM_DIR" "${SAMSUNG_BIXBY_APPS[@]}"
 }
 
@@ -223,7 +223,7 @@ DEBLOAT_SAMSUNG_DEX_APPS() {
         return 1
     fi
 
-    echo -e "Debloating samssung dex apps."
+    echo -e "Debloating samsung dex apps."
     KICK "$EXTRACTED_FIRM_DIR" "${SAMSUNG_DEX_APPS[@]}"
 }
 

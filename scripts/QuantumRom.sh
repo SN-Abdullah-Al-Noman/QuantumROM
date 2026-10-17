@@ -396,7 +396,7 @@ EXTRACT_FIRMWARE() {
         rm -f "$file"
     done
 
-    echo -e "Firmware Extraction complete."
+    echo -e "Firmware extraction complete."
 }
 
 
@@ -1301,7 +1301,7 @@ FIX_VNDK() {
 						    cp -a "${VNDK_EXTRACT_DIR}/31/." "$TARGET_ROM_SYSTEM_EXT_DIR/"
 						    cp -a "${VNDK_EXTRACT_DIR}/30/." "$TARGET_ROM_SYSTEM_EXT_DIR/"
 					    	cp -a "${VNDK_EXTRACT_DIR}/dual_vndks/30_31/." "$TARGET_ROM_SYSTEM_EXT_DIR/etc/vintf/"
-					    	echo "- Dual vndk 30 and 31 copied successfully"
+					    	echo "- Dual VNDK 30 and 31 copied successfully"
 				        fi
                     else
                         echo "- ERROR: Extracted VNDK directory not found:"
@@ -1898,7 +1898,7 @@ FIX_CAMERA() {
     local ANDROID_VERSION=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")
 
     if [ "$STOCK_DEVICE_CHIPSET" = "MediaTek" ] && [ "$BUILD_BRAND" != "MTK" ]; then
-        echo "- Adding mediatek camera related files."
+        echo "- Adding MediaTek camera related files."
 
         if [ ! -f "${QT_DIR}/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}.zip" ]; then
             if curl -fsSL --connect-timeout 5 https://www.google.com >/dev/null; then
@@ -1928,7 +1928,7 @@ FIX_CAMERA() {
             sed -i "$((FIRST_CAM_LINE-1))r ${QT_DIR}/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}/system/etc/floating_feature.xml" "${EXTRACTED_FIRM_DIR}/system/system/etc/floating_feature.xml"
 			rm -rf "${QT_DIR}/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}/system/etc/floating_feature.xml"
 
-            echo "- Copying A34 mediatek camera related files."
+            echo "- Copying A34 MediaTek camera related files."
             cp -rfa "${QT_DIR}/QuantumROM/Mods/Apps/MTK_Camera_Files_Android_${ANDROID_VERSION}/system/." "${EXTRACTED_FIRM_DIR}/system/system"
         fi
     fi
@@ -2000,7 +2000,7 @@ APPLY_STOCK_CONFIG() {
 		export STOCK_SIOP_POLICY_FILENAME="$(grep -m1 '^STOCK_SIOP_POLICY_FILENAME=' "${DEVICES_DIR}/$STOCK_DEVICE/config" | cut -d= -f2 | tr -d '\r')"
     fi
 
-	echo "Stock device vndk version: $STOCK_VNDK_VERSION"
+	echo "Stock device VNDK version: $STOCK_VNDK_VERSION"
     export STOCK_ROM_FLOATING_FEATURE="${DEVICES_DIR}/$STOCK_DEVICE/floating_feature.xml"
 
 	if [ ! -f "$STOCK_ROM_FLOATING_FEATURE" ]; then
@@ -2039,7 +2039,7 @@ APPLY_STOCK_CONFIG() {
     # Apply stock floating feature.
 	APPLY_STOCK_ROM_FLOATING_FEATURE "$STOCK_ROM_FLOATING_FEATURE" "$TARGET_ROM_FLOATING_FEATURE"
 
-    # Fix unsupported BPF error for kernels lower than 5.10.
+    # Fix unsupported BPF error for kernels with BPF lower than 5.10.
     if [ "$USE_UI_8_TETHERING_APEX" = "True" ]; then
 	    rm -rf "${EXTRACTED_FIRM_DIR}"/system/system/apex/com.google.android.tethering*.apex
         cp -rfa "${QT_DIR}/QuantumROM/Mods/Tethering_Apex/OneUI-8/." "${EXTRACTED_FIRM_DIR}/"
@@ -2186,7 +2186,7 @@ APPLY_JDM_SPECIAL() {
         return 1
     fi
 
-	echo -e "Applying jdm device feature."
+	echo -e "Applying JDM device feature."
 
 	local EXTRACTED_FIRM_DIR="$1"
 	local ANDROID_VERSION=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")
@@ -2451,10 +2451,10 @@ APPLY_CUSTOM_FEATURES() {
 
 	local EXTRACTED_FIRM_DIR="$1"
 
-	echo -e "Applying usefull features."
+	echo -e "Applying useful features."
 
-    if [ -d "${QT_DIR}/QuantumROM/usefull_things" ]; then
-        cp -a "${QT_DIR}/QuantumROM/usefull_things/." "${QT_DIR}/OUT"
+    if [ -d "${QT_DIR}/QuantumROM/useful_things" ]; then
+        cp -a "${QT_DIR}/QuantumROM/useful_things/." "${QT_DIR}/OUT"
     fi
 
 	if [ ! -d "${EXTRACTED_FIRM_DIR}/system" ]; then
@@ -2487,7 +2487,7 @@ DECODE_CSC() {
         return 1
     fi
 
-    echo -e "-Decoding CSC - odm,optics."
+    echo -e "-Decoding CSC - odm, optics."
 
     if ! command -v java >/dev/null 2>&1; then
         echo -e "- Java is not installed."

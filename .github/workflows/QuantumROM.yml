@@ -43,7 +43,7 @@ on:
         default: "True"
 
       DEBLOAT_SAMSUNG_DEX:
-        description: "Debloat Samsung Dex apps (True/False)"
+        description: "Debloat Samsung DeX apps (True/False)"
         required: true
         default: "True"
 
@@ -78,7 +78,7 @@ on:
         default: "True"
 
       COMPRESS_IMG:
-        description: "Compress img to xz or br (bortli)"
+        description: "Compress img to xz or br (brotli)"
         required: false
         default: ""
 

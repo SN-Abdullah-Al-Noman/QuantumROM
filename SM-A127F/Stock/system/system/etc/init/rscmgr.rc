@@ -1,0 +1,17 @@
+# rscmgr rc file
+
+on property:sys.readahead.resource=1
+    readahead /vendor/lib64/libexynoscamera3.so  --fully
+
+on property:sys.readahead.resource=2
+    readahead /system/app/HoneyBoard/HoneyBoard.apk --fully
+    readahead /system/priv-app/SecSettings/SecSettings.apk --fully
+    
+on property:sys.readahead.resource=3
+    readahead /apex/com.android.art/lib/libart.so --fully
+    readahead /apex/com.android.art/lib/libart-compiler.so --fully
+    readahead /apex/com.android.i18n/lib/libicuuc.so --fully
+    readahead /system/framework/arm/boot.oat --fully
+    readahead /system/framework/arm/boot-framework.oat --fully
+    readahead /system/lib/libhwui.so --fully
+    setprop sys.readahead.resource 0

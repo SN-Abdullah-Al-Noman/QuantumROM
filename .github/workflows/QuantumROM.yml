@@ -296,6 +296,10 @@ jobs:
       - name: Build img - ${{ inputs.OUTPUT_FILESYSTEM }}
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
+          B_ID="$(grep -m1 '^ro.system.build.id=' "$FIRM_DIR/system/system/build.prop" | cut -d= -f2 | tr -d '\r')"
+          B_V="$(grep -m1 '^ro.system.build.version.incremental=' "$FIRM_DIR/system/system/build.prop" | cut -d= -f2 | tr -d '\r')"
+          BUILD_PROP "$FIRM_DIR" "system" "ro.build.display.id" "${B_ID} ${B_V} V-${VERSION}: Built with Quantum Tools"
+          BUILD_PROP "$FIRM_DIR" "product" "ro.build.display.id" "${B_ID} ${B_V} V-${VERSION}: Built with Quantum Tools"
           BUILD_IMG "$FIRM_DIR" "all" "$OUTPUT_FILESYSTEM" "$OUT_DIR"
 
       - name: Compress all .img & make zip file before upload - - ${{ inputs.COMPRESS_IMG }}

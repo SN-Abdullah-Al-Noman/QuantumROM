@@ -22,8 +22,10 @@ FILE_CONTEXTS="${FIRM_DIR}/config/${IMG_NAME_BASE}_file_contexts"
 FS_CONFIG="${FIRM_DIR}/config/${IMG_NAME_BASE}_fs_config"
 
 # umount img if previously mounted
-umount "$SRC_MOUNT" 2>/dev/null || true
-rm -rf "$SRC_MOUNT"
+if mountpoint -q "$SRC_MOUNT"; then
+    umount "$SRC_MOUNT"
+	rm -rf "$SRC_MOUNT"
+fi
 
 rm -rf "${FIRM_DIR}/$IMG_NAME_BASE"
 mkdir "${FIRM_DIR}/$IMG_NAME_BASE"
@@ -167,5 +169,7 @@ echo "- Extracting ${IMG_NAME_BASE}"
 cp -ar "$SRC_MOUNT"/* "${FIRM_DIR}/$IMG_NAME_BASE"
 
 # umount and delete mounted folder
-umount "$SRC_MOUNT" 2>/dev/null || true
-rm -rf "$SRC_MOUNT"
+if mountpoint -q "$SRC_MOUNT"; then
+    umount "$SRC_MOUNT"
+	rm -rf "$SRC_MOUNT"
+fi

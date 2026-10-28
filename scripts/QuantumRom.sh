@@ -972,7 +972,7 @@ PATCH_PRIVATE_SHARE() {
 }
 
 
-DISABLE_SIGNATURE_VERIFICATION() {
+PATCH_APK_SHARED_USER_ID_VERIFICATION() {
     echo " "
 
 	if [ "$#" -ne 1 ]; then
@@ -982,7 +982,7 @@ DISABLE_SIGNATURE_VERIFICATION() {
 
 	services="$1"
 
-    echo -e "Disabling signature verification."
+    echo -e "Patching apk shared user id version."
 
 	local ANDROID_VERSION=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")
 
@@ -1000,10 +1000,8 @@ DISABLE_SIGNATURE_VERIFICATION() {
         15)
             FILE_1="${services}/smali_classes2/com/android/server/pm/PackageManagerServiceUtils.smali"
             METHOD_NAME_1=".method public static canJoinSharedUserId(Ljava/lang/String;Landroid/content/pm/SigningDetails;Lcom/android/server/pm/SharedUserSetting;I)Z"
-            METHOD_NAME_2=".method public static compareSignatureArrays([Landroid/content/pm/Signature;[Landroid/content/pm/Signature;)I"
 
 			REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_1" "$REPLACE_BODY_1"
-            REPLACE_SMALI_METHOD "$FILE_1" "$METHOD_NAME_2" "$REPLACE_BODY_1"
             ;;
         *)
             echo "- Unsupported Android version: $ANDROID_VERSION"

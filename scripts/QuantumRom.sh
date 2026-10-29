@@ -982,7 +982,7 @@ PATCH_APK_SHARED_USER_ID_VERIFICATION() {
 
 	services="$1"
 
-    echo -e "Patching apk shared user id version."
+    echo -e "Patching apk shared user id verification."
 
 	local ANDROID_VERSION=$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")
 

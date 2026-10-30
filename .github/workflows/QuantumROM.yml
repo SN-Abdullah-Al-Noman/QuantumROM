@@ -261,7 +261,7 @@ jobs:
         run: |
           source "$(pwd)/scripts/QuantumRom.sh"
 
-          if [ "$PATCH_FLAG_SECURE" = "True" ] || [ "$PATCH_SECURE_FOLDER" = "True" ]; then
+          if [ "$PATCH_FLAG_SECURE" = "True" ] || [ "$PATCH_SECURE_FOLDER" = "True" ] || [ "$ADD_CHINA_SMART_MANAGER" = "True" ] || [ "$ADD_SAMSUNG_FLAGSHIP_APPS" = "True" ]; then
               INSTALL_FRAMEWORK "$APKTOOL" "$FIRM_DIR/system/system/framework/framework-res.apk"
               DECOMPILE "$APKTOOL" "$FIRM_DIR/system/system/framework" "$FIRM_DIR/system/system/framework/services.jar" "$WORK_DIR"
           fi
@@ -272,6 +272,10 @@ jobs:
 
           if [ "$PATCH_SECURE_FOLDER" = "True" ]; then
               PATCH_SECURE_FOLDER "$FIRM_DIR" "$WORK_DIR/services"
+          fi
+
+          if [ "$ADD_CHINA_SMART_MANAGER" = "True" ] || [ "$ADD_SAMSUNG_FLAGSHIP_APPS" = "True" ]; then
+              PATCH_APK_SHARED_USER_ID_VERIFICATION "$FIRM_DIR" "$WORK_DIR/services"
           fi
 
           if [ -f "$WORK_DIR/services.jar" ]; then

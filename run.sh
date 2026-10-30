@@ -65,6 +65,7 @@ DECOMPILE "$APKTOOL" "$FIRM_DIR/system/system/framework" "$FIRM_DIR/system/syste
 PATCH_SSRM "$WORK_DIR/ssrm"
 PATCH_FLAG_SECURE "$FIRM_DIR" "$WORK_DIR/services"
 PATCH_SECURE_FOLDER "$FIRM_DIR" "$WORK_DIR/services"
+PATCH_APK_SHARED_USER_ID_VERIFICATION "$FIRM_DIR" "$WORK_DIR/services"
 
 RECOMPILE "$APKTOOL" "$FIRM_DIR/system/system/framework" "$WORK_DIR/ssrm" "$WORK_DIR"
 RECOMPILE "$APKTOOL" "$FIRM_DIR/system/system/framework" "$WORK_DIR/services" "$WORK_DIR"

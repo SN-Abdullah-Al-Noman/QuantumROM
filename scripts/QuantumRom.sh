@@ -975,12 +975,13 @@ PATCH_PRIVATE_SHARE() {
 PATCH_APK_SHARED_USER_ID_VERIFICATION() {
     echo " "
 
-	if [ "$#" -ne 1 ]; then
-        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_SERVICES_DIRECTORY>"
+	if [ "$#" -ne 2 ]; then
+        echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRMWARE_DIRECTORY> <EXTRACTED_SERVICES_DIRECTORY>"
         return 1
     fi
 
-	services="$1"
+    local EXTRACTED_FIRM_DIR="$1"
+	local services="$2"
 
     echo -e "Patching apk shared user id verification."
 

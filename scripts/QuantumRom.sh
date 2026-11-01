@@ -1006,7 +1006,7 @@ PATCH_APK_SHARED_USER_ID_VERIFICATION() {
             ;;
         *)
             echo "- Unsupported Android version: $ANDROID_VERSION"
-            return 1
+            return 0
             ;;
     esac
 }
@@ -1173,7 +1173,7 @@ PATCH_BT_LIB() {
 
     if [[ -z "$ANDROID_VERSION" ]]; then
         echo "ERROR: Unable to detect Android version."
-        return 1
+        return 0
     fi
 
     echo "Android Version: $ANDROID_VERSION"
@@ -1188,26 +1188,26 @@ PATCH_BT_LIB() {
     if ! 7z e "$EXTRACTED_FIRM_DIR"/system/system/apex/com.android.bt*.apex \
         "apex_payload.img" -o"$WORK_DIR" -y >/dev/null; then
         echo "ERROR: Failed to extract Bluetooth APEX."
-        return 1
+        return 0
     fi
 
     if ! debugfs -R "dump /lib64/libbluetooth_jni.so $BT_LIB_FILE" \
         "$WORK_DIR/apex_payload.img" >/dev/null 2>&1; then
         rm -f "$WORK_DIR/apex_payload.img"
         echo "ERROR: Failed to extract libbluetooth_jni.so."
-        return 1
+        return 0
     fi
 
     rm -f "$WORK_DIR/apex_payload.img"
 
     if [[ ! -s "$BT_LIB_FILE" ]]; then
         echo "ERROR: Bluetooth library not found or empty."
-        return 1
+        return 0
     fi
 
     if ! hex_dump="$(xxd -p "$BT_LIB_FILE" | tr -d '\n')"; then
         echo "ERROR: Could not read Bluetooth library."
-        return 1
+        return 0
     fi
 
     #
@@ -1253,7 +1253,7 @@ PATCH_BT_LIB() {
             ;;
         *)
             echo "ERROR: Unsupported Android release: $ANDROID_VERSION"
-            return 1
+            return 0
             ;;
     esac
 
@@ -1284,7 +1284,7 @@ PATCH_BT_LIB() {
         if ! printf '%s' "$hex_dump" | xxd -r -p > "$PATCHED_FILE"; then
             rm -f "$PATCHED_FILE"
             echo "ERROR: Failed to write patched library."
-            return 1
+            return 0
         fi
 
         mv -f "$PATCHED_FILE" "$BT_LIB_FILE" || return 1

@@ -1154,100 +1154,148 @@ PATCH_SSRM() {
 
 PATCH_BT_LIB() {
     echo " "
-
-	if [ "$#" -ne 2 ]; then
+    if [ "$#" -ne 2 ]; then
         echo -e "Usage: ${FUNCNAME[0]} <EXTRACTED_FIRM_DIRECTORY> <WORK_DIR>"
         return 1
     fi
 
-	local EXTRACTED_FIRM_DIR="$1"
-	local WORK_DIR="$2"
-	local BT_LIB_FILE="$WORK_DIR/libbluetooth_jni.so"
+    local EXTRACTED_FIRM_DIR="$1"
+    local WORK_DIR="$2"
+    local BT_LIB_FILE="$WORK_DIR/libbluetooth_jni.so"
+    local ANDROID_VERSION="$(GET_PROP "$EXTRACTED_FIRM_DIR" "system" "ro.system.build.version.release")"
+    local hex_dump=""
+    local patched=false
+    local sig patch sig_regex
+    local i
+    local -a s_arr p_arr
 
     echo -e "Patching Bluetooth library."
-    # Get libbluetooth_jni.so
-    if ! ls "$EXTRACTED_FIRM_DIR"/system/system/apex/com.android.bt*.apex >/dev/null 2>&1; then
+
+    if [[ -z "$ANDROID_VERSION" ]]; then
+        echo "ERROR: Unable to detect Android version."
+        return 1
+    fi
+
+    echo "Android Version: $ANDROID_VERSION"
+
+    if ! compgen -G "$EXTRACTED_FIRM_DIR/system/system/apex/com.android.bt*.apex" >/dev/null; then
         echo -e "- No bluetooth apex file found."
         return 0
     fi
 
-    7z e "${EXTRACTED_FIRM_DIR}/system/system/apex/com.android.bt"*.apex \
-        "apex_payload.img" -o"$WORK_DIR" -y >/dev/null
+    mkdir -p "$WORK_DIR" || return 1
 
-	debugfs -R "dump /lib64/libbluetooth_jni.so $WORK_DIR/libbluetooth_jni.so" \
-        "$WORK_DIR/apex_payload.img" >/dev/null
+    if ! 7z e "$EXTRACTED_FIRM_DIR"/system/system/apex/com.android.bt*.apex \
+        "apex_payload.img" -o"$WORK_DIR" -y >/dev/null; then
+        echo "ERROR: Failed to extract Bluetooth APEX."
+        return 1
+    fi
 
-	rm -rf "$WORK_DIR/apex_payload.img"
+    if ! debugfs -R "dump /lib64/libbluetooth_jni.so $BT_LIB_FILE" \
+        "$WORK_DIR/apex_payload.img" >/dev/null 2>&1; then
+        rm -f "$WORK_DIR/apex_payload.img"
+        echo "ERROR: Failed to extract libbluetooth_jni.so."
+        return 1
+    fi
 
-    declare -A hex=(
-        [136]=00122a0140395f01086b00020054 [1136]=00122a0140395f01086bde030014
-        [135]=480500352800805228 [1135]=530100142800805228
-        [134]=6804003528008052 [1134]=2b00001428008052
-        [133]=6804003528008052 [1133]=2a00001428008052
-        [132]=........f9031f2af3031f2a41 [1132]=1f2003d5f9031f2af3031f2a48
-        [131]=........f9031f2af3031f2a41 [1131]=1f2003d5f9031f2af3031f2a48
-        [130]=........f3031f2af4031f2a3e [1130]=1f2003d5f3031f2af4031f2a3e
-        [129]=........f4031f2af3031f2ae8030032 [1129]=1f2003d5f4031f2af3031f2ae8031f2a
-        [128]=88000034e8030032 [1128]=1f2003d5e8031f2a
-        [127]=88000034e8030032 [1127]=1f2003d5e8031f2a
-        [126]=88000034e8030032 [1126]=1f2003d5e8031f2a
-        [234]=4e7e4448bb [1234]=4e7e4437e0
-        [233]=4e7e4440bb [1233]=4e7e4432e0
-        [231]=20b14ff000084ff000095ae0 [1231]=00bf4ff000084ff0000964e0
-        [230]=18b14ff0000b00254a [1230]=00204ff0000b002554
-        [229]=..b100250120 [1229]=00bf00250020
-        [228]=..b101200028 [1228]=00bf00200028
-        [227]=09b1012032e0 [1227]=00bf002032e0
-        [226]=08b1012031e0 [1226]=00bf002031e0
-        [225]=087850bbb548 [1225]=08785ae1b548
-        [224]=007840bb6a48 [1224]=0078c4e06a48
-        [330]=88000054691180522925c81a69000037 [1330]=1f2003d5691180522925c81a1f2003d5
-        [329]=88000054691180522925c81a69000037 [1329]=1f2003d5691180522925c81a1f2003d5
-        [328]=7f1d0071e91700f9e83c0054 [1328]=7f1d0071e91700f9e7010014
-        [429]=....0034f3031f2af4031f2a....0014 [1429]=1f2003d5f3031f2af4031f2a47000014
-        [531]=10b1002500244ce0 [1531]=00bf0025002456e0
-        [530]=18b100244ff0000b4d [1530]=002000244ff0000b57
-        [529]=44387810b1002400254a [1529]=44387800200024002556
-        [629]=90387810b1002400254a [1629]=90387800200024002558
-    )
+    rm -f "$WORK_DIR/apex_payload.img"
 
-    local PATCHED=0
+    if [[ ! -s "$BT_LIB_FILE" ]]; then
+        echo "ERROR: Bluetooth library not found or empty."
+        return 1
+    fi
 
-    for idx in "${!hex[@]}"; do
-        (( idx >= 1000 )) && continue
+    if ! hex_dump="$(xxd -p "$BT_LIB_FILE" | tr -d '\n')"; then
+        echo "ERROR: Could not read Bluetooth library."
+        return 1
+    fi
 
-        local from="${hex[$idx]}"
-        local to="${hex[$((idx + 1000))]}"
+    #
+	# https://github.com/duhansysl/Bluetooth-Library-Patcher/tree/main
+    #
 
-        [ -z "$to" ] && continue
+    case "$ANDROID_VERSION" in
+        9)
+            s_arr=("88000034e8030032")
+            p_arr=("1f2003d5e8031f2a")
+            ;;
+        10)
+            s_arr=("....0034f3031f2af4031f2a....0014" "........f4031f2af3031f2ae8030032")
+            p_arr=("1f2003d5f3031f2af4031f2a47000014" "1f2003d5f4031f2af3031f2ae8031f2a")
+            ;;
+        11)
+            s_arr=("........f3031f2af4031f2a3e")
+            p_arr=("1f2003d5f3031f2af4031f2a3e")
+            ;;
+        12)
+            s_arr=("........f9031f2af3031f2a41")
+            p_arr=("1f2003d5f9031f2af3031f2a48")
+            ;;
+        13)
+            s_arr=("6804003528008052")
+            p_arr=("2a00001428008052")
+            ;;
+        14)
+            s_arr=("6804003528008052")
+            p_arr=("2b00001428008052")
+            ;;
+        15)
+            s_arr=("480500352800805228cb1e39" "4805003528008052284b1e39" "28ab5e394805003528008052" "280b5d394805003528008052")
+            p_arr=("2a0000142800805228cb1e39" "2a00001428008052284b1e39" "28ab5e392a00001428008052" "280b5d392a00001428008052")
+            ;;
+        16)
+            s_arr=("97753948050037360080" "97773948050037360080" "3a009048050037330080" "f6713948050037330080" "f6733948050037330080" "76743948050037330080" "d6743948050037330080")
+            p_arr=("9775392a000014360080" "9777392a000014360080" "3a00902a000014330080" "f671392a000014330080" "f673392a000014330080" "7674392a000014330080" "d674392a000014330080")
+            ;;
+        17)
+            s_arr=("56523948050037330080")
+            p_arr=("5652392a000014330080")
+            ;;
+        *)
+            echo "ERROR: Unsupported Android release: $ANDROID_VERSION"
+            return 1
+            ;;
+    esac
 
-        # convert wildcard .... → regex
-        local from_regex="$(echo "$from" | sed -E 's/\.\./[0-9a-f]{2}/g')"
-        if perl -e '
-            $/ = undef;
-            open(F, shift) or exit 1;
-            $_ = <F>;
-            my $hex = unpack("H*", $_);
-            exit ($hex =~ /'"$from_regex"'/i ? 0 : 1);
-        ' "$BT_LIB_FILE"; then
+    for i in "${!s_arr[@]}"; do
+        sig="${s_arr[$i]}"
+        patch="${p_arr[$i]}"
 
-            echo -e "- Found Bluetooth patch pattern [$idx]"
+        sig_regex="$(printf '%s' "$sig" | sed -E \
+            -e 's/\.\.\.\./[0-9a-f]{4}/g' \
+            -e 's/\.\.\./[0-9a-f]{3}/g' \
+            -e 's/\.\./[0-9a-f]{2}/g' \
+            -e 's/\./[0-9a-f]/g')"
 
-            HEX_PATCH "$BT_LIB_FILE" "$from" "$to" || return 1
-
-            PATCHED=1
-            mv -f "$BT_LIB_FILE" "${EXTRACTED_FIRM_DIR}/system/system/lib64/"
-            break
+        if [[ "$hex_dump" =~ $patch ]]; then
+            echo "Checking HEX '$sig': Already patched."
+        elif [[ "$hex_dump" =~ $sig_regex ]]; then
+            echo "Checking HEX '$sig': Match found;Applying patch..."
+            hex_dump="$(printf '%s' "$hex_dump" | sed -E "s/$sig_regex/$patch/")"
+            patched=true
+        else
+            echo "Checking HEX '$sig': Not found; skipped."
         fi
     done
 
-    if [ "$PATCHED" -eq 0 ]; then
-        echo -e "- No known Bluetooth patch pattern matched."
-        rm -rf "$BT_LIB_FILE"
-        return 0
-    fi
+    if [[ "$patched" == true ]]; then
+        local PATCHED_FILE="$WORK_DIR/libbluetooth_jni.so.patched"
 
-    return 0
+        if ! printf '%s' "$hex_dump" | xxd -r -p > "$PATCHED_FILE"; then
+            rm -f "$PATCHED_FILE"
+            echo "ERROR: Failed to write patched library."
+            return 1
+        fi
+
+        mv -f "$PATCHED_FILE" "$BT_LIB_FILE" || return 1
+
+        echo
+        echo "SUCCESS: Patched library saved: $BT_LIB_FILE"
+        mv -f "$BT_LIB_FILE" "${EXTRACTED_FIRM_DIR}/system/system/lib64/"
+    else
+        echo
+        echo "WARNING: No patch changes were made."
+    fi
 }
 
 

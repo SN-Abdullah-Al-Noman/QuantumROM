@@ -998,7 +998,7 @@ PATCH_APK_SHARED_USER_ID_VERIFICATION() {
 	'
 
 	case "$ANDROID_VERSION" in
-        15)
+        15|17)
             FILE_1="${services}/smali_classes2/com/android/server/pm/PackageManagerServiceUtils.smali"
             METHOD_NAME_1=".method public static canJoinSharedUserId(Ljava/lang/String;Landroid/content/pm/SigningDetails;Lcom/android/server/pm/SharedUserSetting;I)Z"
 

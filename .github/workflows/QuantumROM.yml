@@ -11,6 +11,10 @@ on:
       USE_UI_8_TETHERING_APEX:
         description: "Set True if your kernel BPF version is 5.4 (lower than 5.10)."
         required: true
+        type: choice
+        options:
+          - "True"
+          - "False"
         default: "False"
 
       TARGET_DEVICE:
@@ -30,51 +34,92 @@ on:
       OUTPUT_FILESYSTEM:
         description: "Output filesystem. e.g erofs / ext4 / f2fs"
         required: true
+        type: choice
+        options:
+          - "erofs"
+          - "ext4"
+          - "f2fs"
         default: "erofs"
 
       DEBLOAT_ROM:
         description: "Debloat downloaded rom (True/False)"
         required: true
+        type: choice
+        options:
+          - "True"
+          - "False"
         default: "True"
 
       DEBLOAT_SAMSUNG_BIXBY:
         description: "Debloat Samsung Bixby apps (True/False)"
         required: true
+        type: choice
+        options:
+          - "True"
+          - "False"
         default: "True"
 
       DEBLOAT_SAMSUNG_DEX:
         description: "Debloat Samsung DeX apps (True/False)"
         required: true
+        type: choice
+        options:
+          - "True"
+          - "False"
         default: "True"
 
       ADD_CHINA_SMART_MANAGER:
         description: "Add china smart manager (True/False)"
         required: true
+        type: choice
+        options:
+          - "True"
+          - "False"
         default: "True"
 
       ADD_SAMSUNG_FLAGSHIP_APPS:
         description: "Add samsung flagship apps (True/False)"
         required: true
+        type: choice
+        options:
+          - "True"
+          - "False"
         default: "True"
 
       ADD_CUSTOM_FEATURES:
         description: "Add samsung custom features (True/False)"
         required: true
+        type: choice
+        options:
+          - "True"
+          - "False"
         default: "True"
 
       PATCH_FLAG_SECURE:
         description: "Bypass screenshot and screen record detection (True/False)"
         required: true
+        type: choice
+        options:
+          - "True"
+          - "False"
         default: "True"
 
       PATCH_SECURE_FOLDER:
         description: "Patch samsung secure folder (True/False)"
         required: true
+        type: choice
+        options:
+          - "True"
+          - "False"
         default: "True"
 
       PATCH_BLUETOOTH_LIBRARY:
         description: "Patch bluetooth library (True/False)"
         required: true
+        type: choice
+        options:
+          - "True"
+          - "False"
         default: "True"
 
       COMPRESS_IMG:

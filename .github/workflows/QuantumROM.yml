@@ -172,27 +172,32 @@ jobs:
           echo "OUTPUT_FILESYSTEM=${{ inputs.OUTPUT_FILESYSTEM }}" | tee -a "$GITHUB_ENV"
           echo "COMPRESS_IMG=${{ inputs.COMPRESS_IMG }}" | tee -a "$GITHUB_ENV"
 
-      - name: Validate STOCK_DEVICE - ${{ inputs.STOCK_DEVICE }}
+      - name: Auto Detect Stock Device
+        id: detect_device
         run: |
           REPO="SN-Abdullah-Al-Noman/QuantumROM"
           BRANCH="Devices"
 
-          source "$(pwd)/scripts/git_utils.sh"
+          echo "🔍 Detecting available devices..."
 
-          if [ "$STOCK_DEVICE" != "None" ]; then
-              if ! curl -fsSL -H "Accept: application/vnd.github+json" \
-                  "https://api.github.com/repos/$REPO/contents/$STOCK_DEVICE?ref=$BRANCH" >/dev/null; then
+          curl -fsSL \
+            "https://api.github.com/repos/$REPO/contents?ref=$BRANCH" \
+            -o devices.json
 
-                echo "❌ Unsupported: Device '$STOCK_DEVICE' not found in $REPO/$BRANCH"
-                exit 1
-              fi
+          STOCK_DEVICE=$(jq -r '
+            .[]
+            | select(.type == "dir")
+            | .name
+          ' devices.json | sort | head -n1)
 
-              echo "✅ Device supported: $STOCK_DEVICE"
-              GIT_SPARSE_DOWNLOAD "SN-Abdullah-Al-Noman/QuantumROM" "Devices" "$STOCK_DEVICE" \
-                  "$(pwd)/QuantumROM/Devices/$STOCK_DEVICE"
-          else
-              echo "ℹ️ STOCK_DEVICE is set to None."
+          if [ -z "$STOCK_DEVICE" ]; then
+              echo "❌ No device folders found!"
+              exit 1
           fi
+
+          echo "STOCK_DEVICE=$STOCK_DEVICE" >> "$GITHUB_ENV"
+
+          echo "✅ Auto detected device: $STOCK_DEVICE"
 
       - name: Check disk space
         id: disk

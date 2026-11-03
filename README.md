@@ -59,7 +59,7 @@ Open your forked repository.
 - Click Run workflow.
 
 #### 3. Set Your Device Model.
-Update your device model in the STOCK_DEVICE_MODEL option.
+Select your device model in the STOCK_DEVICE_MODEL option.
 - If your model is available in /QuantumROM/Device folder of this repository, the tool will work for your device.
 - If your model is not present, set STOCK_DEVICE_MODEL to None.
 

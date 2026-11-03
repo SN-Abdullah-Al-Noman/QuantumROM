@@ -125,8 +125,12 @@ on:
       COMPRESS_IMG:
         description: "Compress img to xz or br (brotli)"
         required: false
+        type: choice
+        options:
+          - ""
+          - "xz"
+          - "br"
         default: ""
-
 
 jobs:
   build:

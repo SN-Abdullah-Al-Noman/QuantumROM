@@ -72,6 +72,7 @@ on:
           - SM-S901B
           - SM-S901E
           - SM-S911B
+          - None
         default: "SM-A225F"
 
       USE_UI_8_TETHERING_APEX:

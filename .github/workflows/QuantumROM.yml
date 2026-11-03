@@ -3,9 +3,75 @@ name: QuantumROM Tools
 on:
   workflow_dispatch:
     inputs:
+      
       STOCK_DEVICE:
-        description: "Your own device model or None"
+        description: "Select Stock Device"
         required: true
+        type: choice
+        options:
+          - SM-A055F
+          - SM-A057F
+          - SM-A065F
+          - SM-A066B
+          - SM-A127F
+          - SM-A135F
+          - SM-A135F_8.5
+          - SM-A137F
+          - SM-A146M
+          - SM-A155F
+          - SM-A156E
+          - SM-A165F
+          - SM-A175F
+          - SM-A176B
+          - SM-A225F
+          - SM-A225M
+          - SM-A226B
+          - SM-A235F
+          - SM-A236E
+          - SM-A245F
+          - SM-A256E
+          - SM-A266B
+          - SM-A315F
+          - SM-A325F
+          - SM-A336E
+          - SM-A346E
+          - SM-A356E
+          - SM-A366B
+          - SM-A415F
+          - SM-A426B
+          - SM-A515F
+          - SM-A525F
+          - SM-A528B
+          - SM-A536B
+          - SM-A546E
+          - SM-A556E
+          - SM-A715F
+          - SM-A725F
+          - SM-A736B
+          - SM-E225F
+          - SM-E346B
+          - SM-G780F
+          - SM-G780G
+          - SM-G781B
+          - SM-G990E
+          - SM-M136B
+          - SM-M146B
+          - SM-M156B
+          - SM-M166P
+          - SM-M176B
+          - SM-M215G
+          - SM-M225F
+          - SM-M325F
+          - SM-M346B
+          - SM-M356B
+          - SM-M366B
+          - SM-M556B
+          - SM-M558B
+          - SM-M566B
+          - SM-P613
+          - SM-S901B
+          - SM-S901E
+          - SM-S911B
         default: "SM-A225F"
 
       USE_UI_8_TETHERING_APEX:
@@ -172,32 +238,27 @@ jobs:
           echo "OUTPUT_FILESYSTEM=${{ inputs.OUTPUT_FILESYSTEM }}" | tee -a "$GITHUB_ENV"
           echo "COMPRESS_IMG=${{ inputs.COMPRESS_IMG }}" | tee -a "$GITHUB_ENV"
 
-      - name: Auto Detect Stock Device
-        id: detect_device
+      - name: Validate STOCK_DEVICE - ${{ inputs.STOCK_DEVICE }}
         run: |
           REPO="SN-Abdullah-Al-Noman/QuantumROM"
           BRANCH="Devices"
 
-          echo "🔍 Detecting available devices..."
+          source "$(pwd)/scripts/git_utils.sh"
 
-          curl -fsSL \
-            "https://api.github.com/repos/$REPO/contents?ref=$BRANCH" \
-            -o devices.json
+          if [ "$STOCK_DEVICE" != "None" ]; then
+              if ! curl -fsSL -H "Accept: application/vnd.github+json" \
+                  "https://api.github.com/repos/$REPO/contents/$STOCK_DEVICE?ref=$BRANCH" >/dev/null; then
 
-          STOCK_DEVICE=$(jq -r '
-            .[]
-            | select(.type == "dir")
-            | .name
-          ' devices.json | sort | head -n1)
+                echo "❌ Unsupported: Device '$STOCK_DEVICE' not found in $REPO/$BRANCH"
+                exit 1
+              fi
 
-          if [ -z "$STOCK_DEVICE" ]; then
-              echo "❌ No device folders found!"
-              exit 1
+              echo "✅ Device supported: $STOCK_DEVICE"
+              GIT_SPARSE_DOWNLOAD "SN-Abdullah-Al-Noman/QuantumROM" "Devices" "$STOCK_DEVICE" \
+                  "$(pwd)/QuantumROM/Devices/$STOCK_DEVICE"
+          else
+              echo "ℹ️ STOCK_DEVICE is set to None."
           fi
-
-          echo "STOCK_DEVICE=$STOCK_DEVICE" >> "$GITHUB_ENV"
-
-          echo "✅ Auto detected device: $STOCK_DEVICE"
 
       - name: Check disk space
         id: disk

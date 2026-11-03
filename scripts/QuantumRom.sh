@@ -738,44 +738,6 @@ REPLACE_SMALI_METHOD() {
 }
 
 
-HEX_PATCH() {
-    echo " "
-
-	if [ "$#" -ne 3 ]; then
-        echo -e "Usage: ${FUNCNAME[0]} <FILE> <TARGET_VALUE> <REPLACE_VALUE>"
-        return 1
-    fi
-
-    local FILE="$1"
-    local FROM="$(echo -e "$2" | tr '[:upper:]' '[:lower:]')"
-    local TO="$(echo -e "$3" | tr '[:upper:]' '[:lower:]')"
-
-    [ ! -f "$FILE" ] && { echo -e "- File not found: $FILE"; return 0; }
-
-    xxd -p -c 0 "$FILE" | grep -q "$FROM" || {
-        echo -e "- Pattern not found: $FROM"
-        return 0
-    }
-
-    echo -e "- Patching: $FILE"
-    echo -e "- From $FROM to $TO"
-    [ -f "$FILE.bak" ] || cp "$FILE" "$FILE.bak"
-
-    xxd -p -c 0 "$FILE" | sed "s/$FROM/$TO/" | xxd -r -p > "$FILE.tmp" &&
-    mv "$FILE.tmp" "$FILE"
-
-    xxd -p -c 0 "$FILE" | grep -q "$TO" && {
-        echo -e "- Patch success"
-        rm -rf "$FILE.bak"        
-        return 0
-    }
-
-    echo -e "- Patch failed, restoring backup"
-    mv "$FILE.bak" "$FILE"
-    return 0
-}
-
-
 PATCH_FLAG_SECURE() {
 	echo " "
 
@@ -1248,8 +1210,8 @@ PATCH_BT_LIB() {
             p_arr=("9775392a000014360080" "9777392a000014360080" "3a00902a000014330080" "f671392a000014330080" "f673392a000014330080" "7674392a000014330080" "d674392a000014330080")
             ;;
         17)
-            s_arr=("56523948050037330080")
-            p_arr=("5652392a000014330080")
+            s_arr=("56523948050037330080" "00122a0140395f01086b00020054")
+            p_arr=("5652392a000014330080" "00122a0140395f01086bde030014")
             ;;
         *)
             echo "ERROR: Unsupported Android release: $ANDROID_VERSION"

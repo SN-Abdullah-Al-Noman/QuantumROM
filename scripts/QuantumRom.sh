@@ -2056,6 +2056,9 @@ APPLY_STOCK_CONFIG() {
         fi
     fi
 
+	# Add Mediatek bluetooth apex
+	FIX_BLUETOOTH "$EXTRACTED_FIRM_DIR"
+
     # Apply stock floating feature.
 	APPLY_STOCK_ROM_FLOATING_FEATURE "$STOCK_ROM_FLOATING_FEATURE" "$TARGET_ROM_FLOATING_FEATURE"
 

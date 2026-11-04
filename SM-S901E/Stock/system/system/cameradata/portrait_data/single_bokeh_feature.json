@@ -1,0 +1,74 @@
+{
+    "deviceName": "SM8450_common",
+
+    "HumanAwareEngine": {
+        "Perf_mode_preview": "PERFMODE_LOW",
+        "Perf_mode_capture": "PERFMODE_LOW",
+        "Perf_mode_SDK": "PERFMODE_LOW",
+        "bloom_ev_tuning": "true"
+    },
+
+    "BeautyEngine": {
+        "mode_preview": "BEAUTY_SINGLEBLUR_PREVIEW",
+        "mode_capture": "BEAUTY_SINGLEBLUR_CAPTURE"
+    },
+
+    "RelightingEngine": {
+        "Perf_mode_preview": null,
+        "mode_preview": "v2",
+        "mode_capture": "v2",
+        "loc_preview": "vendor",
+        "loc_capture": "system"
+    },
+
+    "LD_FD_engine": {
+        "mode_preview": "default",
+        "mode_capture": "default"
+    },
+    
+    "capture_segmentation": {
+        "Weightfile": "/system/cameradata/portrait_data/SRIB_Acenet_A16W8_V141_sm8450_snpe2108.dlc",
+        "Version": "141",
+        "ComputeUnit": "COMPUTE_DSP",
+        "ExecutionDataType": "QASYMM16",
+        "ModelType": "MODEL_TYPE_OBJ_INSTANCE_CAPTURE",
+        "ModelFormat": "SNPE",
+        "Encryption": "false",
+        "input_size": [[640, 640], [640, 640], [640, 640], [640, 640]]
+    },
+    "capture_depth": {
+        "Weightfile": "/system/cameradata/portrait_data/SRIB_SID_A16W8_V018_sm8450_snpe2106.dlc",
+        "Version": "018",
+        "ComputeUnit": "COMPUTE_DSP",
+        "ExecutionDataType": "QASYMM16",
+        "ModelType": "MODEL_TYPE_DEPTH",
+        "ModelFormat": "SNPE",
+        "Encryption": "false",
+        "input_size": [[832, 832], [832, 832], [832, 832], [832, 832]]
+    },
+    "capture_matting": {
+        "Weightfile": "/system/cameradata/portrait_data/SRIB_Matting_INT8_V015_sm8450_snpe2108_TILE_896.dlc",
+        "Version": "015",
+        "ComputeUnit": "COMPUTE_DSP",
+        "ExecutionDataType": "QASYMM8",
+        "ModelType": "MODEL_TYPE_MATTING",
+        "ModelFormat": "SNPE",
+        "Encryption": "false",
+        "input_size": [[1600, 1600],  [1600, 1600], [1600, 1600], [1600, 1600]]
+    },
+    "preview_1st_segmentation": {
+        "Weightfile": "/vendor/etc/portrait_data/",
+        "Version": "001",
+        "ComputeUnit": "COMPUTE_DSP",
+        "ExecutionDataType": "QASYMM8",
+        "ModelType": "MODEL_TYPE_YOLACT_LIVE",
+        "ModelFormat": "SNPE",
+        "Encryption": "false",
+        "FadeEffectTime": 500,
+        "TransitionEffectTime": 300,
+        "input_size": [[320, 320], [320, 320], [320, 320], [320, 320]],
+        "effects_supported": [0, 6, 10, 11, 12, 13, 14, 15]
+    },
+
+    "pet_support_camera" : true
+}

@@ -2337,7 +2337,7 @@ ADD_SAMSUNG_FLAGSHIP_APPS() {
         return 1
     fi
 
-	if [[ ! "$ANDROID_VERSION" =~ ^(14|15|16)$ ]]; then
+	if [[ ! "$ANDROID_VERSION" =~ ^(14|15|16|17)$ ]]; then
         echo "- Unsupported Android version: $ANDROID_VERSION"
         return 0
     fi

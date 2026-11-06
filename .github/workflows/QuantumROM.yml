@@ -362,7 +362,9 @@ jobs:
           source "$(pwd)/scripts/QuantumRom.sh"
 
           if [ "$ADD_SAMSUNG_FLAGSHIP_APPS" = "True" ]; then
-              ADD_SAMSUNG_FLAGSHIP_APPS "$FIRM_DIR"
+              ADD_SAMSUNG_OCR_APP "$FIRM_DIR"
+              ADD_SAMSUNG_IMPORTANT_APPS "$FIRM_DIR"
+              ADD_SAMSUNG_FULL_PHOTOEDITOR_APP "$FIRM_DIR"
           fi
 
       - name: Add custom features - ${{ inputs.ADD_CUSTOM_FEATURES }}

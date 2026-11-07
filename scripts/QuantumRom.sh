@@ -2247,7 +2247,7 @@ ADD_CHINA_SMART_MANAGER() {
 
     local EXTRACTED_FIRM_DIR="$1"
 
-	echo "Adding China smart manager."
+	echo "Adding China Smart manager, App lock, Firewall."
 
 	if [ ! -d "${EXTRACTED_FIRM_DIR}/system" ]; then
         echo "No extracted firmware found."
@@ -2323,7 +2323,7 @@ ADD_SAMSUNG_OCR_APP() {
 
     local EXTRACTED_FIRM_DIR="$1"
 
-	echo -e "Adding samsung ocr apps."
+	echo -e "Adding samsung ocr app."
 
 	if [ ! -d "${EXTRACTED_FIRM_DIR}/system" ]; then
         echo "No extracted firmware found."

@@ -1,0 +1,7 @@
+# rscmgr rc file
+on property:sys.readahead.resource=1
+    readahead /data/app/Notes40_Removable/oat/arm64/Notes40_Removable.odex --fully
+    readahead /data/app/Notes40_Removable/oat/arm64/Notes40_Removable.vdex --fully
+    readahead /system/lib64/libpng.so --fully
+    readahead /system/fonts/OneUISans-VF.ttf --fully
+    setprop sys.readahead.resource 0

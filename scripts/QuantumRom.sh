@@ -2262,7 +2262,7 @@ ADD_CHINA_SMART_MANAGER() {
         return 0
     fi
 
-    if [[ ! "$ANDROID_VERSION" =~ ^(14|15|16)$ ]]; then
+    if [[ ! "$ANDROID_VERSION" =~ ^(14|15|16|17)$ ]]; then
         echo "- Unsupported Android version: $ANDROID_VERSION"
         return 0
     fi
@@ -2297,6 +2297,7 @@ ADD_CHINA_SMART_MANAGER() {
         unzip -o "${QT_DIR}/QuantumROM/Mods/Apps/Samsung_SmartManagerCN_Android_${ANDROID_VERSION}.zip" \
             -d "${QT_DIR}/QuantumROM/Mods/Apps/Samsung_SmartManagerCN_Android_${ANDROID_VERSION}" >/dev/null 2>&1
 
+        rm -rf "${EXTRACTED_FIRM_DIR}/system/system/app/AppLock"
         rm -rf "${EXTRACTED_FIRM_DIR}/system/system/priv-app/AppLock"
         rm -rf "${EXTRACTED_FIRM_DIR}/system/system/priv-app/Firewall"
         rm -rf "${EXTRACTED_FIRM_DIR}/system/system/priv-app/SmartManager_v5"

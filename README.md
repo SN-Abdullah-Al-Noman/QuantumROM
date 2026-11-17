@@ -120,9 +120,8 @@ In your forked repository, go to:
 #### 03. Bluetooth Library Patcher.
 - 3arthur6
 - duhansysl
-- 
-https://github.com/3arthur6/BluetoothLibraryPatcher
-- https://github.com/duhansysl/Bluetooth-Library-Patcher/tree/main
+- https://github.com/3arthur6/BluetoothLibraryPatcher
+- https://github.com/duhansysl/Bluetooth-Library-Patcher
 - Used for patching Samsung Bluetooth libraries.
 
 #### 04. UN1CA Project.

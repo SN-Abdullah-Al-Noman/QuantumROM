@@ -1,0 +1,13 @@
+# rscmgr rc file
+
+on property:sys.readahead.resource=1
+    readahead /system/app/HoneyBoard/HoneyBoard.apk --fully
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.odex --fully
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.vdex --fully
+    readahead /system/app/HoneyBoard/oat/arm/HoneyBoard.odex --fully
+    readahead /system/app/HoneyBoard/oat/arm/HoneyBoard.vdex --fully
+    readahead /vendor/lib/libexynoscamera3.so --fully
+    readahead /system/priv-app/SamsungGallery2018/SamsungGallery2018.apk --fully
+    readahead /system/priv-app/SecMyFiles2020/SecMyFiles2020.apk --fully
+    readahead /data/app/Notes40_Removable/Notes40_Removable.apk --fully
+    setprop sys.readahead.resource 0

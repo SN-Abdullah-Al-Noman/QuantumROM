@@ -1,0 +1,39 @@
+# rscmgr rc file
+
+on property:sys.readahead.resource=1
+    readahead /system/lib64/libEGL.so --fully
+    readahead /system/lib64/libGLESv2.so --fully
+    readahead /system/lib64/libgui.so --fully
+    readahead /system/framework/arm64/boot-framework.oat --fully
+    readahead /system/framework/oat/arm64/ssrm.odex --fully
+    readahead /system/framework/semwifi-service.jar --fully
+    readahead /system/priv-app/TouchWizHome_2017/oat/arm64/TouchWizHome_2017.odex --fully
+    readahead /system/lib64/libandroid.so --fully
+    readahead /system/framework/oat/arm64/apex@com.samsung.android.shell@javalib@service-samsung-shell.jar@classes.odex --fully
+    readahead /system/lib64/libimagecodec.quram.so --fully
+    readahead /system/lib64/libmediandk_utils.so --fully
+    readahead /system/lib64/libhardware.so --fully
+    readahead /system/lib64/libutilscallstack.so --fully
+    readahead /system/lib64/libsavsvc.so --fully
+    readahead /system/lib64/libphotohdr.so --fully
+    readahead /system/lib64/libsimba.media.samsung.so --fully
+    readahead /system/lib64/libstagefright_foundation.so --fully
+    readahead /system/lib64/libexifa.camera.samsung.so --fully
+    readahead /vendor/lib64/libSamsungHyper.so --fully
+    readahead /system/lib64/libharfbuzz_ng.so --fully
+    readahead /system/lib64/libft2.so --fully
+    readahead /system/fonts/OneUISans-VF.ttf --fully
+    readahead /system/fonts/Roboto-Regular.ttf --fully
+    readahead /system/lib64/libgralloctypes.so --fully
+    readahead /system_ext/lib64/libdisp_dejitter.so --fully
+    readahead /system/lib64/libandroidfw.so --fully
+
+on property:sys.readahead.resource=2
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.vdex --fully
+    readahead /system/app/HoneyBoard/oat/arm64/HoneyBoard.odex --fully
+    readahead /system/app/HoneyBoard/HoneyBoard.apk --fully
+    setprop sys.readahead.resource 0
+
+on property:sys.readahead.settings=1
+    readahead /system/priv-app/SecSettings/SecSettings.apk --fully
+    setprop sys.readahead.settings 0

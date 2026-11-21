@@ -1,0 +1,8 @@
+{
+  "filter_type" : "preload_effect",
+  "ai_grain_radius": 0.95,
+  "ai_grain_style": 3,
+  "ai_grain_initial_power": 34,
+  "ai_grain_power":{"min":0,"max":100,"default":34,"step":2}
+}
+
